@@ -1,2 +1,5 @@
 rootProject.name = 'yazikochesalna'
 include (":chat-service")
+include(":user-service")
+include(":message-storage-service")
+include(":messaging-service")
