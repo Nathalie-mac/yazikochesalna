@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: chatdatabase
+    ports:
+      - '5431:5432'
+    environment:
+      POSTGRES_DB: chatdatabase
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: 1234
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+
+volumes:
+  postgres-data:
