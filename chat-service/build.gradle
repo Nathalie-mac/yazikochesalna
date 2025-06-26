@@ -23,6 +23,9 @@ repositories {
     mavenCentral()
 }
 
+bootJar{
+    mainClass = 'com.yazikochesalna.chatservice.com.ChatServiceApplication'
+}
 
 dependencies {
     //basic
