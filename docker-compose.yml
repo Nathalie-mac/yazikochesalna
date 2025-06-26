@@ -1,19 +1,51 @@
 version: '3.8'
 
 services:
-  postgres:
+  postgres-chat:
     image: postgres:latest
     container_name: chatdatabase
     ports:
-      - '5431:5432'
+      - "5431:5432"
     environment:
       POSTGRES_DB: chatdatabase
       POSTGRES_USER: user
       POSTGRES_PASSWORD: 1234
     volumes:
-      - postgres-data:/var/lib/postgresql/data
-    restart: unless-stopped
+      - postgres-chat-data:/var/lib/postgresql/data
 
+
+  postgres-users:
+    image: postgres:latest
+    container_name: userdatabase
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: userdatabase
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: 1234
+    volumes:
+      - postgres-user-data:/var/lib/postgresql/data
+
+
+  postgres-auth:
+    image: postgres:latest
+    container_name: authdatabase
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: authdatabase
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: 1234
+    volumes:
+      - postgres-auth-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U analytics_user -d analyticsdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  postgres-data:
+  postgres-chat-data:
+  postgres-user-data:
+  postgres-auth-data:
+
