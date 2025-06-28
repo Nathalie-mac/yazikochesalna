@@ -15,7 +15,11 @@ import lombok.Setter;
 public class Chat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private long id;
     @Column(nullable = false)
     private String type;
+
+    @OneToOne(cascade = CascadeType.ALL, optional = true)
+    @JoinColumn(name = "id", referencedColumnName = "id", nullable = true)
+    private GroupChatDetails groupChatDetails;
 }

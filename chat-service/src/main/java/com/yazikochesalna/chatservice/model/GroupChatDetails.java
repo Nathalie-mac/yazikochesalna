@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GroupChat {
+public class GroupChatDetails {
     @Id
     private long id;
 
