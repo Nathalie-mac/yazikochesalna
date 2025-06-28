@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: nathashka
+      comment: "change id message to uuid"
+      changes:
+        - update:
+            tableName: chat_users
+            columns:
+              - column:
+                  name: last_read_message_id
+                  type: UUID
+                  constraints:
+                    nullable: true
