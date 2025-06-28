@@ -7,15 +7,19 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name="chat")
+@Table(name="group_chats")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Chat {
+public class GroupChat {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private long id;
+
     @Column(nullable = false)
-    private String type;
+    private String name;
+    private String description;
+
+    @Column(name = "owner_id", nullable = false)
+    private long ownerId;
 }
