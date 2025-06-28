@@ -1,14 +1,17 @@
 package com.yazikochesalna.common.service;
 
+import com.yazikochesalna.common.authentication.JwtAuthenticationToken;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Function;
 
 @RequiredArgsConstructor
@@ -80,11 +83,14 @@ public class JwtService {
     }
 
     private boolean verifyToken(String token) {
-        return !isTokenExpired(token);
+        try {
+            return !isTokenExpired(token);
+        } catch (io.jsonwebtoken.JwtException) {
+            return false;
+        }
     }
 
     public boolean isValidAccess(String token) {
-
         return verifyToken(token);
     }
 
@@ -93,4 +99,7 @@ public class JwtService {
         return verifyToken(token);
     }
 
+    public Authentication getAuthentication(String token) {
+        return new JwtAuthenticationToken(token, extractUserID(token), List.of());
+    }
 }
