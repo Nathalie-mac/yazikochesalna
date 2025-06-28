@@ -38,14 +38,42 @@ services:
       POSTGRES_PASSWORD: 1234
     volumes:
       - postgres-auth-data:/var/lib/postgresql/data
+#    healthcheck:
+#      test: ["CMD-SHELL", "pg_isready -U analytics_user -d analyticsdb"]
+#      interval: 5s
+#      timeout: 5s
+#      retries: 5
+
+  cassandra-messages:
+    image: cassandra:latest
+    container_name: cassandra_db
+    hostname: cassandra1
+    ports:
+      - "9042:9042"
+    volumes:
+      - cassandra-messages-data:/var/lib/cassandra
+    environment:
+      - CASSANDRA_CLUSTER_NAME=MyCluster
+      - CASSANDRA_DC=datacenter-1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_AUTHENTICATOR=PasswordAuthenticator
+      - CASSANDRA_AUTHORIZER=CassandraAuthorizer
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U analytics_user -d analyticsdb"]
-      interval: 5s
+      test: [ "CMD-SHELL", "cqlsh -u cassandra -p cassandra -e 'DESCRIBE KEYSPACES'" ]
+      interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+    networks:
+      - cassandra_network
+
 
 volumes:
   postgres-chat-data:
   postgres-user-data:
   postgres-auth-data:
+  cassandra-messages-data:
+
+networks:
+  cassandra_network:
+    driver: bridge
 
