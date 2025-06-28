@@ -20,7 +20,7 @@ public class ChatsController {
             @ApiResponse(responseCode = "200", description = "Информация о чатах получена"),
             @ApiResponse(responseCode = "500", description = "Ошибка сервера")
     })
-    public ResponseEntity<ChatListDto> getUserSubscription(){
-        return ResponseEntity.ok(chatSercvice.getUserSubscription());
+    public ResponseEntity<ChatListDto> getUserChats(){
+        return ResponseEntity.ok(chatSercvice.getUserChats());
     }
 }
