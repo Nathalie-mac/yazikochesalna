@@ -1,7 +1,7 @@
 package com.yazikochesalna.chatservice.controller;
 
-import com.yazikochesalna.chatservice.dto.chatList.ChatInListDto;
 import com.yazikochesalna.chatservice.dto.chatList.ChatListDto;
+import com.yazikochesalna.chatservice.service.ChatService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
@@ -15,12 +15,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/chats")
 public class ChatsController {
 
+    ChatService chatService;
+
     @GetMapping()
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Информация о чатах получена"),
             @ApiResponse(responseCode = "500", description = "Ошибка сервера")
     })
     public ResponseEntity<ChatListDto> getUserChats(){
-        return ResponseEntity.ok(chatSercvice.getUserChats());
+
+        return ResponseEntity.ok(chatService.getUserChats());
     }
 }
