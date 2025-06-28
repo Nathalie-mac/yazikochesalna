@@ -4,7 +4,13 @@ databaseChangeLog:
       author: nathashka
       comment: "change id message to uuid"
       changes:
-        - update:
+        - dropColumn:
+            tableName: chat_users
+            columns:
+              - column:
+                  name: last_read_message_id
+
+        - addColumn:
             tableName: chat_users
             columns:
               - column:
@@ -12,3 +18,4 @@ databaseChangeLog:
                   type: UUID
                   constraints:
                     nullable: true
+
