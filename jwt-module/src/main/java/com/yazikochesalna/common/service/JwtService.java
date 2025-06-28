@@ -85,7 +85,7 @@ public class JwtService {
     private boolean verifyToken(String token) {
         try {
             return !isTokenExpired(token);
-        } catch (io.jsonwebtoken.JwtException) {
+        } catch (io.jsonwebtoken.JwtException e) {
             return false;
         }
     }
