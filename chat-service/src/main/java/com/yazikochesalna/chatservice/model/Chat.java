@@ -1,5 +1,6 @@
 package com.yazikochesalna.chatservice.model;
 
+import com.yazikochesalna.chatservice.enums.ChatType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,7 +21,8 @@ public class Chat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private ChatType type;
 
     @OneToOne(cascade = CascadeType.ALL, optional = true, mappedBy = "chat")
     private GroupChatDetails groupChatDetails;

@@ -3,6 +3,7 @@ package com.yazikochesalna.chatservice.service;
 import com.yazikochesalna.chatservice.dto.chatList.ChatListDto;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatRequest;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatResponse;
+import com.yazikochesalna.chatservice.enums.ChatType;
 import com.yazikochesalna.chatservice.mapper.MapperToChatInList;
 import com.yazikochesalna.chatservice.model.Chat;
 import com.yazikochesalna.chatservice.model.ChatUser;
@@ -18,8 +19,6 @@ import java.util.stream.Stream;
 @AllArgsConstructor
 @Service
 public class ChatService {
-    private static final String GROUP_CHAT_TYPE = "GROUP";
-    private static final String PRIVATE_CHAT_TYPE = "PRIVATE";
 
     private final ChatRepository chatRepository;
     private final MapperToChatInList mapperToChatInList;
@@ -37,18 +36,18 @@ public class ChatService {
         details.setOwnerId(ownerId);
         final Chat chat = new Chat();
 
-        chat.setType(GROUP_CHAT_TYPE);
+        chat.setType(ChatType.GROUP);
         chat.setGroupChatDetails(details);
         details.setChat(chat);
 
         if (request.memberIds() != null) {
-            List<ChatUser> members = request.memberIds().stream().map(userId -> new ChatUser(0, userId, null, chat)).toList();
+            List<ChatUser> members = request.memberIds().stream().map(userId -> new ChatUser(0L, userId, null, chat)).toList();
             chat.setMembers(members);
             if (!request.memberIds().contains(ownerId)) {
-                chat.addMember(new ChatUser(0, ownerId, null, chat));
+                chat.addMember(new ChatUser(0L, ownerId, null, chat));
             }
         } else  {
-            chat.addMember(new ChatUser(0, ownerId, null, chat));
+            chat.addMember(new ChatUser(0L, ownerId, null, chat));
         }
         chatRepository.save(chat);
         return new CreateChatResponse(chat.getId());
