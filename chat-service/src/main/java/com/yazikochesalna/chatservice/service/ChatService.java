@@ -41,13 +41,13 @@ public class ChatService {
         details.setChat(chat);
 
         if (request.memberIds() != null) {
-            List<ChatUser> members = request.memberIds().stream().map(userId -> new ChatUser(0L, userId, null, chat)).toList();
+            List<ChatUser> members = request.memberIds().stream().map(userId -> new ChatUser(null, userId, null, chat)).toList();
             chat.setMembers(members);
             if (!request.memberIds().contains(ownerId)) {
-                chat.addMember(new ChatUser(0L, ownerId, null, chat));
+                chat.addMember(new ChatUser(null, ownerId, null, chat));
             }
         } else  {
-            chat.addMember(new ChatUser(0L, ownerId, null, chat));
+            chat.addMember(new ChatUser(null, ownerId, null, chat));
         }
         chatRepository.save(chat);
         return new CreateChatResponse(chat.getId());
