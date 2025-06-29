@@ -25,7 +25,7 @@ public class ChatService {
 
     public ChatListDto getUserChats(final long userId) {
         return new ChatListDto(
-                chatRepository.findChatsByUser(userId).stream().map(mapperToChatInList::ChatToChatInListDto).toList()
+                chatRepository.findChatsByUser(userId).stream().map(chat -> mapperToChatInList.ChatToChatInListDto(chat, userId)).toList()
         );
     }
 
