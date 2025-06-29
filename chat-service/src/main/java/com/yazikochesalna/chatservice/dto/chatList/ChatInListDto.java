@@ -12,6 +12,8 @@ public record ChatInListDto (
     String type,
     @NotNull
     String title,
+    @Nullable
+    Long partnerId,
     @Size(min = 0)
     int unreadCount
 ) {

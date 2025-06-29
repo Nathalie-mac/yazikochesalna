@@ -14,14 +14,14 @@ import lombok.Setter;
 @NoArgsConstructor
 public class GroupChatDetails {
     @Id
-    private long id;
+    private Long id;
 
     @Column(nullable = false)
     private String name;
     private String description;
 
     @Column(name = "owner_id", nullable = false)
-    private long ownerId;
+    private Long ownerId;
 
     @MapsId
     @OneToOne(optional = false)
