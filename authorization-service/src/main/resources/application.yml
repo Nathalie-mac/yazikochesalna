@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: authorization-service
+    api-version: 0.1
+  datasource:
+    url: jdbc:postgresql://localhost:5433/authdatabase
+    username: user
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    change-log: /db/changelog/db.changelog-master.yml
+
+springdoc:
+  api-docs:
+    version: openapi_3_1
+  swagger-ui:
+    path: ${SWAGGER_UI_PATH:/swagger-ui.html}
+    operationsSorter: method
+    oauth:
+      use-basic-authentication-with-access-code-grant: true
+  packagesToScan: com.yazikochesalna.authorizationservice.controller
+  cache:
+    disabled: true
+  default-produces-media-type: application/json
+  default-consumes-media-type: application/json
+  show-actuator: false
+  paths-to-match: "/api/**"
+  use-management-port: false
+  security-schemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+

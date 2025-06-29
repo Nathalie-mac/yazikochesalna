@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1_0__init_auth
+      author: saharov
+      changes:
+        - sqlFile:
+            path: db/changelog/29_06_2025/v1_0__init_auth.sql
