@@ -11,7 +11,7 @@ import lombok.Builder;
 @Builder
 public record ChatInListDto (
     @NotNull
-    String chatId,
+    Long chatId,
     @NotNull
     @Enumerated(EnumType.STRING)
     ChatType type,
