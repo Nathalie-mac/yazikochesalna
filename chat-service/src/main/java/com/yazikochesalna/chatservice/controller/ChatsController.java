@@ -11,10 +11,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -23,7 +20,7 @@ public class ChatsController {
 
     private final ChatService chatService;
 
-    @GetMapping("/")
+    @GetMapping({"/", ""})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Информация о чатах получена"),
             @ApiResponse(responseCode = "500", description = "Ошибка сервера")
@@ -33,12 +30,12 @@ public class ChatsController {
         return ResponseEntity.ok(chatService.getUserChats(userId));
     }
 
-    @PostMapping("/group")
+    @PostMapping({"/group","/group/"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Чат создан"),
             @ApiResponse(responseCode = "500", description = "Ошибка сервера")
     })
-    public ResponseEntity<CreateChatResponse> createGroupChat(@NotNull CreateChatRequest request){
+    public ResponseEntity<CreateChatResponse> createGroupChat(@RequestBody @NotNull CreateChatRequest request){
         final long ownerId = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getUserId();
         return ResponseEntity.ok(chatService.createGroupChat(request, ownerId));
     }
