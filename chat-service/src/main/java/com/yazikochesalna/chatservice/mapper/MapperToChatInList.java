@@ -36,9 +36,12 @@ public interface MapperToChatInList {
         if (thisUser == null) {
             return null;
         }
+        if (chat.getType() != ChatType.PRIVATE) {
+            return null;
+        }
         for (ChatUser member : chat.getMembers()) {
-            if (!Objects.equals(member.getId(), thisUser)) {
-                return member.getId();
+            if (!Objects.equals(member.getUserId(), thisUser)) {
+                return member.getUserId();
             }
         }
         return null;
