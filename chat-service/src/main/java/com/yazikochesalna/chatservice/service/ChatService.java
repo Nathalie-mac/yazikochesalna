@@ -47,6 +47,8 @@ public class ChatService {
             if (!request.memberIds().contains(ownerId)) {
                 chat.addMember(new ChatUser(0, ownerId, null, chat));
             }
+        } else  {
+            chat.addMember(new ChatUser(0, ownerId, null, chat));
         }
         chatRepository.save(chat);
         return new CreateChatResponse(chat.getId());
