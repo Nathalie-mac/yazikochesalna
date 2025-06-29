@@ -22,4 +22,9 @@ public class GroupChatDetails {
 
     @Column(name = "owner_id", nullable = false)
     private long ownerId;
+
+    @MapsId
+    @OneToOne(optional = false)
+    @JoinColumn(name = "id", referencedColumnName = "id")
+    private Chat chat;
 }
