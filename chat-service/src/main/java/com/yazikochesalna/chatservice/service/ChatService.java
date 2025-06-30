@@ -9,6 +9,7 @@ import com.yazikochesalna.chatservice.model.Chat;
 import com.yazikochesalna.chatservice.model.ChatUser;
 import com.yazikochesalna.chatservice.model.GroupChatDetails;
 import com.yazikochesalna.chatservice.repository.ChatRepository;
+import com.yazikochesalna.chatservice.repository.ChatUsersRepository;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.stream.Stream;
 public class ChatService {
 
     private final ChatRepository chatRepository;
+    private final ChatUsersRepository chatUsers;
     private final MapperToChatInList mapperToChatInList;
 
     public ChatListDto getUserChats(final long userId) {
@@ -51,5 +53,9 @@ public class ChatService {
         }
         chatRepository.save(chat);
         return new CreateChatResponse(chat.getId());
+    }
+
+    public ChatUser getUserInChat(long chatId, long userId) {
+        return chatUsers.getChatUserByChatIdAndUserId(chatId, userId);
     }
 }

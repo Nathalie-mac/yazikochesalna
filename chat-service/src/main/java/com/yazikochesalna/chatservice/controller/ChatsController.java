@@ -55,4 +55,12 @@ public class ChatsController {
         final long ownerId = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getUserId();
         return ResponseEntity.ok(chatService.createGroupChat(request, ownerId));
     }
+
+    @GetMapping({"/check/{chatId}/{userId}", "/check/{chatId}/{userId}/"})
+    public ResponseEntity<?> checkUserInChat(@PathVariable long chatId, @PathVariable long userId) {
+        if (chatService.getUserInChat(chatId, userId) != null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().build();
+    }
 }
