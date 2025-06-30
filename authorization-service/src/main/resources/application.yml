@@ -27,6 +27,9 @@ security:
     access_token_expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
     refresh_token_expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
 
+server:
+  port: 8085
+
 springdoc:
   api-docs:
     version: openapi_3_1
