@@ -6,7 +6,9 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -27,7 +29,14 @@ public class JwtService {
     @Value("${security.jwt.refresh_token_expiration}")
     private long refreshTokenExpiration;
 
+    @Value("${security.jwt.service_token_expiration:600000}") //10 minutes by default
+    private long serviceTokenExpiration;
+
     private static final String USER_ID = "uid";
+    private static final String ROLES = "roles";
+
+    public static final String SERVICE_ROLE = "ROLE_SERVICE";
+
     private SecretKey getSigningKey() {
 
         byte[] keyBytes = Decoders.BASE64URL.decode(secretKey);
@@ -36,8 +45,13 @@ public class JwtService {
     }
 
     private String generateToken(long userId, long expiryTime) {
+        return generateToken(userId, expiryTime, List.of());
+    }
+
+    private String generateToken(long userId, long expiryTime, List<String> roles) {
         JwtBuilder builder = Jwts.builder().
                 claim(USER_ID, userId)
+                .claim(ROLES,  roles)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiryTime))
                 .signWith(getSigningKey());
@@ -53,6 +67,10 @@ public class JwtService {
     public String generateRefreshToken(long userId) {
 
         return generateToken(userId, refreshTokenExpiration);
+    }
+
+    public String generateServiceToken() {
+        return generateToken(-1, serviceTokenExpiration, List.of(SERVICE_ROLE));
     }
 
     private Claims extractAllClaims(String token) {
@@ -72,6 +90,15 @@ public class JwtService {
 
     public long extractUserID(String token) {
         return extractAllClaims(token).get(USER_ID, Long.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<GrantedAuthority> extractRoles(String token) {
+        return extractAllClaims(token)
+                .get(ROLES, List.class)
+                .stream()
+                .map((role) -> new SimpleGrantedAuthority((String) role))
+                .toList();
     }
 
     private Date extractExpiration(String token) {
@@ -100,6 +127,6 @@ public class JwtService {
     }
 
     public Authentication getAuthentication(String token) {
-        return new JwtAuthenticationToken(token, extractUserID(token), List.of());
+        return new JwtAuthenticationToken(token, extractUserID(token), extractRoles(token));
     }
 }
