@@ -1,4 +1,4 @@
-package com.yazikochesaina.authorizationservice
+package com.yazikochesalna.authorizationservice
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
