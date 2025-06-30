@@ -56,8 +56,9 @@ services:
       - CASSANDRA_CLUSTER_NAME=MyCluster
       - CASSANDRA_DC=datacenter-1
       - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
-      - CASSANDRA_AUTHENTICATOR=PasswordAuthenticator
-      - CASSANDRA_AUTHORIZER=CassandraAuthorizer
+#      - CASSANDRA_AUTHENTICATOR=PasswordAuthenticator
+#      - CASSANDRA_AUTHORIZER=CassandraAuthorizer
+      - CASSANDRA_AUTHENTICATOR=AllowAllAuthenticator
     healthcheck:
       test: [ "CMD-SHELL", "cqlsh -u cassandra -p cassandra -e 'DESCRIBE KEYSPACES'" ]
       interval: 10s
