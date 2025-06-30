@@ -2,12 +2,15 @@ package com.yazikochesalna.authorizationservice.service
 
 import com.yazikochesalna.authorizationservice.entity.UserAuth
 import com.yazikochesalna.authorizationservice.repository.UserRepository
+import lombok.AllArgsConstructor
+import lombok.RequiredArgsConstructor
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 
 @Service
+@RequiredArgsConstructor
 class UserService(
     private val userRepository: UserRepository
 ) : UserDetailsService {
