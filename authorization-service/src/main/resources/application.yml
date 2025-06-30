@@ -18,6 +18,15 @@ spring:
     change-log: /db/changelog/db.changelog-master.yml
     default-schema: public
 
+  config:
+    import: optional:file:.env[.properties]
+
+security:
+  jwt:
+    secret_key: ${JWT_SECRET_KEY}
+    access_token_expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
+    refresh_token_expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
+
 springdoc:
   api-docs:
     version: openapi_3_1

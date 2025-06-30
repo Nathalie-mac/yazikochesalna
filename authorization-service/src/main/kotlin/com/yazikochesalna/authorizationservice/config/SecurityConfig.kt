@@ -1,6 +1,7 @@
 package com.yazikochesalna.authorizationservice.config
 
 import com.yazikochesalna.common.filter.JwtFilter
+import lombok.RequiredArgsConstructor
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -22,7 +23,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig(
+@RequiredArgsConstructor
+open class SecurityConfig(
     private val userDetailsService: UserDetailsService,
     private val jwtFilter: JwtFilter
 ) {
@@ -36,7 +38,7 @@ class SecurityConfig(
     )
 
     @Bean
-    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+    open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         return http
             .csrf { it.disable() }
             .cors { it.configurationSource(corsConfigurationSource()) }
@@ -58,24 +60,9 @@ class SecurityConfig(
             .build()
     }
 
-    /*@Bean
-    fun authenticationProvider(): AuthenticationProvider {
-        val authProvider = DaoAuthenticationProvider()
-        authProvider.setUserDetailsService(userDetailsService)
-        authProvider.setPasswordEncoder(passwordEncoder())
-        return authProvider
-    }*/
-
-    /*@Bean
-    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
     @Bean
-    fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager {
-        return config.authenticationManager
-    }*/
-
-    @Bean
-    fun corsConfigurationSource(): CorsConfigurationSource {
+    open fun corsConfigurationSource(): CorsConfigurationSource {
         return UrlBasedCorsConfigurationSource().apply {
             registerCorsConfiguration("/**", CorsConfiguration().apply {
                 allowedOrigins = listOf("http://localhost:3000")

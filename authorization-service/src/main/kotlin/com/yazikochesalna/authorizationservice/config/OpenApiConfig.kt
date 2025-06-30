@@ -11,14 +11,14 @@ import io.swagger.v3.oas.models.security.SecurityRequirement
 import io.swagger.v3.oas.models.Components
 
 @Configuration
-class OpenApiConfig(
+open class OpenApiConfig(
     @Value("\${spring.application.name}")
     private val moduleName: String
 ) {
     private val apiVersion: String = "v2"
 
     @Bean
-    fun customOpenAPI(): OpenAPI {
+    open fun customOpenAPI(): OpenAPI {
         val securitySchemeName = "bearerAuth"
         val formattedModuleName = if (StringUtils.hasText(moduleName)) moduleName else "NoName - contact admin"
         val apiTitle = "${formattedModuleName.replaceFirstChar { it.uppercase() }} API"
