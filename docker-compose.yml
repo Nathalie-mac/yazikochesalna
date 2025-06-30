@@ -44,8 +44,23 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7.0-alpine
+    container_name: redis_messaging_service
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-websocket-tokens:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
 volumes:
   postgres-chat-data:
   postgres-user-data:
   postgres-auth-data:
+  redis-websocket-tokens:
 
