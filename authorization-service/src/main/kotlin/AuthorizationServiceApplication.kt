@@ -5,7 +5,8 @@ import org.springframework.boot.runApplication
 
 @SpringBootApplication(scanBasePackages = [
     "com.yazikochesalna.authorizationservice",
-    "com.yazikochesalna.common"
+    "com.yazikochesalna.common",
+    "org.springframework.security.crypto.password",
 ]
 )
 open class AuthorizationServiceApplication

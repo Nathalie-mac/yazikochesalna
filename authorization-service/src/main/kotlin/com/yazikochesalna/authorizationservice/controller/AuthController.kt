@@ -45,6 +45,7 @@ class AuthController(
 
     @PostMapping("/login")
     fun login(@RequestBody request: AuthRequestDto): ResponseEntity<TokenResponseDto> {
+        //todo check password
         val userAuth = userService.loadUserByUsername(request.username) as UserAuth
         authManager.authenticate(
             UsernamePasswordAuthenticationToken(request.username, request.password)

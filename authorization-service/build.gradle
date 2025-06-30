@@ -31,6 +31,7 @@ dependencies {
     implementation 'org.postgresql:postgresql:42.7.4'
     implementation 'org.liquibase:liquibase-core:4.27.0'
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
     implementation project(':jwt-module')
 
     compileOnly 'org.projectlombok:lombok'
