@@ -1,10 +1,12 @@
 package com.yazikochesalna.chatservice.service;
 
+import com.yazikochesalna.chatservice.dto.GetGroupChatInfoDto;
 import com.yazikochesalna.chatservice.dto.chatList.ChatListDto;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatRequest;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatResponse;
 import com.yazikochesalna.chatservice.enums.ChatType;
 import com.yazikochesalna.chatservice.mapper.MapperToChatInList;
+import com.yazikochesalna.chatservice.mapper.MapperToGetGroupChatInfoDto;
 import com.yazikochesalna.chatservice.model.Chat;
 import com.yazikochesalna.chatservice.model.ChatUser;
 import com.yazikochesalna.chatservice.model.GroupChatDetails;
@@ -24,6 +26,7 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final ChatUsersRepository chatUsers;
     private final MapperToChatInList mapperToChatInList;
+    private final MapperToGetGroupChatInfoDto mapperToGetGroupChatInfoDto;
 
     public ChatListDto getUserChats(final long userId) {
         return new ChatListDto(
@@ -57,5 +60,13 @@ public class ChatService {
 
     public ChatUser getUserInChat(long chatId, long userId) {
         return chatUsers.getChatUserByChatIdAndUserId(chatId, userId);
+    }
+
+    public GetGroupChatInfoDto getGroupChatDetails(long currentUserId, long chatId) {
+        Chat chat =  chatRepository.getChatById(chatId);
+        if (chat.getGroupChatDetails() == null) {
+            return null;
+        }
+        return mapperToGetGroupChatInfoDto.toGroupChatInfoDto(chat);
     }
 }

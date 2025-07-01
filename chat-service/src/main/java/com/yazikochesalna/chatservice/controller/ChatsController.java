@@ -1,5 +1,6 @@
 package com.yazikochesalna.chatservice.controller;
 
+import com.yazikochesalna.chatservice.dto.GetGroupChatInfoDto;
 import com.yazikochesalna.chatservice.dto.chatList.ChatListDto;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatRequest;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatResponse;
@@ -16,6 +17,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -56,6 +59,19 @@ public class ChatsController {
     public ResponseEntity<CreateChatResponse> createGroupChat(@RequestBody @NotNull CreateChatRequest request){
         final long ownerId = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getUserId();
         return ResponseEntity.ok(chatService.createGroupChat(request, ownerId));
+    }
+
+    @PostMapping({"/group/{chatId}","/group/{chatId}/"})
+    public ResponseEntity<GetGroupChatInfoDto> getGroupChatDetails(@PathVariable Long chatId) {
+        final long userId = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getUserId();
+        if (chatService.getUserInChat(chatId, userId) == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        GetGroupChatInfoDto dto =  chatService.getGroupChatDetails(userId, chatId);
+        if (dto == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping({"/check/{chatId}/{userId}", "/check/{chatId}/{userId}/"})
