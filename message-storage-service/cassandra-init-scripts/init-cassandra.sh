@@ -9,7 +9,7 @@ ADMIN_USER="db_admin"
 ADMIN_PASS="1234"
 KEYSPACE="storage_service_keyspace"
 DC_NAME="datacenter1"
-INIT_SCRIPT="/docker-entrypoint-initdb.d/init-table.cql"
+#INIT_SCRIPT="/docker-entrypoint-initdb.d/init-table.cql"
 
 echo "=== Начало инициализации Cassandra ==="
 
