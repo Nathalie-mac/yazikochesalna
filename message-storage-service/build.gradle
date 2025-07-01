@@ -1,17 +1,15 @@
 plugins {
-    id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '2.0.0'
     id 'org.springframework.boot' version '3.5.3'
     id 'io.spring.dependency-management' version '1.1.7'
 }
+kotlin {
+    jvmToolchain(21)
+}
 
 group = 'com.yazikochesalna'
-version = '0.0.1-SNAPSHOT'
+version = "0.0.1-SNAPSHOT"
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
 
 configurations {
     compileOnly {
@@ -25,12 +23,27 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation "org.springframework.boot:spring-boot-starter-security"
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.3.3'
+    implementation 'org.springframework.boot:spring-boot-configuration-processor'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
+    implementation 'org.postgresql:postgresql:42.7.4'
+    implementation 'org.liquibase:liquibase-core:4.27.0'
+    implementation project(':jwt-module')
+
     compileOnly 'org.projectlombok:lombok'
+
     annotationProcessor 'org.projectlombok:lombok'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // cassandra db
+    implementation("org.springframework.boot:spring-boot-starter-data-cassandra")
+    implementation("org.springframework.boot:spring-boot-starter-data-cassandra-reactive")
+    //implementation(kotlin("stdlib-jdk8"))
+    implementation ("org.liquibase:liquibase-core")
 
-    implementation( project(":jwt-module"))
 }
 
 tasks.named('test') {
