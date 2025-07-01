@@ -1,19 +1,32 @@
 package com.yazikochesalna.messagingservice.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yazikochesalna.messagingservice.dto.SendRequestMessageDTO;
+import com.yazikochesalna.messagingservice.dto.SendResponseMessageDTO;
+import com.yazikochesalna.messagingservice.dto.SendResponseResultType;
+import com.yazikochesalna.messagingservice.exception.ReceiveSendResponseException;
+import com.yazikochesalna.messagingservice.exception.UserNotHaveAccessToChatException;
+import com.yazikochesalna.messagingservice.service.ChatServiceClient;
 import com.yazikochesalna.messagingservice.service.WebSocketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 @RequiredArgsConstructor
 public class WebSocketServiceImpl implements WebSocketService {
 
+    private static final AtomicLong requestIdCounter = new AtomicLong(0);
     private final Map<Long, Set<WebSocketSession>> activeSessions = new ConcurrentHashMap<>();
+    private final ObjectMapper objectMapper;
+    private final ChatServiceClient chatServiceClient;
 
     @Override
     public void addSession(WebSocketSession session) {
@@ -38,11 +51,35 @@ public class WebSocketServiceImpl implements WebSocketService {
         }
     }
 
-
     @Override
-    public void sendMessage() {
+    public void sendMessage(WebSocketSession session, SendRequestMessageDTO sendRequestMessageDTO) {
+        Long userId = (Long) session.getAttributes().get("userId");
+        if (chatServiceClient.isUserInChat(userId, sendRequestMessageDTO.getChatId())) {
+            throw new UserNotHaveAccessToChatException();
+        }
 
     }
+
+    @Override
+    public void receiveSendResponse(WebSocketSession session, SendResponseResultType sendResponseResultType) {
+        try {
+            long requestId = requestIdCounter.incrementAndGet();
+
+            SendResponseMessageDTO response = new SendResponseMessageDTO(
+                    requestId,
+                    sendResponseResultType
+            );
+
+            String jsonResponse = objectMapper.writeValueAsString(response);
+
+            if (session.isOpen()) {
+                session.sendMessage(new TextMessage(jsonResponse));
+            }
+        } catch (IOException e) {
+            throw new ReceiveSendResponseException();
+        }
+    }
+
 
     @Override
     public void receiveMessage() {

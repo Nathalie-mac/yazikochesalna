@@ -20,7 +20,7 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
 
     @Override
-    public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes){
+    public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) {
         try {
             String query = request.getURI().getQuery();
             if (query == null || !query.contains("token=")) {
