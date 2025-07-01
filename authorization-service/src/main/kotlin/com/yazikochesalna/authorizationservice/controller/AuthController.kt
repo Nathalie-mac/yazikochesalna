@@ -40,8 +40,10 @@ class AuthController(
             password =  passwordEncoder.encode(request.password)
         )
 
-        val token = jwtService.generateAccessToken(user.id)
-        return ResponseEntity.ok(TokenResponseDto(token))
+        return ResponseEntity.ok(TokenResponseDto(
+            accessToken =  jwtService.generateAccessToken(user.id),
+            refreshToken =  jwtService.generateRefreshToken(user.id)
+        ))
     }
 
     @PostMapping("/login")
@@ -55,16 +57,20 @@ class AuthController(
         if (!passwordEncoder.matches(request.password, userAuth.password)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
         }
-        val token = jwtService.generateAccessToken(userAuth.id)
-        return ResponseEntity.ok(TokenResponseDto(token))
+        return ResponseEntity.ok(TokenResponseDto(
+            accessToken =  jwtService.generateAccessToken(userAuth.id),
+            refreshToken =  jwtService.generateRefreshToken(userAuth.id)
+        ))
     }
 
     @PostMapping("/refresh")
     fun refresh(): ResponseEntity<TokenResponseDto> {
         val authentication = SecurityContextHolder.getContext().authentication
         if (authentication is JwtAuthenticationToken) {
-            val newToken = jwtService.generateRefreshToken(authentication.userId)
-            return ResponseEntity.ok(TokenResponseDto(newToken))
+            return ResponseEntity.ok(TokenResponseDto(
+                accessToken =  jwtService.generateAccessToken(authentication.userId),
+                refreshToken =  jwtService.generateRefreshToken(authentication.userId)
+            ))
         }
         throw AuthException("Invalid authentication")
     }
