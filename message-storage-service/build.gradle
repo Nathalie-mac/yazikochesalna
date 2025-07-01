@@ -2,6 +2,7 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '2.0.0'
     id 'org.springframework.boot' version '3.5.3'
     id 'io.spring.dependency-management' version '1.1.7'
+    //id "org.jetbrains.kotlin.plugin.allopen" version "2.2.0"
 }
 kotlin {
     jvmToolchain(21)
@@ -17,6 +18,11 @@ configurations {
     }
 }
 
+//allOpen {
+//    annotation("com.yazikochesalna.messagestorageservice.OpenAnnotation")
+    // annotations("com.another.Annotation", "com.third.Annotation")
+//}
+
 repositories {
     mavenCentral()
 }
@@ -28,9 +34,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-configuration-processor'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
-    implementation 'org.postgresql:postgresql:42.7.4'
     implementation 'org.liquibase:liquibase-core:4.27.0'
     implementation project(':jwt-module')
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
 
     compileOnly 'org.projectlombok:lombok'
 
