@@ -40,7 +40,7 @@ class AuthController(
             password =  passwordEncoder.encode(request.password)
         )
 
-        return ResponseEntity.ok(TokenResponseDto(
+        return ResponseEntity.status(HttpStatus.CREATED).body(TokenResponseDto(
             accessToken =  jwtService.generateAccessToken(user.id),
             refreshToken =  jwtService.generateRefreshToken(user.id)
         ))
