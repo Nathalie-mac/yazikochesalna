@@ -9,3 +9,7 @@ quit
 docker exec -it cassandra_db cqlsh -u db_admin -p 1234
 ALTER ROLE cassandra WITH SUPERUSER = false AND LOGIN = false;
 list users;
+
+inspecting that scripts are seen:
+ docker exec -it cassandra_db ls -la /docker-entrypoint-initdb.d
+
