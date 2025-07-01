@@ -1,26 +1,28 @@
 package com.yazikochesalna.authorizationservice.entity
 
 import jakarta.persistence.*
+import jakarta.validation.constraints.NotEmpty
+import jakarta.validation.constraints.NotNull
+import lombok.*
+import org.springframework.data.domain.Persistable
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 
 
 @Entity(name = "user_auth")
-class UserAuth(
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+data class UserAuth(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,
-    val login: String,
-    private val password: String
-) : UserDetails {
+    var id: Long = -1,
+    @NotNull
+    @NotEmpty
+    var login: String = "",
+    @NotNull
+    @NotEmpty
+    var password: String= ""
+) {
 
 
-    override fun getAuthorities(): Collection<GrantedAuthority> = emptyList()
-
-    override fun getPassword(): String = password
-    override fun getUsername(): String = login
-    override fun isAccountNonExpired(): Boolean = true
-    override fun isAccountNonLocked(): Boolean = true
-    override fun isCredentialsNonExpired(): Boolean = true
-    override fun isEnabled(): Boolean = true
 }

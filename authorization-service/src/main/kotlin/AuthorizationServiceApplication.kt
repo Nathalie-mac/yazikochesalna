@@ -7,6 +7,7 @@ import org.springframework.boot.runApplication
     "com.yazikochesalna.authorizationservice",
     "com.yazikochesalna.common",
     "org.springframework.security.crypto.password",
+    "org.springframework.security.authentication",
 ]
 )
 open class AuthorizationServiceApplication

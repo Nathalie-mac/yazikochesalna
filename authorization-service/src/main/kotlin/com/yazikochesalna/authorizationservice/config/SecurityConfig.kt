@@ -21,7 +21,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @EnableWebSecurity
 @RequiredArgsConstructor
 open class SecurityConfig(
-    private val userDetailsService: UserDetailsService,
     private val jwtFilter: JwtFilter
 ) {
     private val corsUris = arrayOf("/api/**")
@@ -46,7 +45,7 @@ open class SecurityConfig(
                         "/api/v1/auth/login",
                         "/",
                         "/api/v1/auth/register").permitAll()
-                    .anyRequest().permitAll()
+                    .anyRequest().authenticated()
             }
             .sessionManagement { session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
