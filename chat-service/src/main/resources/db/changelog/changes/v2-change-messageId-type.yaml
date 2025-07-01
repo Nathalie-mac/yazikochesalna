@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: admin
+      changes:
+        - sql:
+            sql: ALTER TABLE chat_users ALTER COLUMN last_read_message_id TYPE UUID USING NULL
