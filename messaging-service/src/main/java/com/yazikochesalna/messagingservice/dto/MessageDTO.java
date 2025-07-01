@@ -7,7 +7,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public abstract class MessageDTO {
     protected String action;
-
     protected Long requestId;
 
 }

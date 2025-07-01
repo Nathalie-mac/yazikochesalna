@@ -2,6 +2,7 @@ package com.yazikochesalna.messagingservice.processor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yazikochesalna.messagingservice.dto.RequestActionType;
 import com.yazikochesalna.messagingservice.dto.SendRequestMessageDTO;
 import com.yazikochesalna.messagingservice.dto.SendResponseResultType;
 import com.yazikochesalna.messagingservice.dto.validator.DtoValidator;
@@ -16,7 +17,6 @@ import java.util.Map;
 
 @Component
 public class TextMessageProcessor {
-    public static final String SEND_ACTION = "send";
     public static final String ACTION_FIELD_NAME = "action";
     private final WebSocketService webSocketService;
 
@@ -31,14 +31,16 @@ public class TextMessageProcessor {
     public void processMessage(WebSocketSession session, TextMessage message) {
         try {
             String payload = message.getPayload();
-            Map<String, Object> requestMap = objectMapper.readValue(payload, Map.class);
-            String action = (String) requestMap.get("action");
+            Map<String, String> requestMap = objectMapper.readValue(payload, Map.class);
+            String action = requestMap.get(ACTION_FIELD_NAME);
 
             if (action == null) {
                 throw new InvalidSendMessageFormatException();
             }
 
-            if (SEND_ACTION.equals(requestMap.get(ACTION_FIELD_NAME))) {
+            if (RequestActionType.SEND.getRequestAction()
+                    .equals(requestMap.get(ACTION_FIELD_NAME))) {
+
                 SendRequestMessageDTO sendMessage = objectMapper.readValue(message.getPayload(), SendRequestMessageDTO.class);
                 DtoValidator.validateSendRequestMessageDTO(sendMessage);
                 webSocketService.sendMessage(session, sendMessage);

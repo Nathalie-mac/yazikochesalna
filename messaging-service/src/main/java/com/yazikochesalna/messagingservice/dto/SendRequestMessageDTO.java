@@ -10,7 +10,7 @@ public class SendRequestMessageDTO extends MessageDTO {
 
 
     public SendRequestMessageDTO(Long requestId, Long chatId, String message) {
-        super("send", requestId);
+        super(RequestActionType.SEND.getRequestAction(), requestId);
         this.chatId = chatId;
         this.message = message;
     }

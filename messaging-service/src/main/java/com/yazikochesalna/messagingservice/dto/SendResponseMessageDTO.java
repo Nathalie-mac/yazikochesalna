@@ -8,7 +8,7 @@ public class SendResponseMessageDTO extends MessageDTO {
     private SendResponseResultType result;
 
     public SendResponseMessageDTO(Long requestId, SendResponseResultType result) {
-        super("send_response", requestId);
+        super(ResponseActionType.SEND_RESPONSE.getResponseAction(), requestId);
         this.result = result;
     }
 }
