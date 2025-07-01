@@ -20,14 +20,12 @@ public class ChatController {
     private final WebSocketTokenService tokenService;
 
     @GetMapping("/connect")
-    public ResponseEntity<?> requestWebSocketConnection(@RequestHeader("Authorization") String authHeader, HttpServletRequest request) {
+    public ResponseEntity<?> requestWebSocketConnection(@RequestHeader("Authorization") String authHeader) {
 
         //TODO:извлечение userID из JWT (валидация JWT в фильтре)
         Long userId = 1L;
 
         String token = tokenService.generateToken(userId);
-        String host = request.getRemoteHost();
-        String wsUrl = "ws://" + host + "/chat/connect?token=" + token;
-        return ResponseEntity.ok(Map.of("wsUrl", wsUrl));
+        return ResponseEntity.ok(Map.of("token", token));
     }
 }

@@ -25,6 +25,7 @@ public class ChatServiceClientImpl implements ChatServiceClient {
 
     @Override
     public boolean isUserInChat(Long userId, Long chatId) {
+        //TODO:получить сервисное JWT
         String url = String.format(CHECK_USER_IN_CHAT_URL_FORMAT, serviceBaseUrl, chatId, userId);
 
         try {
@@ -37,6 +38,7 @@ public class ChatServiceClientImpl implements ChatServiceClient {
 
     @Override
     public List<Long> getUsersByChatId(Long chatId) {
+        //TODO: получить сервисное JWT
         String url = String.format(GET_USERS_URL_FORMAT, serviceBaseUrl, chatId);
 
         try {
