@@ -52,3 +52,5 @@ CREATE INDEX IF NOT EXISTS ON messages (chat_id);
 CQL
 
 echo "=== Инициализация завершена успешно ==="
+echo "=== Запуск основного процесса Cassandra==="
+exec /opt/bitnami/scripts/cassandra/run.sh
