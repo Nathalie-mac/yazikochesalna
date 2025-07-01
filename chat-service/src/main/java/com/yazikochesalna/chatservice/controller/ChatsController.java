@@ -5,10 +5,10 @@ import com.yazikochesalna.chatservice.dto.MembersListDto;
 import com.yazikochesalna.chatservice.dto.chatList.ChatListDto;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatRequest;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatResponse;
+import com.yazikochesalna.chatservice.dto.members.AddMembersRequest;
 import com.yazikochesalna.chatservice.service.ChatService;
 import com.yazikochesalna.common.authentication.JwtAuthenticationToken;
 import io.swagger.v3.oas.annotations.Hidden;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,7 +19,6 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -64,7 +63,35 @@ public class ChatsController {
         return ResponseEntity.ok(chatService.createGroupChat(request, ownerId));
     }
 
-    @PostMapping({"/group/{chatId}","/group/{chatId}/"})
+    @PostMapping({"/group/{chatId}/members","/group/{chatId}/members/"})
+    public ResponseEntity<?> addMembersInChat(@PathVariable final Long chatId, @RequestBody final AddMembersRequest addMembersRequest) {
+        if (addMembersRequest.newMembersIds().stream().anyMatch((x) -> x < 0)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        final long ownerId = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getUserId();
+        final boolean result = chatService.addMembers(ownerId, chatId, addMembersRequest.newMembersIds());
+        if (result) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+    }
+
+    @DeleteMapping({"/group/{chatId}/members/{deletedUserId}", "/group/{chatId}/members/{deletedUserId}"})
+    public ResponseEntity<?> removeMember(@PathVariable final Long chatId, @PathVariable final Long deletedUserId) {
+        if (chatId == null || deletedUserId == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        final long ownerId = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getUserId();
+        final boolean result = chatService.removeMember(chatId, ownerId, deletedUserId);
+        if (result) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+    }
+
+    @GetMapping({"/group/{chatId}","/group/{chatId}/"})
     public ResponseEntity<GetGroupChatInfoDto> getGroupChatDetails(@PathVariable Long chatId) {
         final long userId = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getUserId();
         if (chatService.getUserInChat(chatId, userId) == null) {
