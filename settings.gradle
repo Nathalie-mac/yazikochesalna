@@ -1,4 +1,8 @@
-//rootProject.name = 'yazikochesalna'
+pluginManagement {
+    plugins {
+        id 'org.jetbrains.kotlin.jvm' version '1.9.24'
+    }
+}//rootProject.name = 'yazikochesalna'
 include (":chat-service")
 include(":user-service")
 include(":message-storage-service")
