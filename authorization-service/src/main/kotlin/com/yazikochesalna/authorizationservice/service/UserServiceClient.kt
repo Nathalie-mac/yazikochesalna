@@ -1,4 +1,4 @@
-package com.yazikochesalna.authorizationservice.com.yazikochesalna.authorizationservice.controller
+package com.yazikochesalna.authorizationservice.com.yazikochesalna.authorizationservice.service
 
 import lombok.RequiredArgsConstructor
 import org.springframework.stereotype.Service

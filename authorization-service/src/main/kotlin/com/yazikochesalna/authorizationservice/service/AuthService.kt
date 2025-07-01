@@ -1,11 +1,12 @@
 package com.yazikochesalna.authorizationservice.service
 
-import com.yazikochesalna.authorizationservice.com.yazikochesalna.authorizationservice.controller.UserServiceClient
+import com.yazikochesalna.authorizationservice.com.yazikochesalna.authorizationservice.service.UserServiceClient
 import com.yazikochesalna.authorizationservice.entity.UserAuth
 import com.yazikochesalna.authorizationservice.repository.UserRepository
 import lombok.RequiredArgsConstructor
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +26,11 @@ class AuthService(
         val userId = userServiceClient.saveUser(username)
         val userAuth = UserAuth(id = userId, login = login, password = password)
         return userRepository.save(userAuth)
+    }
+
+    fun getUserLogin(userId: Long): String? {
+        val user = userRepository.findById(userId).getOrNull()
+        return user?.login
     }
 
 }
