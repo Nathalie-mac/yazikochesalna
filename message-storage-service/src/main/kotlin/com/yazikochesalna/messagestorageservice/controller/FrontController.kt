@@ -1,4 +1,11 @@
 package com.yazikochesalna.messagestorageservice.controller
 
-class FrontController {
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+
+@RestController
+@RequestMapping("/api/v1/messages")
+class FrontController(
+
+) {
 }
