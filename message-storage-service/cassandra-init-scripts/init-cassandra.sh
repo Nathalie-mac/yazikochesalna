@@ -9,7 +9,7 @@ ADMIN_USER="db_admin"
 ADMIN_PASS="1234"
 KEYSPACE="storage_service_keyspace"
 DC_NAME="datacenter1"
-INIT_SCRIPT="init-table.cql"
+INIT_SCRIPT="/docker-entrypoint-initdb.d/init-table.cql"
 
 echo "=== Начало инициализации Cassandra ==="
 
@@ -19,7 +19,6 @@ sleep $((WAIT_MINUTES * 60))
 
 # 2. Подключение к Cassandra и выполнение команд
 echo "2. Создание администратора и keyspace..."
-echo "2. Создание объектов..."
 cqlsh -u "$CASSANDRA_USER" -p "$CASSANDRA_PASS" <<CQL
 CREATE ROLE IF NOT EXISTS $ADMIN_USER WITH SUPERUSER = true AND LOGIN = true AND PASSWORD = '$ADMIN_PASS';
 CREATE KEYSPACE IF NOT EXISTS $KEYSPACE WITH REPLICATION = {'class': 'NetworkTopologyStrategy', '$DC_NAME': 1};
@@ -33,14 +32,23 @@ ALTER ROLE cassandra WITH SUPERUSER = false AND LOGIN = false;
 LIST ROLES;
 CQL
 
-# 4. Выполнение init-скрипта
-echo "4. Проверка $INIT_SCRIPT..."
-if [ -f "$INIT_SCRIPT" ]; then
-    echo "Выполнение скрипта..."
-    cqlsh -u "$ADMIN_USER" -p "$ADMIN_PASS" -f "$INIT_SCRIPT"
-else
-    echo "Файл $INIT_SCRIPT не найден!" >&2
-    exit 1
-fi
+# 4. Создание таблиц и индексов
+echo "4. Создание таблиц и индексов..."
+cqlsh -u "$ADMIN_USER" -p "$ADMIN_PASS" <<CQL
+USE $KEYSPACE;
+
+CREATE TABLE IF NOT EXISTS messages (
+    id UUID,
+    sender_id BIGINT,
+    chat_id BIGINT,
+    text TEXT,
+    send_time TIMESTAMP,
+    marked_to_delete BOOLEAN,
+    PRIMARY KEY (id)
+);
+
+CREATE INDEX IF NOT EXISTS ON messages (sender_id);
+CREATE INDEX IF NOT EXISTS ON messages (chat_id);
+CQL
 
 echo "=== Инициализация завершена успешно ==="
