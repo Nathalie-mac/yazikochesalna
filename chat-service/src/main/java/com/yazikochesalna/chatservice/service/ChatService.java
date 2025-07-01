@@ -1,6 +1,7 @@
 package com.yazikochesalna.chatservice.service;
 
 import com.yazikochesalna.chatservice.dto.GetGroupChatInfoDto;
+import com.yazikochesalna.chatservice.dto.MembersListDto;
 import com.yazikochesalna.chatservice.dto.chatList.ChatListDto;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatRequest;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatResponse;
@@ -17,14 +18,13 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 @AllArgsConstructor
 @Service
 public class ChatService {
 
     private final ChatRepository chatRepository;
-    private final ChatUsersRepository chatUsers;
+    private final ChatUsersRepository chatUsersRepository;
     private final MapperToChatInList mapperToChatInList;
     private final MapperToGetGroupChatInfoDto mapperToGetGroupChatInfoDto;
 
@@ -59,7 +59,7 @@ public class ChatService {
     }
 
     public ChatUser getUserInChat(long chatId, long userId) {
-        return chatUsers.getChatUserByChatIdAndUserId(chatId, userId);
+        return chatUsersRepository.getChatUserByChatIdAndUserId(chatId, userId);
     }
 
     public GetGroupChatInfoDto getGroupChatDetails(long currentUserId, long chatId) {
@@ -68,5 +68,11 @@ public class ChatService {
             return null;
         }
         return mapperToGetGroupChatInfoDto.toGroupChatInfoDto(chat);
+    }
+
+    public MembersListDto getCharMembers(final long chatId) {
+        final List<ChatUser> users = chatUsersRepository.getChatUsersByChatId(chatId);
+        final MembersListDto membersList = new MembersListDto(users.stream().map(ChatUser::getUserId).toList());
+        return membersList;
     }
 }

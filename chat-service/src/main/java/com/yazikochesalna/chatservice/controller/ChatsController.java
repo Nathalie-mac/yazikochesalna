@@ -1,6 +1,7 @@
 package com.yazikochesalna.chatservice.controller;
 
 import com.yazikochesalna.chatservice.dto.GetGroupChatInfoDto;
+import com.yazikochesalna.chatservice.dto.MembersListDto;
 import com.yazikochesalna.chatservice.dto.chatList.ChatListDto;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatRequest;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatResponse;
@@ -22,6 +23,8 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -88,5 +91,22 @@ public class ChatsController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping({"/{chatId}/members", "/{chatId}/members/"})
+    @RolesAllowed("SERVICE")
+    @Operation(summary = "Возвращает список участников чата",
+            description = "Внтуренний метод для получения списка участников чата.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Пользователь состоит в чате"),
+            @ApiResponse(responseCode = "404", description = "Пользователь не состоит в чате")
+    })
+    @Hidden
+    public ResponseEntity<MembersListDto> checkUserInChat(@PathVariable long chatId) {
+        MembersListDto members = chatService.getCharMembers(chatId);
+        if (members.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(members);
     }
 }
