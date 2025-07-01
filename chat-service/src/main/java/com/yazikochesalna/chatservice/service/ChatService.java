@@ -6,6 +6,7 @@ import com.yazikochesalna.chatservice.dto.chatList.ChatListDto;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatRequest;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatResponse;
 import com.yazikochesalna.chatservice.enums.ChatType;
+import com.yazikochesalna.chatservice.exception.InvalidUserId;
 import com.yazikochesalna.chatservice.mapper.MapperToChatInList;
 import com.yazikochesalna.chatservice.mapper.MapperToGetGroupChatInfoDto;
 import com.yazikochesalna.chatservice.model.Chat;
@@ -26,6 +27,9 @@ public class ChatService {
 
     private final ChatRepository chatRepository;
     private final ChatUsersRepository chatUsersRepository;
+
+    private final UserServiceClient userService;
+
     private final MapperToChatInList mapperToChatInList;
     private final MapperToGetGroupChatInfoDto mapperToGetGroupChatInfoDto;
 
@@ -47,6 +51,9 @@ public class ChatService {
         details.setChat(chat);
 
         if (request.memberIds() != null) {
+            if (userService.getExitingUsers(request.memberIds()).size() != request.memberIds().size()) {
+                throw new InvalidUserId();
+            }
             List<ChatUser> members = request.memberIds().stream().map(userId -> new ChatUser(null, userId, null, chat)).toList();
             chat.setMembers(members);
             if (!request.memberIds().contains(ownerId)) {
@@ -71,16 +78,19 @@ public class ChatService {
         return mapperToGetGroupChatInfoDto.toGroupChatInfoDto(chat);
     }
 
-    public MembersListDto getCharMembers(final long chatId) {
+    public MembersListDto getChatMembers(final long chatId) {
         final List<ChatUser> users = chatUsersRepository.getChatUsersByChatId(chatId);
         final MembersListDto membersList = new MembersListDto(users.stream().map(ChatUser::getUserId).toList());
         return membersList;
     }
 
     public boolean addMembers(long ownerId, @NotNull Long chatId, @NotNull List<Long> newMembersIds) {
-        final Chat chat =  chatRepository.getChatById(chatId);
+        final Chat chat = chatRepository.getChatById(chatId);
         if (!isOwner(chat, ownerId)) {
             return false;
+        }
+        if (userService.getExitingUsers(newMembersIds).size() != newMembersIds.size()) {
+            throw new InvalidUserId();
         }
         final List<ChatUser> members = chat.getMembers();
         final List<Long> currentMembersIds = members.stream().map(ChatUser::getUserId).toList();

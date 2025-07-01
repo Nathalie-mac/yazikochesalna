@@ -23,8 +23,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/chats")
@@ -64,10 +62,12 @@ public class ChatsController {
     }
 
     @PostMapping({"/group/{chatId}/members","/group/{chatId}/members/"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Пользователи добавлены"),
+            @ApiResponse(responseCode = "403", description = "Выполнение операции запрещено " +
+                    "(пользователь не является владельцем чата или список пользователей содержит некорректных пользователей)")
+    })
     public ResponseEntity<?> addMembersInChat(@PathVariable final Long chatId, @RequestBody final AddMembersRequest addMembersRequest) {
-        if (addMembersRequest.newMembersIds().stream().anyMatch((x) -> x < 0)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
         final long ownerId = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getUserId();
         final boolean result = chatService.addMembers(ownerId, chatId, addMembersRequest.newMembersIds());
         if (result) {
@@ -78,6 +78,11 @@ public class ChatsController {
     }
 
     @DeleteMapping({"/group/{chatId}/members/{deletedUserId}", "/group/{chatId}/members/{deletedUserId}"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Пользователь удалён из чата"),
+            @ApiResponse(responseCode = "403", description = "Выполнение операции запрещено " +
+                    "(пользователь не является владельцем чата)")
+    })
     public ResponseEntity<?> removeMember(@PathVariable final Long chatId, @PathVariable final Long deletedUserId) {
         if (chatId == null || deletedUserId == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -130,7 +135,7 @@ public class ChatsController {
     })
     @Hidden
     public ResponseEntity<MembersListDto> checkUserInChat(@PathVariable long chatId) {
-        MembersListDto members = chatService.getCharMembers(chatId);
+        MembersListDto members = chatService.getChatMembers(chatId);
         if (members.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
