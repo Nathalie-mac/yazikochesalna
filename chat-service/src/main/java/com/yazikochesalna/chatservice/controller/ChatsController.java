@@ -5,6 +5,7 @@ import com.yazikochesalna.chatservice.dto.createChat.CreateChatRequest;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatResponse;
 import com.yazikochesalna.chatservice.service.ChatService;
 import com.yazikochesalna.common.authentication.JwtAuthenticationToken;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -54,5 +56,21 @@ public class ChatsController {
     public ResponseEntity<CreateChatResponse> createGroupChat(@RequestBody @NotNull CreateChatRequest request){
         final long ownerId = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getUserId();
         return ResponseEntity.ok(chatService.createGroupChat(request, ownerId));
+    }
+
+    @GetMapping({"/check/{chatId}/{userId}", "/check/{chatId}/{userId}/"})
+    @RolesAllowed("SERVICE")
+    @Operation(summary = "Проверка на пользователя в чате",
+            description = "Внтуренний метод для проверки наличия пользователя в чате. Доступен только для сервисов.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Пользователь состоит в чате"),
+            @ApiResponse(responseCode = "404", description = "Пользователь не состоит в чате")
+    })
+    @Hidden
+    public ResponseEntity<?> checkUserInChat(@PathVariable long chatId, @PathVariable long userId) {
+        if (chatService.getUserInChat(chatId, userId) == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().build();
     }
 }
