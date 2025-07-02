@@ -10,7 +10,7 @@ import org.springframework.data.cassandra.core.mapping.Table
 import java.util.*
 
 @Table("attachments")
-data class Attachment @JvmOverloads constructor(
+data class Attachment(
     @PrimaryKey
     val id: Long,
 

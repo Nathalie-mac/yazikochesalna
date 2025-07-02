@@ -12,7 +12,7 @@ import java.util.*
 
 
 @Table("messages")
-data class Message @JvmOverloads constructor(
+data class Message(
     @PrimaryKey
     val id: UUID,
 
