@@ -1,7 +1,6 @@
 package com.yazikochesalna.messagingservice.controller;
 
 import com.yazikochesalna.messagingservice.service.WebSocketTokenService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

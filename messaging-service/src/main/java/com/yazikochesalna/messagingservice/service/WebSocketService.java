@@ -1,5 +1,6 @@
 package com.yazikochesalna.messagingservice.service;
 
+import com.yazikochesalna.messagingservice.dto.ReceiveMessageDTO;
 import com.yazikochesalna.messagingservice.dto.SendRequestMessageDTO;
 import com.yazikochesalna.messagingservice.dto.SendResponseResultType;
 import org.springframework.web.socket.WebSocketSession;
@@ -14,5 +15,5 @@ public interface WebSocketService {
 
     void receiveSendResponse(WebSocketSession session, SendResponseResultType sendResponseResultType);
 
-    void receiveMessage();
+    void receiveMessage(WebSocketSession session, ReceiveMessageDTO receiveMessageDTO);
 }
