@@ -38,17 +38,28 @@ cqlsh -u "$ADMIN_USER" -p "$ADMIN_PASS" <<CQL
 USE $KEYSPACE;
 
 CREATE TABLE IF NOT EXISTS messages (
-    id UUID,
-    sender_id BIGINT,
-    chat_id BIGINT,
+    id UUID not null,
+    type TEXT not null,
+    sender_id BIGINT not null,
+    chat_id BIGINT not null,
     text TEXT,
-    send_time TIMESTAMP,
+    send_time TIMESTAMP not null,
     marked_to_delete BOOLEAN,
     PRIMARY KEY (id)
 );
-
 CREATE INDEX IF NOT EXISTS ON messages (sender_id);
 CREATE INDEX IF NOT EXISTS ON messages (chat_id);
+CREATE INDEX IF NOT EXISTS ON messages (send_time);
+
+CREATE TABLE IF NOT EXISTS attachments (
+    id BIGINT not null,
+    message_id UUID not null,
+    attachment_type TEXT,
+    attachment TEXT,
+    PRIMARY KEY (id)
+);
+CREATE INDEX IF NOT EXISTS ON attachments (message_id);
+
 CQL
 
 echo "=== Инициализация завершена успешно ==="
