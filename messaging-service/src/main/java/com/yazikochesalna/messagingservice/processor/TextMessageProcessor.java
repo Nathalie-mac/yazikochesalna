@@ -2,9 +2,9 @@ package com.yazikochesalna.messagingservice.processor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yazikochesalna.messagingservice.dto.RequestActionType;
-import com.yazikochesalna.messagingservice.dto.SendRequestMessageDTO;
-import com.yazikochesalna.messagingservice.dto.SendResponseResultType;
+import com.yazikochesalna.messagingservice.dto.messaging.request.RequestActionType;
+import com.yazikochesalna.messagingservice.dto.messaging.request.SendRequestMessageDTO;
+import com.yazikochesalna.messagingservice.dto.messaging.response.SendResponseResultType;
 import com.yazikochesalna.messagingservice.dto.validator.DtoValidator;
 import com.yazikochesalna.messagingservice.exception.InvalidSendMessageFormatException;
 import com.yazikochesalna.messagingservice.exception.UserNotHaveAccessToChatException;
@@ -52,6 +52,7 @@ public class TextMessageProcessor {
             webSocketService.receiveSendResponse(session, SendResponseResultType.NOT_ALLOWED);
         } catch (Exception e) {
             webSocketService.receiveSendResponse(session, SendResponseResultType.ERROR);
+            e.printStackTrace();
         }
     }
 }

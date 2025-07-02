@@ -1,12 +1,12 @@
 package com.yazikochesalna.messagingservice.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yazikochesalna.messagingservice.dto.ReceiveMessageDTO;
-import com.yazikochesalna.messagingservice.dto.SendRequestMessageDTO;
-import com.yazikochesalna.messagingservice.dto.SendResponseMessageDTO;
-import com.yazikochesalna.messagingservice.dto.SendResponseResultType;
-import com.yazikochesalna.messagingservice.dto.convertors.MessageToStorageDTOToReceiveMessageDTOConvertor;
-import com.yazikochesalna.messagingservice.dto.convertors.SendRequestMessageDTOToMessageToStorageDTOConvertor;
+import com.yazikochesalna.messagingservice.callback.MessageToStorageCallback;
+import com.yazikochesalna.messagingservice.dto.mapper.DtoMapper;
+import com.yazikochesalna.messagingservice.dto.messaging.notification.ReceiveMessageDTO;
+import com.yazikochesalna.messagingservice.dto.messaging.request.SendRequestMessageDTO;
+import com.yazikochesalna.messagingservice.dto.messaging.response.SendResponseMessageDTO;
+import com.yazikochesalna.messagingservice.dto.messaging.response.SendResponseResultType;
 import com.yazikochesalna.messagingservice.dto.storage.MessageToStorageDTO;
 import com.yazikochesalna.messagingservice.exception.ReceiveMessageException;
 import com.yazikochesalna.messagingservice.exception.ReceiveSendResponseException;
@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
 
 import java.io.IOException;
 import java.util.List;
@@ -35,6 +36,9 @@ public class WebSocketServiceImpl implements WebSocketService {
     private final ObjectMapper objectMapper;
     private final ChatServiceClient chatServiceClient;
     private final SendMessageToStorageService sendMessageToStorageService;
+    private final int SEND_TIME_LIMIT = 10 * 1000;
+    private final int SEND_BUFFER_SIZE_LIMIT = 512 * 1024;
+
 
     @Override
 
@@ -66,30 +70,42 @@ public class WebSocketServiceImpl implements WebSocketService {
         if (!chatServiceClient.isUserInChat(userId, sendRequestMessageDTO.getChatId())) {
             throw new UserNotHaveAccessToChatException();
         }
-        //TODO:подумоть
+
         MessageToStorageDTO messageToStorage =
-                SendRequestMessageDTOToMessageToStorageDTOConvertor.convert(sendRequestMessageDTO, userId);
+                DtoMapper.toMessageToStorageDTO(sendRequestMessageDTO, userId);
+        ReceiveMessageDTO receiveMessage =
+                DtoMapper.toReceiveMessageDTO(messageToStorage);
+
+        sendMessageToStorageService.sendMessageToStorage(messageToStorage, new MessageToStorageCallback() {
+            @Override
+            public void onSuccess() {
+                receiveSendResponse(session, SendResponseResultType.OK);
+                sendMessageToChat(sendRequestMessageDTO.getChatId(), receiveMessage);
+            }
+
+            @Override
+            public void onError() {
+                receiveSendResponse(session, SendResponseResultType.NOT_SENT_TO_STORAGE);
+            }
+        });
 
 
-        sendMessageToStorageService.sendMessageToStorage(messageToStorage);
-        List<Long> recipientUsers = chatServiceClient.getUsersByChatId(sendRequestMessageDTO.getChatId());
+    }
 
-        receiveSendResponse(session, SendResponseResultType.OK);
-
+    @Override
+    public void sendMessageToChat(Long chatId, ReceiveMessageDTO receiveMessage) {
+        List<Long> recipientUsers = chatServiceClient.getUsersByChatId(chatId);
         for (Long recipientId : recipientUsers) {
+            // тут будет лочится T-T (можно переделать мапу(chatId, session)
+            // и переделать логику подключения, но там надо обрабатывать приколы с новыми чатам
             Set<WebSocketSession> recipientSessions = activeSessions.get(recipientId);
             if (recipientSessions != null && !recipientSessions.isEmpty()) {
                 for (WebSocketSession recipientSession : recipientSessions) {
-                    if (recipientSession.isOpen()) {
-                        //TODO:подумоть
-                        ReceiveMessageDTO receiveMessage =
-                                MessageToStorageDTOToReceiveMessageDTOConvertor.convert(messageToStorage);
-                        receiveMessage(recipientSession, receiveMessage);
-                    }
+                    receiveMessage(recipientSession, receiveMessage);
+
                 }
-            } else {
-                // логика с другими инстансами
             }
+            // логика с другими инстансами
         }
     }
 
@@ -106,7 +122,8 @@ public class WebSocketServiceImpl implements WebSocketService {
             String jsonResponse = objectMapper.writeValueAsString(response);
 
             if (session.isOpen()) {
-                session.sendMessage(new TextMessage(jsonResponse));
+                new ConcurrentWebSocketSessionDecorator(session, SEND_TIME_LIMIT, SEND_BUFFER_SIZE_LIMIT)
+                        .sendMessage(new TextMessage(jsonResponse));
             }
         } catch (IOException e) {
             throw new ReceiveSendResponseException();
@@ -120,10 +137,16 @@ public class WebSocketServiceImpl implements WebSocketService {
         try {
 
             String jsonResponse = objectMapper.writeValueAsString(receiveMessageDTO);
-            session.sendMessage(new TextMessage(jsonResponse));
+            if (session.isOpen()) {
+                //вот би сделать неблокирующее отправление по вебсокетам
+                new ConcurrentWebSocketSessionDecorator(session, SEND_TIME_LIMIT, SEND_BUFFER_SIZE_LIMIT)
+                        .sendMessage(new TextMessage(jsonResponse));
+            }
 
         } catch (IOException e) {
-            throw new ReceiveMessageException() ;
+            throw new ReceiveMessageException();
         }
     }
+
+
 }

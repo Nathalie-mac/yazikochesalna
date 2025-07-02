@@ -1,6 +1,6 @@
 package com.yazikochesalna.messagingservice.dto.validator;
 
-import com.yazikochesalna.messagingservice.dto.SendRequestMessageDTO;
+import com.yazikochesalna.messagingservice.dto.messaging.request.SendRequestMessageDTO;
 import com.yazikochesalna.messagingservice.exception.InvalidSendMessageFormatException;
 
 public final class DtoValidator {

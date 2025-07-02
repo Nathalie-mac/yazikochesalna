@@ -1,8 +1,9 @@
-package com.yazikochesalna.messagingservice.dto;
+package com.yazikochesalna.messagingservice.dto.messaging.response;
 
 public enum SendResponseResultType {
     OK,
     INVALID_FORMAT,
     NOT_ALLOWED,
+    NOT_SENT_TO_STORAGE,
     ERROR
 }

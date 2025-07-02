@@ -1,13 +1,13 @@
-package com.yazikochesalna.messagingservice.dto;
+package com.yazikochesalna.messagingservice.dto.messaging.response;
 
 import lombok.Getter;
 
 @Getter
 public class SendResponseMessageDTO {
 
-    private String action;
-    private Long requestId;
-    private SendResponseResultType result;
+    private final String action;
+    private final Long requestId;
+    private final SendResponseResultType result;
 
     public SendResponseMessageDTO(Long requestId, SendResponseResultType result) {
         this.action = ResponseActionType.SEND_RESPONSE.getResponseAction();

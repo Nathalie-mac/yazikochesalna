@@ -1,4 +1,4 @@
-package com.yazikochesalna.messagingservice.dto;
+package com.yazikochesalna.messagingservice.dto.messaging.response;
 
 import lombok.Getter;
 

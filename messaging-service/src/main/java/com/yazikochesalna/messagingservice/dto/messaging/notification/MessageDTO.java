@@ -1,4 +1,4 @@
-package com.yazikochesalna.messagingservice.dto;
+package com.yazikochesalna.messagingservice.dto.messaging.notification;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

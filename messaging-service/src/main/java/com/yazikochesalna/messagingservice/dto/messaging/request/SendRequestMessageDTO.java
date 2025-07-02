@@ -1,13 +1,13 @@
-package com.yazikochesalna.messagingservice.dto;
+package com.yazikochesalna.messagingservice.dto.messaging.request;
 
 import lombok.Getter;
 
 @Getter
 public class SendRequestMessageDTO {
-    private String action;
-    private Long requestId;
-    private Long chatId;
-    private String message;
+    private final String action;
+    private final Long requestId;
+    private final Long chatId;
+    private final String message;
 
 
     public SendRequestMessageDTO(Long requestId, Long chatId, String message) {
