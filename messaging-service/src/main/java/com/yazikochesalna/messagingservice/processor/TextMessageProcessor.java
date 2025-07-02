@@ -27,7 +27,6 @@ public class TextMessageProcessor {
         this.objectMapper = objectMapper;
     }
 
-    //TODO:подумать над улучшением логики валидации
     public void processMessage(WebSocketSession session, TextMessage message) {
         try {
             String payload = message.getPayload();

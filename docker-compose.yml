@@ -87,20 +87,20 @@ services:
     image: confluentinc/cp-kafka:latest
     container_name: kafka_message_storage
     environment:
-      KAFKA_PROCESS_ROLES: 'broker,controller' # Указываем, что это брокер и контроллер
-      KAFKA_NODE_ID: 1 # Уникальный ID узла
-      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:9093' # Кворум контроллеров (ID@host:port)
-      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093' # Слушатели для брокера и контроллера
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://localhost:9092' # Адвертируемый слушатель для клиентов
-      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT' # Имя слушателя для межброкерского взаимодействия
-      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER' # Имя слушателя для контроллера
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1 # Фактор репликации для топиков (1 для одного брокера)
-      CLUSTER_ID: 'kafka-message-storage-cluster-1' # Уникальный ID кластера для KRaft
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:9093'
+      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://localhost:9092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      CLUSTER_ID: 'kafka-message-storage-cluster-1'
     ports:
-      - "9092:9092" # Порт для брокера
-      - "9093:9093" # Порт для контроллера
+      - "9092:9092"
+      - "9093:9093"
     volumes:
-      - kafka-message-storage:/data # Том для хранения данных Kafka
+      - kafka-message-storage:/data
     healthcheck:
       test: [ "CMD", "kafka-topics.sh", "--list", "--bootstrap-server", "localhost:9092" ]
       interval: 10s
