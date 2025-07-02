@@ -1,0 +1,15 @@
+from console:
+ docker exec -it cassandra_db cqlsh -u cassandra -p cassandra
+ create role db_admin with superuser = true and login = true and password = '1234'
+create keyspace storage_service_keyspace with replication = {'class': 'NetworkTopologyStrategy', 'datacenter1': 1};
+ GRANT ALL PERMISSIONS ON KEYSPACE storage_service_keyspace TO db_admin;
+quit
+
+из новой cqlsh-сессии:
+docker exec -it cassandra_db cqlsh -u db_admin -p 1234
+ALTER ROLE cassandra WITH SUPERUSER = false AND LOGIN = false;
+list users;
+
+inspecting that scripts are seen:
+ docker exec -it cassandra_db ls -la /docker-entrypoint-initdb.d
+
