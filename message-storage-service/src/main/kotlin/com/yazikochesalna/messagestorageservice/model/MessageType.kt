@@ -1,11 +1,11 @@
 package com.yazikochesalna.messagestorageservice.model
 
 enum class MessageType(val type: String) {
-    MESSAGE("message"),
-    NEW_MEMBER("new_member"),
-    DROP_MEMBER("drop_member"),
-    PIN("pin"),
-    NEW_AVATAR("new_avatar");
+    MESSAGE("MESSAGE"),
+    NEW_MEMBER("NEW_MEMBER"),
+    DROP_MEMBER("DROP_MEMBER"),
+    PIN("PIN"),
+    NEW_AVATAR("NEW_AVATAR");
 
     companion object {
         fun fromType(type: String): MessageType? {

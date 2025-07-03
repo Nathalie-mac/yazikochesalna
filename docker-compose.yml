@@ -51,10 +51,11 @@ services:
       - "9042:9042"
     volumes:
       - cassandra-messages-data:/var/lib/cassandra
+      - cassandra-init-flag:/bitnami/cassandra/initialized
       - ./message-storage-service/cassandra-init-scripts:/docker-entrypoint-initdb.d:Z
     environment:
-      - CASSANDRA_USER=cassandra
-      - CASSANDRA_PASSWORD=cassandra
+      - CASSANDRA_USER=db_admin
+      - CASSANDRA_PASSWORD=1234
       - CASSANDRA_PASSWORD_SEEDER=yes
       - CASSANDRA_CLUSTER_NAME=MyCluster
       - CASSANDRA_DATACENTER=datacenter1
@@ -74,6 +75,7 @@ volumes:
   postgres-user-data:
   postgres-auth-data:
   cassandra-messages-data:
+  cassandra-init-flag:
 
 networks:
   cassandra_network:
