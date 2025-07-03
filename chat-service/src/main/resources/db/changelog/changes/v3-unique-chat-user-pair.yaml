@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_unique_constraint_chat_users
+      author: Nikita22007
+      changes:
+        - addUniqueConstraint:
+            tableName: chat_users
+            columnNames: chat_id, user_id
+            constraintName: unique_chat_user_pair

@@ -1,5 +1,6 @@
 package com.yazikochesalna.chatservice.controller;
 
+import com.yazikochesalna.chatservice.dto.GetDialogResponseDto;
 import com.yazikochesalna.chatservice.dto.GetGroupChatInfoDto;
 import com.yazikochesalna.chatservice.dto.MembersListDto;
 import com.yazikochesalna.chatservice.dto.chatList.ChatListDto;
@@ -108,6 +109,23 @@ public class ChatsController {
         }
         return ResponseEntity.ok(dto);
     }
+
+    @PostMapping ({"/dialog/{partnerId}","/dialog/{partnerId}/"})
+    public ResponseEntity<GetDialogResponseDto> createDialog(@PathVariable Long partnerId) {
+        final long userId = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getUserId();
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                chatService.getOrCreateDialog(userId, partnerId)
+        );
+    }
+
+    @GetMapping ({"/dialog/{partnerId}","/dialog/{partnerId}/"})
+    public ResponseEntity<GetDialogResponseDto> getDialog(@PathVariable Long partnerId) {
+        final long userId = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getUserId();
+        return ResponseEntity.status(HttpStatus.OK).body(
+                chatService.getDialog(userId, partnerId)
+        );
+    }
+
 
     @GetMapping({"/check/{chatId}/{userId}", "/check/{chatId}/{userId}/"})
     @RolesAllowed("SERVICE")
