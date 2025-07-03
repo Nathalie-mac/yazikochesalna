@@ -9,7 +9,7 @@ import reactor.core.publisher.Flux
 import java.util.*
 
 @Repository
-class CustomMessageRepositoryImpl(
+open class CustomMessageRepositoryImpl(
     private val operations: ReactiveCassandraOperations
 ) : CustomMessageRepository {
 

@@ -24,8 +24,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 @EnableMethodSecurity(jsr250Enabled = true)
-open class SecurityConfig {
-    private val jwtFilter: JwtFilter? = null
+open class SecurityConfig(private val jwtFilter: JwtFilter)
+{
 
     @Bean
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
