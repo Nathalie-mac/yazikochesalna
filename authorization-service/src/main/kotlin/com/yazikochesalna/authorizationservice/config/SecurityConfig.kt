@@ -25,15 +25,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 open class SecurityConfig(
     private val jwtFilter: JwtFilter
 ) {
-    private val corsUris = arrayOf("/api/**")
-    private val permitAllUris = arrayOf(
-        "/v3/api-docs/**",
-        "/swagger-ui/**",
-        "/api/v1/auth/login",
-        "/",
-        "/api/v1/auth/register"
-    )
-
     @Bean
     open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         return http
@@ -41,7 +32,6 @@ open class SecurityConfig(
             .cors { it.configurationSource(corsConfigurationSource()) }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers(HttpMethod.OPTIONS, *corsUris).permitAll()
                     .requestMatchers( "/v3/api-docs/**",
                         "/swagger-ui/**",
                         "/api/v1/auth/login",
