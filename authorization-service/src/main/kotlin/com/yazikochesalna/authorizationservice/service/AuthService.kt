@@ -1,10 +1,9 @@
 package com.yazikochesalna.authorizationservice.service
 
-import com.yazikochesalna.authorizationservice.com.yazikochesalna.authorizationservice.exception.UserNotFoundException
-import com.yazikochesalna.authorizationservice.com.yazikochesalna.authorizationservice.service.UserServiceClient
 import com.yazikochesalna.authorizationservice.dto.TokenResponseDto
 import com.yazikochesalna.authorizationservice.entity.UserAuth
 import com.yazikochesalna.authorizationservice.exception.AuthException
+import com.yazikochesalna.authorizationservice.exception.UserNotFoundException
 import com.yazikochesalna.authorizationservice.repository.UserRepository
 import com.yazikochesalna.common.service.JwtService
 import lombok.RequiredArgsConstructor
@@ -13,17 +12,12 @@ import org.springframework.stereotype.Service
 import kotlin.jvm.optionals.getOrNull
 
 @Service
-@RequiredArgsConstructor
-class AuthService(
+open class AuthService(
     private val userServiceClient: UserServiceClient,
     private val userRepository: UserRepository,
     private val jwtService: JwtService,
     private val passwordEncoder: PasswordEncoder
 ) {
-
-    fun loadUserByLogin(login: String): UserAuth =
-        userRepository.findByLogin(login) ?: throw UserNotFoundException("User not found: $login")
-
 
     fun isUserRegistered(login: String): Boolean = userRepository.existsByLogin(login)
 

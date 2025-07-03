@@ -7,26 +7,24 @@ import com.yazikochesalna.authorizationservice.dto.TokenResponseDto
 import com.yazikochesalna.authorizationservice.exception.AuthException
 import com.yazikochesalna.authorizationservice.service.AuthService
 import com.yazikochesalna.common.authentication.JwtAuthenticationToken
-import com.yazikochesalna.common.service.JwtService
 import io.swagger.v3.oas.annotations.Hidden
 import jakarta.annotation.security.RolesAllowed
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/auth")
-class AuthController(
-    private val autService: AuthService,
+open class AuthController(
+    private val authService: AuthService,
 ) {
     @PostMapping("/register")
     fun register(@RequestBody request: RegisterRequestDto): ResponseEntity<TokenResponseDto> {
-        if (autService.isUserRegistered(request.login)) {
+        if (authService.isUserRegistered(request.login)) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build()
         }
-        val tokens = autService.registerUser(
+        val tokens = authService.registerUser(
             login = request.login,
             username = request.username,
             password = request.password,
@@ -37,7 +35,7 @@ class AuthController(
 
     @PostMapping("/login")
     fun login(@RequestBody request: AuthRequestDto): ResponseEntity<TokenResponseDto> =
-        ResponseEntity.ok(autService.loginUser(request.login, request.password))
+        ResponseEntity.ok(authService.loginUser(request.login, request.password))
 
     @PostMapping("/refresh")
     fun refresh(): ResponseEntity<TokenResponseDto> {
@@ -45,7 +43,7 @@ class AuthController(
             if (it !is JwtAuthenticationToken) {
                 throw AuthException("Invalid authentication")
             }
-            return ResponseEntity.ok(autService.refreshTokens(it.userId))
+            return ResponseEntity.ok(authService.refreshTokens(it.userId))
         }
         throw AuthException("Invalid authentication")
     }
@@ -54,6 +52,6 @@ class AuthController(
     @RolesAllowed("SERVICE")
     @Hidden
     fun getLogin(userID: Long): ResponseEntity<GetLoginResponseDto> =
-        ResponseEntity.ok(GetLoginResponseDto(autService.getUserLogin(userID)))
+        ResponseEntity.ok(GetLoginResponseDto(authService.getUserLogin(userID)))
 }
 

@@ -1,4 +1,4 @@
-package com.yazikochesalna.authorizationservice.com.yazikochesalna.authorizationservice.exception
+package com.yazikochesalna.authorizationservice.exception
 
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ResponseStatus
