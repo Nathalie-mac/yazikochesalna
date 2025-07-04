@@ -13,7 +13,7 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
 
     Chat getChatById(long chatId);
 
-    @Query("SELECT cu.chat.id " +
+    @Query("SELECT cu.chat " +
             "FROM ChatUser cu " +
             "JOIN cu.chat c " +
             "WHERE c.type = 'PRIVATE' AND cu.userId IN (:userId1, :userId2) " +
