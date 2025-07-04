@@ -1,3 +1,6 @@
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
+}
 rootProject.name = 'yazikochesalna'
 
 include ':jwt-module'
@@ -6,3 +9,5 @@ include (":chat-service")
 include(":user-service")
 include(":message-storage-service")
 include(":messaging-service")
+include 'authorization-service'
+

@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: natashka
+      changes:
+        - sql:
+            sql: ALTER TABLE user_auth ALTER COLUMN id DROP IDENTITY

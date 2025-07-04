@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: authorization-service
+    api-version: 0.1
+  datasource:
+    url: jdbc:postgresql://localhost:5433/authdatabase
+    username: user
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    generate-ddl: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    change-log: /db/changelog/db.changelog-master.yml
+    default-schema: public
+
+  config:
+    import: optional:file:.env[.properties]
+
+security:
+  jwt:
+    secret_key: ${JWT_SECRET_KEY}
+    access_token_expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
+    refresh_token_expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
+
+server:
+  port: 8085
+
+springdoc:
+  api-docs:
+    version: openapi_3_1
+  swagger-ui:
+    path: ${SWAGGER_UI_PATH:/swagger-ui.html}
+    operationsSorter: method
+    oauth:
+      use-basic-authentication-with-access-code-grant: true
+  packagesToScan: com.yazikochesalna.authorizationservice.controller
+  cache:
+    disabled: true
+  default-produces-media-type: application/json
+  default-consumes-media-type: application/json
+  show-actuator: false
+  paths-to-match: "/api/**"
+  use-management-port: false
+  security-schemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
