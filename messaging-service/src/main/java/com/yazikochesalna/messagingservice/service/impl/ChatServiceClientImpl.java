@@ -5,11 +5,11 @@ import com.yazikochesalna.messagingservice.dto.chat.ChatUsersResponseDTO;
 import com.yazikochesalna.messagingservice.exception.ChatUserFetchCustomException;
 import com.yazikochesalna.messagingservice.service.ChatServiceClient;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.List;
@@ -17,8 +17,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ChatServiceClientImpl implements ChatServiceClient {
-    public static final String CHECK_USER_IN_CHAT_URL_FORMAT = "%s/check/%d/%d";
-    public static final String GET_USERS_URL_FORMAT = "%s/%d/users";
+    public static final String CHECK_USER_IN_CHAT_URL_FORMAT = "%s/api/v1/chats/check/%d/%d";
+    public static final String GET_USERS_URL_FORMAT = "%s/api/v1/chats/%d/members";
     private final WebClient chatServiceWebClient;
     private final JwtService jwtService;
     @Value("${chat.service.url}")
@@ -31,15 +31,15 @@ public class ChatServiceClientImpl implements ChatServiceClient {
 
         String url = String.format(CHECK_USER_IN_CHAT_URL_FORMAT, serviceBaseUrl, chatId, userId);
 
-        return chatServiceWebClient.get()
+        return Boolean.TRUE.equals(chatServiceWebClient.get()
                 .uri(url)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtService.generateServiceToken())
+                .headers(headers -> headers.setBearerAuth(jwtService.generateServiceToken()))
                 .retrieve()
                 .toBodilessEntity()
                 .map(response -> response.getStatusCode().is2xxSuccessful())
                 .onErrorReturn(false)
                 .timeout(Duration.ofSeconds(5))
-                .block(Duration.ofSeconds(5));
+                .block(Duration.ofSeconds(5)));
     }
 
     @Override
@@ -49,12 +49,16 @@ public class ChatServiceClientImpl implements ChatServiceClient {
 
         return chatServiceWebClient.get()
                 .uri(url)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtService.generateServiceToken())
+                .headers(headers -> headers.setBearerAuth(jwtService.generateServiceToken()))
                 .retrieve()
+                .onStatus(
+                        status -> status.equals(HttpStatus.NOT_FOUND),
+                        response -> response.bodyToMono(String.class)
+                                .flatMap(errorBody -> Mono.error(new ChatUserFetchCustomException()))
+                )
                 .bodyToMono(ChatUsersResponseDTO.class)
                 .map(ChatUsersResponseDTO::getUsersIds)
-                .timeout(Duration.ofSeconds(5))
-                .onErrorMap(throwable -> new ChatUserFetchCustomException())
-                .block(Duration.ofSeconds(6));
+//                .onErrorMap(throwable -> new ChatUserFetchCustomException())
+                .block();
     }
 }

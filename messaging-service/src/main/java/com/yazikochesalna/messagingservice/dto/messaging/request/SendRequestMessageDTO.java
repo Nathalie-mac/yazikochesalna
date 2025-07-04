@@ -2,7 +2,6 @@ package com.yazikochesalna.messagingservice.dto.messaging.request;
 
 import com.yazikochesalna.messagingservice.dto.messaging.notification.ActionType;
 import lombok.Data;
-import lombok.Getter;
 
 @Data
 public class SendRequestMessageDTO {

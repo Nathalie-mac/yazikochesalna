@@ -9,10 +9,10 @@ import java.util.List;
 @Builder
 public record MembersListDto (
     @NotNull
-    List<Long> userIds){
+    List<Long> usersIds){
 
     @JsonIgnore
     public boolean isEmpty(){
-        return userIds.isEmpty();
+        return usersIds.isEmpty();
     }
 }

@@ -2,8 +2,8 @@ package com.yazikochesalna.messagingservice.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yazikochesalna.messagingservice.callback.MessageToStorageCallback;
-import com.yazikochesalna.messagingservice.dto.mapper.SendRequestMessageDTOMapper;
 import com.yazikochesalna.messagingservice.dto.mapper.MessageToStorageDTOMapper;
+import com.yazikochesalna.messagingservice.dto.mapper.SendRequestMessageDTOMapper;
 import com.yazikochesalna.messagingservice.dto.messaging.notification.ReceiveMessageDTO;
 import com.yazikochesalna.messagingservice.dto.messaging.request.SendRequestMessageDTO;
 import com.yazikochesalna.messagingservice.dto.messaging.response.SendResponseMessageDTO;
@@ -43,9 +43,7 @@ public class WebSocketServiceImpl implements WebSocketService {
     private final int SEND_BUFFER_SIZE_LIMIT = 512 * 1024;
 
 
-
     @Override
-
     public void addSession(WebSocketSession session) {
         Long userId = (Long) session.getAttributes().get("userId");
         activeSessions.compute(userId, (key, sessions) -> {
@@ -68,12 +66,13 @@ public class WebSocketServiceImpl implements WebSocketService {
         }
     }
 
+    //TODO: хуйня, переделать
     @Override
     public void sendMessage(WebSocketSession session, SendRequestMessageDTO sendRequestMessageDTO) {
         Long userId = (Long) session.getAttributes().get("userId");
-//        if (!chatServiceClient.isUserInChat(userId, sendRequestMessageDTO.getChatId())) {
-//            throw new UserNotHaveAccessToChatCustomException();
-//        }
+        if (!chatServiceClient.isUserInChat(userId, sendRequestMessageDTO.getChatId())) {
+            throw new UserNotHaveAccessToChatCustomException();
+        }
 
         MessageToStorageDTO messageToStorage =
                 sendRequestMessageDTOMapper.toMessageToStorageDTO(sendRequestMessageDTO, userId);
@@ -110,7 +109,6 @@ public class WebSocketServiceImpl implements WebSocketService {
             if (recipientSessions != null && !recipientSessions.isEmpty()) {
                 for (WebSocketSession recipientSession : recipientSessions) {
                     receiveMessage(recipientSession, receiveMessage);
-
                 }
             }
             // логика с другими инстансами

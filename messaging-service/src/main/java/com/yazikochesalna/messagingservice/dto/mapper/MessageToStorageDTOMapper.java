@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class MessageToStorageDTOMapper {
-    
+
     public ReceiveMessageDTO toReceiveMessageDTO(MessageToStorageDTO messageToStorageDTO) {
         PayloadMessageToStorageDTO payloadMessageToStorageDTO = messageToStorageDTO.getMessage();
         MessageDTO messageDTO = new MessageDTO();
@@ -21,7 +21,7 @@ public class MessageToStorageDTOMapper {
         receiveMessageDTO.setChatId(payloadMessageToStorageDTO.getChatId());
         receiveMessageDTO.setMessage(messageDTO);
 
-        
+
         return receiveMessageDTO;
     }
 }

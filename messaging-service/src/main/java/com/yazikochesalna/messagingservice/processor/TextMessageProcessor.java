@@ -6,7 +6,6 @@ import com.yazikochesalna.messagingservice.dto.messaging.notification.ActionType
 import com.yazikochesalna.messagingservice.dto.messaging.request.SendRequestMessageDTO;
 import com.yazikochesalna.messagingservice.dto.messaging.response.SendResponseResultType;
 import com.yazikochesalna.messagingservice.dto.validator.DtoValidator;
-import com.yazikochesalna.messagingservice.exception.ChatUserFetchCustomException;
 import com.yazikochesalna.messagingservice.exception.InvalidSendMessageFormatCustomException;
 import com.yazikochesalna.messagingservice.exception.UserNotHaveAccessToChatCustomException;
 import com.yazikochesalna.messagingservice.service.WebSocketService;
@@ -50,8 +49,6 @@ public class TextMessageProcessor {
             webSocketService.receiveSendResponse(session, SendResponseResultType.INVALID_FORMAT);
         } catch (UserNotHaveAccessToChatCustomException e) {
             webSocketService.receiveSendResponse(session, SendResponseResultType.NOT_ALLOWED);
-        }catch (ChatUserFetchCustomException e){
-            webSocketService.receiveSendResponse(session, SendResponseResultType.CHAT_SERVICE_INTEGRATION_PROBLEM);
         } catch (Exception e) {
             webSocketService.receiveSendResponse(session, SendResponseResultType.ERROR);
             e.printStackTrace();

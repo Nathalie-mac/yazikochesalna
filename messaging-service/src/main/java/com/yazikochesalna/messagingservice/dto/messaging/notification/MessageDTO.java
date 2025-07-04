@@ -1,8 +1,6 @@
 package com.yazikochesalna.messagingservice.dto.messaging.notification;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 
 import java.time.Instant;
 import java.util.UUID;

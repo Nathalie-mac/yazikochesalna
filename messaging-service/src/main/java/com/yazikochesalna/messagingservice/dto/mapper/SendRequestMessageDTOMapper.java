@@ -11,18 +11,18 @@ import java.util.UUID;
 
 @Component
 public class SendRequestMessageDTOMapper {
-    
-    public MessageToStorageDTO toMessageToStorageDTO(SendRequestMessageDTO sendRequestMessageDTO, Long userId) {
-       PayloadMessageToStorageDTO payloadMessageToStorageDTO = new PayloadMessageToStorageDTO();
-       payloadMessageToStorageDTO.setMessageId(UUID.randomUUID());
-       payloadMessageToStorageDTO.setSenderId(userId);
-       payloadMessageToStorageDTO.setChatId(sendRequestMessageDTO.getChatId());
-       payloadMessageToStorageDTO.setText(sendRequestMessageDTO.getMessage());
-       payloadMessageToStorageDTO.setTimestamp(Instant.now());
 
-       MessageToStorageDTO messageToStorageDTO = new MessageToStorageDTO();
-       messageToStorageDTO.setType(MessageType.MESSAGE);
-       messageToStorageDTO.setMessage(payloadMessageToStorageDTO);
-       return messageToStorageDTO;
+    public MessageToStorageDTO toMessageToStorageDTO(SendRequestMessageDTO sendRequestMessageDTO, Long userId) {
+        PayloadMessageToStorageDTO payloadMessageToStorageDTO = new PayloadMessageToStorageDTO();
+        payloadMessageToStorageDTO.setMessageId(UUID.randomUUID());
+        payloadMessageToStorageDTO.setSenderId(userId);
+        payloadMessageToStorageDTO.setChatId(sendRequestMessageDTO.getChatId());
+        payloadMessageToStorageDTO.setText(sendRequestMessageDTO.getMessage());
+        payloadMessageToStorageDTO.setTimestamp(Instant.now());
+
+        MessageToStorageDTO messageToStorageDTO = new MessageToStorageDTO();
+        messageToStorageDTO.setType(MessageType.MESSAGE);
+        messageToStorageDTO.setMessage(payloadMessageToStorageDTO);
+        return messageToStorageDTO;
     }
 }
