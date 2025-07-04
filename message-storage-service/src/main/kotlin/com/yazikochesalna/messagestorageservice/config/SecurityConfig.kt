@@ -36,7 +36,8 @@ open class SecurityConfig(private val jwtFilter: JwtFilter)
                     "/swagger-ui/**",
                     "/swagger-ui.html",
                     "/swagger-resources/**",
-                    "/v3/api-docs/**"
+                    "/v3/api-docs/**",
+                    "/error"
                 ).permitAll().anyRequest().authenticated()
             }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }

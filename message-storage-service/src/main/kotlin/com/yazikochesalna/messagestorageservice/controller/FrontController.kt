@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 import java.util.*
 
 @RequiredArgsConstructor
@@ -69,19 +70,35 @@ class FrontController(
         }
 
         //Получаем сообщения
-        val messagesToFrontDTOs = userId?.let {
-            messageService.getMessagesAroundCursor(
-                userId = it,
-                chatId = chatId,
-                cursor = cursor,
-                limitUp = limitUp ?: 0,
-                limitDown = limitDown ?: 0
-            )
+        return try {
+            val messagesToFrontDTOs = userId?.let {
+                messageService.getMessagesAroundCursor(
+                    userId = it,
+                    chatId = chatId,
+                    cursor = cursor,
+                    limitUp = limitUp ?: 0,
+                    limitDown = limitDown ?: 0
+                )
+            }
+            ResponseEntity.ok(messagesToFrontDTOs)
+        } catch (e: ResponseStatusException) {
+            //не нашли чат или у пользователя нет прав доступа
+            ResponseEntity.status(HttpStatus.NOT_FOUND).build()
         }
-        //не нашли чат или у пользователя нет прав доступа
-        if (messagesToFrontDTOs==null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Чат не найден или у пользователя нет прав доступа!")
-        }
-        return ResponseEntity.ok(messagesToFrontDTOs)
+
+//        val messagesToFrontDTOs = userId?.let {
+//            messageService.getMessagesAroundCursor(
+//                userId = it,
+//                chatId = chatId,
+//                cursor = cursor,
+//                limitUp = limitUp ?: 0,
+//                limitDown = limitDown ?: 0
+//            )
+//        }
+//        //не нашли чат или у пользователя нет прав доступа
+//        if (messagesToFrontDTOs !=null && messagesToFrontDTOs.isEmpty()){
+//            return ResponseEntity.notFound().build()
+//        }
+//        return ResponseEntity.ok(messagesToFrontDTOs)
     }
 }
