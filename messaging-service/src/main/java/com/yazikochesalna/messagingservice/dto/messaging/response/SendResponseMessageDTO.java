@@ -1,17 +1,14 @@
 package com.yazikochesalna.messagingservice.dto.messaging.response;
 
+import com.yazikochesalna.messagingservice.dto.messaging.notification.ActionType;
+import lombok.Data;
 import lombok.Getter;
 
-@Getter
+@Data
 public class SendResponseMessageDTO {
 
-    private final String action;
-    private final Long requestId;
-    private final SendResponseResultType result;
+    private final ActionType action = ActionType.SEND_RESPONSE;
+    private Long requestId;
+    private SendResponseResultType result;
 
-    public SendResponseMessageDTO(Long requestId, SendResponseResultType result) {
-        this.action = ResponseActionType.SEND_RESPONSE.getResponseAction();
-        this.requestId = requestId;
-        this.result = result;
-    }
 }

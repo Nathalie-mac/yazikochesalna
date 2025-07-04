@@ -2,15 +2,16 @@ package com.yazikochesalna.messagingservice.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yazikochesalna.messagingservice.callback.MessageToStorageCallback;
-import com.yazikochesalna.messagingservice.dto.mapper.DtoMapper;
+import com.yazikochesalna.messagingservice.dto.mapper.SendRequestMessageDTOMapper;
+import com.yazikochesalna.messagingservice.dto.mapper.MessageToStorageDTOMapper;
 import com.yazikochesalna.messagingservice.dto.messaging.notification.ReceiveMessageDTO;
 import com.yazikochesalna.messagingservice.dto.messaging.request.SendRequestMessageDTO;
 import com.yazikochesalna.messagingservice.dto.messaging.response.SendResponseMessageDTO;
 import com.yazikochesalna.messagingservice.dto.messaging.response.SendResponseResultType;
 import com.yazikochesalna.messagingservice.dto.storage.MessageToStorageDTO;
-import com.yazikochesalna.messagingservice.exception.ReceiveMessageException;
-import com.yazikochesalna.messagingservice.exception.ReceiveSendResponseException;
-import com.yazikochesalna.messagingservice.exception.UserNotHaveAccessToChatException;
+import com.yazikochesalna.messagingservice.exception.ReceiveMessageCustomException;
+import com.yazikochesalna.messagingservice.exception.ReceiveSendResponseCustomException;
+import com.yazikochesalna.messagingservice.exception.UserNotHaveAccessToChatCustomException;
 import com.yazikochesalna.messagingservice.service.ChatServiceClient;
 import com.yazikochesalna.messagingservice.service.SendMessageToStorageService;
 import com.yazikochesalna.messagingservice.service.WebSocketService;
@@ -36,8 +37,11 @@ public class WebSocketServiceImpl implements WebSocketService {
     private final ObjectMapper objectMapper;
     private final ChatServiceClient chatServiceClient;
     private final SendMessageToStorageService sendMessageToStorageService;
+    private final SendRequestMessageDTOMapper sendRequestMessageDTOMapper;
+    private final MessageToStorageDTOMapper messageToStorageDTOMapper;
     private final int SEND_TIME_LIMIT = 10 * 1000;
     private final int SEND_BUFFER_SIZE_LIMIT = 512 * 1024;
+
 
 
     @Override
@@ -67,20 +71,24 @@ public class WebSocketServiceImpl implements WebSocketService {
     @Override
     public void sendMessage(WebSocketSession session, SendRequestMessageDTO sendRequestMessageDTO) {
         Long userId = (Long) session.getAttributes().get("userId");
-        if (!chatServiceClient.isUserInChat(userId, sendRequestMessageDTO.getChatId())) {
-            throw new UserNotHaveAccessToChatException();
-        }
+//        if (!chatServiceClient.isUserInChat(userId, sendRequestMessageDTO.getChatId())) {
+//            throw new UserNotHaveAccessToChatCustomException();
+//        }
 
         MessageToStorageDTO messageToStorage =
-                DtoMapper.toMessageToStorageDTO(sendRequestMessageDTO, userId);
+                sendRequestMessageDTOMapper.toMessageToStorageDTO(sendRequestMessageDTO, userId);
         ReceiveMessageDTO receiveMessage =
-                DtoMapper.toReceiveMessageDTO(messageToStorage);
+                messageToStorageDTOMapper.toReceiveMessageDTO(messageToStorage);
 
         sendMessageToStorageService.sendMessageToStorage(messageToStorage, new MessageToStorageCallback() {
             @Override
             public void onSuccess() {
-                receiveSendResponse(session, SendResponseResultType.OK);
-                sendMessageToChat(sendRequestMessageDTO.getChatId(), receiveMessage);
+                try {
+                    receiveSendResponse(session, SendResponseResultType.OK);
+                    sendMessageToChat(sendRequestMessageDTO.getChatId(), receiveMessage);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override
@@ -114,10 +122,9 @@ public class WebSocketServiceImpl implements WebSocketService {
         try {
             long requestId = requestIdCounter.incrementAndGet();
 
-            SendResponseMessageDTO response = new SendResponseMessageDTO(
-                    requestId,
-                    sendResponseResultType
-            );
+            SendResponseMessageDTO response = new SendResponseMessageDTO();
+            response.setRequestId(requestId);
+            response.setResult(sendResponseResultType);
 
             String jsonResponse = objectMapper.writeValueAsString(response);
 
@@ -126,7 +133,7 @@ public class WebSocketServiceImpl implements WebSocketService {
                         .sendMessage(new TextMessage(jsonResponse));
             }
         } catch (IOException e) {
-            throw new ReceiveSendResponseException();
+            throw new ReceiveSendResponseCustomException();
         }
     }
 
@@ -144,7 +151,7 @@ public class WebSocketServiceImpl implements WebSocketService {
             }
 
         } catch (IOException e) {
-            throw new ReceiveMessageException();
+            throw new ReceiveMessageCustomException();
         }
     }
 

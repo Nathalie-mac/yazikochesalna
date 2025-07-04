@@ -1,15 +1,16 @@
 package com.yazikochesalna.messagingservice.dto.messaging.notification;
 
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
+@Data
 public class ReceiveMessageDTO {
-    private final String action = ReceiveActionType.NEW_MESSAGE.getAction();
-    private final Long chatId;
-    private final MessageDTO message;
+    private final ActionType action = ActionType.NEW_MESSAGE;;
+    private Long chatId;
+    private MessageDTO message;
 
-    public ReceiveMessageDTO(Long chatId, MessageDTO message) {
-        this.chatId = chatId;
-        this.message = message;
+    public ReceiveMessageDTO() {
+
     }
 }

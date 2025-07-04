@@ -2,12 +2,13 @@ package com.yazikochesalna.messagingservice.processor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yazikochesalna.messagingservice.dto.messaging.request.RequestActionType;
+import com.yazikochesalna.messagingservice.dto.messaging.notification.ActionType;
 import com.yazikochesalna.messagingservice.dto.messaging.request.SendRequestMessageDTO;
 import com.yazikochesalna.messagingservice.dto.messaging.response.SendResponseResultType;
 import com.yazikochesalna.messagingservice.dto.validator.DtoValidator;
-import com.yazikochesalna.messagingservice.exception.InvalidSendMessageFormatException;
-import com.yazikochesalna.messagingservice.exception.UserNotHaveAccessToChatException;
+import com.yazikochesalna.messagingservice.exception.ChatUserFetchCustomException;
+import com.yazikochesalna.messagingservice.exception.InvalidSendMessageFormatCustomException;
+import com.yazikochesalna.messagingservice.exception.UserNotHaveAccessToChatCustomException;
 import com.yazikochesalna.messagingservice.service.WebSocketService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
@@ -34,10 +35,10 @@ public class TextMessageProcessor {
             String action = requestMap.get(ACTION_FIELD_NAME);
 
             if (action == null) {
-                throw new InvalidSendMessageFormatException();
+                throw new InvalidSendMessageFormatCustomException();
             }
 
-            if (RequestActionType.SEND.getRequestAction()
+            if (ActionType.SEND.toString()
                     .equals(requestMap.get(ACTION_FIELD_NAME))) {
 
                 SendRequestMessageDTO sendMessage = objectMapper.readValue(message.getPayload(), SendRequestMessageDTO.class);
@@ -45,10 +46,12 @@ public class TextMessageProcessor {
                 webSocketService.sendMessage(session, sendMessage);
 
             }
-        } catch (JsonProcessingException | InvalidSendMessageFormatException e) {
+        } catch (JsonProcessingException | InvalidSendMessageFormatCustomException e) {
             webSocketService.receiveSendResponse(session, SendResponseResultType.INVALID_FORMAT);
-        } catch (UserNotHaveAccessToChatException e) {
+        } catch (UserNotHaveAccessToChatCustomException e) {
             webSocketService.receiveSendResponse(session, SendResponseResultType.NOT_ALLOWED);
+        }catch (ChatUserFetchCustomException e){
+            webSocketService.receiveSendResponse(session, SendResponseResultType.CHAT_SERVICE_INTEGRATION_PROBLEM);
         } catch (Exception e) {
             webSocketService.receiveSendResponse(session, SendResponseResultType.ERROR);
             e.printStackTrace();

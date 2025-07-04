@@ -1,6 +1,6 @@
 package com.yazikochesalna.messagingservice.service.impl;
 
-import com.yazikochesalna.messagingservice.exception.InvalidWebSocketTokenException;
+import com.yazikochesalna.messagingservice.exception.InvalidWebSocketTokenCustomException;
 import com.yazikochesalna.messagingservice.service.WebSocketTokenService;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RBucket;
@@ -31,7 +31,7 @@ public class RedissonWebSocketTokenService implements WebSocketTokenService {
 
     public Long validateAndGetUserId(String token) {
         if (!validateToken(token)) {
-            throw new InvalidWebSocketTokenException();
+            throw new InvalidWebSocketTokenCustomException();
         }
         RBucket<Long> bucket = redissonClient.getBucket(TOKEN_PREFIX + token);
         return bucket.getAndDelete();

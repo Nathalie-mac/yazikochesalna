@@ -1,22 +1,26 @@
 package com.yazikochesalna.messagingservice.dto.validator;
 
+import com.yazikochesalna.messagingservice.dto.messaging.notification.ActionType;
 import com.yazikochesalna.messagingservice.dto.messaging.request.SendRequestMessageDTO;
-import com.yazikochesalna.messagingservice.exception.InvalidSendMessageFormatException;
+import com.yazikochesalna.messagingservice.exception.InvalidSendMessageFormatCustomException;
 
-public final class DtoValidator {
+public class DtoValidator {
 
 
     public static void validateSendRequestMessageDTO(SendRequestMessageDTO dto) {
         if (dto == null) {
-            throw new InvalidSendMessageFormatException();
+            throw new InvalidSendMessageFormatCustomException();
         }
-        if (dto.getRequestId() == null
-                || dto.getAction() == null
-                || dto.getAction().trim().isEmpty()
+        if (isInvalidSendRequestMessageDTOFields(dto)) {
+            throw new InvalidSendMessageFormatCustomException();
+        }
+    }
+
+    private static boolean isInvalidSendRequestMessageDTOFields(SendRequestMessageDTO dto) {
+        return dto.getRequestId() == null
+                || (!dto.getAction().equals(ActionType.SEND))
                 || dto.getChatId() == null
                 || dto.getMessage() == null
-                || dto.getMessage().trim().isEmpty()) {
-            throw new InvalidSendMessageFormatException();
-        }
+                || dto.getMessage().trim().isEmpty();
     }
 }

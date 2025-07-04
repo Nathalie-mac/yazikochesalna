@@ -5,5 +5,6 @@ public enum SendResponseResultType {
     INVALID_FORMAT,
     NOT_ALLOWED,
     NOT_SENT_TO_STORAGE,
+    CHAT_SERVICE_INTEGRATION_PROBLEM,
     ERROR
 }

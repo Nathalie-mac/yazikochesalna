@@ -1,6 +1,6 @@
 package com.yazikochesalna.messagingservice.interseptor;
 
-import com.yazikochesalna.messagingservice.exception.InvalidWebSocketTokenException;
+import com.yazikochesalna.messagingservice.exception.InvalidWebSocketTokenCustomException;
 import com.yazikochesalna.messagingservice.service.WebSocketTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,17 +20,20 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
 
     @Override
-    public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) {
+    public boolean beforeHandshake(ServerHttpRequest request,
+                                   ServerHttpResponse response,
+                                   WebSocketHandler wsHandler,
+                                   Map<String, Object> attributes) {
         try {
             String query = request.getURI().getQuery();
             if (query == null || !query.contains("token=")) {
-                throw new InvalidWebSocketTokenException();
+                throw new InvalidWebSocketTokenCustomException();
             }
             String token = query.replace("token=", "");
             Long userId = tokenService.validateAndGetUserId(token);
             attributes.put("userId", userId);
             return true;
-        } catch (InvalidWebSocketTokenException e) {
+        } catch (InvalidWebSocketTokenCustomException e) {
             response.setStatusCode(HttpStatus.BAD_REQUEST);
             response.getHeaders().add("X-Error-Message", e.getMessage());
             return false;
