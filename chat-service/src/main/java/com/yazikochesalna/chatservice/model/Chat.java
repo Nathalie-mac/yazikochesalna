@@ -27,7 +27,7 @@ public class Chat {
     @OneToOne(cascade = CascadeType.ALL, optional = true, mappedBy = "chat")
     private GroupChatDetails groupChatDetails;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "chat")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "chat", orphanRemoval = true)
     private List<ChatUser> members = new ArrayList<>();
 
     public void addMember(ChatUser member) {

@@ -1,0 +1,26 @@
+package com.yazikochesalna.userservice.data.repository;
+
+import com.yazikochesalna.userservice.data.entity.Users;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Pageable;
+
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface UsersRepository extends JpaRepository<Users, Long> {
+
+    Optional<Users> findById (long id);
+
+    @Query("SELECT u.id FROM Users u WHERE u.username LIKE :prefix%")
+    List<Long> findUserIdsByUsernameStartingWith(@Param("prefix") String prefix,
+                                                 Pageable pageable);
+
+    List<Users> findAllByIdIn(List<Long> ids);
+
+    boolean existsByUsername(String username);
+
+}
