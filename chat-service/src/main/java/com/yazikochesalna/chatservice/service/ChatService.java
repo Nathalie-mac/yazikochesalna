@@ -3,6 +3,7 @@ package com.yazikochesalna.chatservice.service;
 import com.yazikochesalna.chatservice.dto.GetDialogResponseDto;
 import com.yazikochesalna.chatservice.dto.GetGroupChatInfoDto;
 import com.yazikochesalna.chatservice.dto.MembersListDto;
+import com.yazikochesalna.chatservice.dto.ShortChatInfoResponse;
 import com.yazikochesalna.chatservice.dto.chatList.ChatListDto;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatRequest;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatResponse;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @AllArgsConstructor
 @Service
@@ -118,6 +120,25 @@ public class ChatService {
         chat.getMembers().removeIf(chatUser -> chatUser.getUserId().equals(deletedUserId));
         chatRepository.save(chat);
         return true;
+    }
+
+
+    public ShortChatInfoResponse getShortChatInfo(long userId, long chatId) {
+        final Chat chat = chatRepository.getChatById(chatId);
+        if (chat == null) {
+            return null;
+        }
+        final Optional<ChatUser> user =  chat.getMembers().stream().filter(chatUser -> chatUser.getUserId()==userId).findAny();
+        if (user.isEmpty()) {
+            return null;
+        }
+        final List<Long> members = chat.getMembers().stream().map(ChatUser::getUserId).toList();
+        final ShortChatInfoResponse response = new ShortChatInfoResponse(
+                user.get().getLastReadMessageId(),
+                chat.getType(),
+                members
+        );
+        return response;
     }
 
     private boolean isOwner(final Chat chat, final Long userId) {
