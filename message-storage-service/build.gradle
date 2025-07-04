@@ -45,6 +45,14 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Spring WebFlux (включает WebClient)
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+
+    //for corutines and async
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+
     // cassandra db
     implementation("org.springframework.boot:spring-boot-starter-data-cassandra")
     implementation("org.springframework.boot:spring-boot-starter-data-cassandra-reactive")

@@ -56,11 +56,6 @@ class FrontController(
         @RequestParam(required = false) limitDown: Int?,
         @RequestParam(required = false) cursor: UUID?
     ): ResponseEntity<Any> {
-        // Проверяем существование чата
-//        if (!chatService.chatExists(chatId)) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Чат не найден")
-//        }
-
         //Тащим id пользователя
         val userId = (SecurityContextHolder.getContext().authentication as? JwtAuthenticationToken)?.userId
 
@@ -74,7 +69,7 @@ class FrontController(
         }
 
         //Получаем сообщения
-        val messages = userId?.let {
+        val messagesToFrontDTOs = userId?.let {
             messageService.getMessagesAroundCursor(
                 userId = it,
                 chatId = chatId,
@@ -83,7 +78,10 @@ class FrontController(
                 limitDown = limitDown ?: 0
             )
         }
-
-        return ResponseEntity.ok(mapOf("messages" to messages))
+        //не нашли чат или у пользователя нет прав доступа
+        if (messagesToFrontDTOs==null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Чат не найден или у пользователя нет прав доступа!")
+        }
+        return ResponseEntity.ok(messagesToFrontDTOs)
     }
 }
