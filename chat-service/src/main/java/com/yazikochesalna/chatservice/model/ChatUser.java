@@ -18,8 +18,6 @@ public class ChatUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    //@Column(name = "chat_id", nullable = false)
-    //private long chatId;
     @Column(name = "user_id", nullable = false)
     private Long userId;
     @Column(name = "last_read_message_id", nullable = true)
