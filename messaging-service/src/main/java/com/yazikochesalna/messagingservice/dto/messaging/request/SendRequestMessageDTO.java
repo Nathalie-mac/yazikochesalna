@@ -6,7 +6,6 @@ import lombok.Data;
 @Data
 public class SendRequestMessageDTO {
     private final ActionType action = ActionType.SEND;
-    private Long requestId;
     private Long chatId;
     private String message;
 
