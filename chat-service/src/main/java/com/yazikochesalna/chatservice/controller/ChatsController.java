@@ -3,6 +3,7 @@ package com.yazikochesalna.chatservice.controller;
 import com.yazikochesalna.chatservice.dto.GetDialogResponseDto;
 import com.yazikochesalna.chatservice.dto.GetGroupChatInfoDto;
 import com.yazikochesalna.chatservice.dto.MembersListDto;
+import com.yazikochesalna.chatservice.dto.ShortChatInfoResponse;
 import com.yazikochesalna.chatservice.dto.chatList.ChatListDto;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatRequest;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatResponse;
@@ -126,6 +127,16 @@ public class ChatsController {
         );
     }
 
+
+    @GetMapping({"/{chatId}","/{chatId}/"})
+    public ResponseEntity<ShortChatInfoResponse> getShortChatInfo(@PathVariable long chatId) {
+        final long userId = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getUserId();
+        final ShortChatInfoResponse info = chatService.getShortChatInfo(userId, chatId);
+        if (info == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return  ResponseEntity.ok(info);
+    }
 
     @GetMapping({"/check/{chatId}/{userId}", "/check/{chatId}/{userId}/"})
     @RolesAllowed("SERVICE")
