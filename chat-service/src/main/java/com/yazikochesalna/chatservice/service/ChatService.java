@@ -174,7 +174,7 @@ public class ChatService {
 
     private GetDialogResponseDto createDialog(long userId, long partnerId) {
         Chat chat = new Chat(null, ChatType.PRIVATE, null, new LinkedList<>());
-        chat.getMembers().add(new ChatUser(null, userId, null, chat));
+        chat.addMember(new ChatUser(null, userId, null, chat));
         chat.addMember(new ChatUser(null, partnerId, null, chat));
         try {
             chatRepository.save(chat);
