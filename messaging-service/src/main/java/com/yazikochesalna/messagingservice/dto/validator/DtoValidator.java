@@ -17,7 +17,7 @@ public class DtoValidator {
     }
 
     private static boolean isInvalidSendRequestMessageDTOFields(SendRequestMessageDTO dto) {
-        return  (!dto.getAction().equals(ActionType.SEND))
+        return (!dto.getAction().equals(ActionType.SEND))
                 || dto.getChatId() == null
                 || dto.getMessage() == null
                 || dto.getMessage().trim().isEmpty();

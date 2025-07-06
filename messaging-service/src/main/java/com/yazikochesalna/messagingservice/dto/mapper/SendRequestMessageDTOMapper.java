@@ -12,17 +12,17 @@ import java.util.UUID;
 @Component
 public class SendRequestMessageDTOMapper {
 
-    public MessageDTO toMessageToStorageDTO(SendRequestMessageDTO sendRequestMessageDTO, Long userId) {
+    public MessageDTO toMessageDTO(SendRequestMessageDTO sendRequestMessageDTO, Long userId) {
         PayloadMessageDTO payloadMessageDTO = new PayloadMessageDTO();
-        payloadMessageDTO.setMessageId(UUID.randomUUID());
         payloadMessageDTO.setSenderId(userId);
         payloadMessageDTO.setChatId(sendRequestMessageDTO.getChatId());
         payloadMessageDTO.setText(sendRequestMessageDTO.getMessage());
-        payloadMessageDTO.setTimestamp(Instant.now());
 
         MessageDTO messageDTO = new MessageDTO();
+        messageDTO.setMessageId(UUID.randomUUID());
+        messageDTO.setTimestamp(Instant.now());
         messageDTO.setType(MessageType.MESSAGE);
-        messageDTO.setMessage(payloadMessageDTO);
+        messageDTO.setPayload(payloadMessageDTO);
         return messageDTO;
     }
 }

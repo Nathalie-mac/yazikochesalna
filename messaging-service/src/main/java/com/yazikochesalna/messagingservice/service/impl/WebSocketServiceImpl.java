@@ -2,9 +2,8 @@ package com.yazikochesalna.messagingservice.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
-import com.yazikochesalna.messagingservice.dto.mapper.MessageDTOMapper;
+import com.yazikochesalna.messagingservice.dto.kafka.PayloadMessageDTO;
 import com.yazikochesalna.messagingservice.dto.mapper.SendRequestMessageDTOMapper;
-import com.yazikochesalna.messagingservice.dto.messaging.notification.ReceiveMessageDTO;
 import com.yazikochesalna.messagingservice.dto.messaging.request.SendRequestMessageDTO;
 import com.yazikochesalna.messagingservice.service.ChatServiceClient;
 import com.yazikochesalna.messagingservice.service.WebSocketService;
@@ -31,7 +30,6 @@ public class WebSocketServiceImpl implements WebSocketService {
     private final ChatServiceClient chatServiceClient;
     private final KafkaProducerService sendMessageService;
     private final SendRequestMessageDTOMapper sendRequestMessageDTOMapper;
-    private final MessageDTOMapper messageDTOMapper;
 
     private final int SEND_TIME_LIMIT = 10 * 1000;
     private final int SEND_BUFFER_SIZE_LIMIT = 512 * 1024;
@@ -73,7 +71,7 @@ public class WebSocketServiceImpl implements WebSocketService {
 
 
         MessageDTO messageToStorage =
-                sendRequestMessageDTOMapper.toMessageToStorageDTO(sendRequestMessageDTO, userId);
+                sendRequestMessageDTOMapper.toMessageDTO(sendRequestMessageDTO, userId);
 
 
         sendMessageService.sendMessage(messageToStorage);
@@ -83,27 +81,27 @@ public class WebSocketServiceImpl implements WebSocketService {
 
     @Override
     public void receiveMessagesToMembers(MessageDTO messageDTO) {
-        Long senderId = messageDTO.getMessage().getSenderId();
-        Long chatId = messageDTO.getMessage().getChatId();
+        PayloadMessageDTO payload = messageDTO.getPayload();
+        Long senderId = payload.getSenderId();
+        Long chatId = payload.getChatId();
         if (!chatServiceClient.isUserInChat(senderId, chatId)) {
             return;
         }
         List<Long> recipientUsers = chatServiceClient.getUsersByChatId(chatId);
 
-        ReceiveMessageDTO receiveMessage = messageDTOMapper.toReceiveMessageDTO(messageDTO);
 
         for (Long recipientId : recipientUsers) {
             Set<WebSocketSession> recipientSessions = activeSessions.get(recipientId);
             if (recipientSessions != null && !recipientSessions.isEmpty()) {
                 for (WebSocketSession recipientSession : recipientSessions) {
-                    receiveMessage(recipientSession, receiveMessage);
+                    receiveMessage(recipientSession, messageDTO);
                 }
             }
         }
 
     }
 
-    private void receiveMessage(WebSocketSession session, ReceiveMessageDTO receiveMessageDTO) {
+    private void receiveMessage(WebSocketSession session, MessageDTO receiveMessageDTO) {
 
         try {
             if (session.isOpen()) {
