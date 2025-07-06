@@ -2,16 +2,14 @@ package com.yazikochesalna.messagingservice.service.impl;
 
 import com.yazikochesalna.common.service.JwtService;
 import com.yazikochesalna.messagingservice.dto.chat.ChatUsersResponseDTO;
-import com.yazikochesalna.messagingservice.exception.ChatUserFetchCustomException;
 import com.yazikochesalna.messagingservice.service.ChatServiceClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -25,6 +23,7 @@ public class ChatServiceClientImpl implements ChatServiceClient {
     private String serviceBaseUrl;
 
     //TODO: подумать над неблокирующими заросами
+
 
     @Override
     public boolean isUserInChat(Long userId, Long chatId) {
@@ -51,14 +50,9 @@ public class ChatServiceClientImpl implements ChatServiceClient {
                 .uri(url)
                 .headers(headers -> headers.setBearerAuth(jwtService.generateServiceToken()))
                 .retrieve()
-                .onStatus(
-                        status -> status.equals(HttpStatus.NOT_FOUND),
-                        response -> response.bodyToMono(String.class)
-                                .flatMap(errorBody -> Mono.error(new ChatUserFetchCustomException()))
-                )
                 .bodyToMono(ChatUsersResponseDTO.class)
                 .map(ChatUsersResponseDTO::getUsersIds)
-//                .onErrorMap(throwable -> new ChatUserFetchCustomException())
+                .onErrorReturn(Collections.emptyList())
                 .block();
     }
 }

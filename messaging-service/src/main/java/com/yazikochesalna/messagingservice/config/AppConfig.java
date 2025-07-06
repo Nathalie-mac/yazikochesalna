@@ -44,7 +44,6 @@ public class AppConfig {
         mapper.disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-        // Опционально: задать конкретный формат для Instant
         mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
 
         return mapper;

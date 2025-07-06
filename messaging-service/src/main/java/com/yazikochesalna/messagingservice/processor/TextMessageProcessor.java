@@ -4,10 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yazikochesalna.messagingservice.dto.messaging.notification.ActionType;
 import com.yazikochesalna.messagingservice.dto.messaging.request.SendRequestMessageDTO;
-import com.yazikochesalna.messagingservice.dto.messaging.response.SendResponseResultType;
 import com.yazikochesalna.messagingservice.dto.validator.DtoValidator;
 import com.yazikochesalna.messagingservice.exception.InvalidSendMessageFormatCustomException;
-import com.yazikochesalna.messagingservice.exception.UserNotHaveAccessToChatCustomException;
 import com.yazikochesalna.messagingservice.service.WebSocketService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
@@ -46,11 +44,8 @@ public class TextMessageProcessor {
 
             }
         } catch (JsonProcessingException | InvalidSendMessageFormatCustomException e) {
-            webSocketService.receiveSendResponse(session, SendResponseResultType.INVALID_FORMAT);
-        } catch (UserNotHaveAccessToChatCustomException e) {
-            webSocketService.receiveSendResponse(session, SendResponseResultType.NOT_ALLOWED);
+            System.err.println("Ошибка обработки сообщения:" + e.getMessage());
         } catch (Exception e) {
-            webSocketService.receiveSendResponse(session, SendResponseResultType.ERROR);
             e.printStackTrace();
         }
     }

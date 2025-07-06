@@ -1,4 +1,4 @@
-package com.yazikochesalna.messagingservice.dto.storage;
+package com.yazikochesalna.messagingservice.dto.messaging.notification;
 
 import lombok.Data;
 
@@ -6,10 +6,11 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Data
-public class PayloadMessageToStorageDTO {
+public class PayloadReceiveMessageDTO {
     private UUID messageId;
     private Long senderId;
-    private Long chatId;
     private String text;
     private Instant timestamp;
+
+
 }

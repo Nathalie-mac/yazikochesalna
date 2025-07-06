@@ -6,7 +6,7 @@ import lombok.Data;
 public class ReceiveMessageDTO {
     private final ActionType action = ActionType.NEW_MESSAGE;
     private Long chatId;
-    private MessageDTO message;
+    private PayloadReceiveMessageDTO message;
 
     public ReceiveMessageDTO() {
 
