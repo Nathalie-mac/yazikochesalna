@@ -1,0 +1,39 @@
+package com.yazikochesalna.messagingservice.controller;
+
+import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
+import com.yazikochesalna.messagingservice.service.WebSocketService;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.annotation.security.RolesAllowed;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/v1/notification")
+@RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
+public class NotificationController {
+    private final WebSocketService webSocketService;
+
+    @PostMapping("/")
+    @RolesAllowed("SERVICE")
+    @Operation(summary = "Отправка уведомления о изменении состава участников ",
+            description = "Внтуренний метод для отправки уведомлений о добавлении или удалении нового пользователя.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Уведомление принято в рассылку"),
+    })
+    @Hidden
+    public ResponseEntity<?> sendNewMemberNotification(@RequestBody MessageDTO messageDTO) {
+        webSocketService.sendNotificationToKafka(messageDTO);
+        return ResponseEntity.ok().build();
+    }
+
+
+}

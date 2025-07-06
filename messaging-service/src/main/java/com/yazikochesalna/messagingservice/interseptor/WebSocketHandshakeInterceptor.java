@@ -15,9 +15,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
-
     private final WebSocketTokenService tokenService;
-
 
     @Override
     public boolean beforeHandshake(ServerHttpRequest request,

@@ -1,16 +1,13 @@
 package com.yazikochesalna.messagingservice.dto.kafka;
 
 import lombok.*;
-import lombok.experimental.Accessors;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Accessors(chain = true)
-public class PayloadMessageDTO extends PayloadDTO {
-    private Long senderId;
+public class PayloadNotificationDTO extends PayloadDTO {
+    private Long memberId;
     private Long chatId;
-    private String text;
 }

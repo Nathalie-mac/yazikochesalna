@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,8 +26,7 @@ public class ChatServiceClientImpl implements ChatServiceClient {
 
     @Override
     public boolean isUserInChat(Long userId, Long chatId) {
-
-        String url = String.format(CHECK_USER_IN_CHAT_URL_FORMAT, serviceBaseUrl, chatId, userId);
+        var url = String.format(CHECK_USER_IN_CHAT_URL_FORMAT, serviceBaseUrl, chatId, userId);
 
         return Boolean.TRUE.equals(chatServiceWebClient.get()
                 .uri(url)
@@ -37,14 +35,12 @@ public class ChatServiceClientImpl implements ChatServiceClient {
                 .toBodilessEntity()
                 .map(response -> response.getStatusCode().is2xxSuccessful())
                 .onErrorReturn(false)
-                .timeout(Duration.ofSeconds(5))
-                .block(Duration.ofSeconds(5)));
+                .block());
     }
 
     @Override
     public List<Long> getUsersByChatId(Long chatId) {
-
-        String url = String.format(GET_USERS_URL_FORMAT, serviceBaseUrl, chatId);
+        var url = String.format(GET_USERS_URL_FORMAT, serviceBaseUrl, chatId);
 
         return chatServiceWebClient.get()
                 .uri(url)

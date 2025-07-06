@@ -1,5 +1,7 @@
 package com.yazikochesalna.messagingservice.dto.kafka;
 
 public enum MessageType {
-    MESSAGE
+    MESSAGE,
+    NEW_MEMBER,
+    DROP_MEMBER
 }

@@ -20,9 +20,7 @@ public class RedissonWebSocketTokenService implements WebSocketTokenService {
 
 
     public String generateToken(Long userId) {
-
-
-        String token = UUID.randomUUID().toString();
+        var token = UUID.randomUUID().toString();
 
         RBucket<Long> bucket = redissonClient.getBucket(TOKEN_PREFIX + token);
         bucket.set(userId, TOKEN_EXPIRATION);

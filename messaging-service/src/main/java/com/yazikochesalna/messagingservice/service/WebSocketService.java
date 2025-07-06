@@ -1,7 +1,6 @@
 package com.yazikochesalna.messagingservice.service;
 
 import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
-import com.yazikochesalna.messagingservice.dto.messaging.request.SendRequestMessageDTO;
 import org.springframework.web.socket.WebSocketSession;
 
 public interface WebSocketService {
@@ -10,8 +9,12 @@ public interface WebSocketService {
 
     void removeSession(WebSocketSession session);
 
-    void sendMessage(WebSocketSession session, SendRequestMessageDTO sendRequestMessageDTO);
+    void sendMessageToKafka(WebSocketSession session, MessageDTO messageDTO);
 
-    void receiveMessagesToMembers(MessageDTO messageDTO);
+
+    void broadcastMessageToParticipants(MessageDTO messageDTO);
+
+    void sendNotificationToKafka(MessageDTO notificationDTO);
+
 
 }

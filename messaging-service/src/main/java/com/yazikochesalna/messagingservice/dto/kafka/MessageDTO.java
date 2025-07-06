@@ -1,18 +1,24 @@
 package com.yazikochesalna.messagingservice.dto.kafka;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.yazikochesalna.messagingservice.deserializer.MessageDTODeserializer;
+import com.yazikochesalna.messagingservice.dto.deserializer.MessageDTODeserializer;
+import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Data
+@Builder
 @JsonDeserialize(using = MessageDTODeserializer.class)
+@Accessors(chain = true)
 public class MessageDTO {
     private MessageType type;
-    private UUID messageId;
-    private Instant timestamp;
+    @Builder.Default
+    private UUID messageId = UUID.randomUUID();
+    @Builder.Default
+    private Instant timestamp = Instant.now();
     private PayloadDTO payload;
 
 

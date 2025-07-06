@@ -5,7 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.springframework.beans.factory.annotation.Value;
+import com.yazikochesalna.messagingservice.config.properties.ChatServiceProperties;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -15,22 +16,16 @@ import reactor.netty.http.client.HttpClient;
 import java.text.SimpleDateFormat;
 
 @Configuration
+@RequiredArgsConstructor
 public class AppConfig {
 
-    @Value("${chat.service.url}")
-    private String chatServiceBaseUrl;
 
+    private final ChatServiceProperties chatServiceProperties;
     @Bean
-    public WebClient.Builder webClientBuilder() {
-
+    public WebClient chatServiceWebClient() {
         return WebClient.builder()
-                .baseUrl(chatServiceBaseUrl)
-                .clientConnector(new ReactorClientHttpConnector(HttpClient.create()));
-    }
-
-    @Bean
-    public WebClient chatServiceWebClient(WebClient.Builder webClientBuilder) {
-        return webClientBuilder.build();
+                .baseUrl(chatServiceProperties.getUrl())
+                .clientConnector(new ReactorClientHttpConnector(HttpClient.create())).build();
     }
 
     @Bean

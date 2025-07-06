@@ -20,7 +20,7 @@ import java.util.Map;
 @RequestMapping("/api/v1/chat")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
-public class ChatController {
+public class ConnectionController {
 
 
     private final WebSocketTokenService tokenService;
@@ -44,6 +44,7 @@ public class ChatController {
         Long userId = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getUserId();
 
         String token = tokenService.generateToken(userId);
+
         return ResponseEntity.ok(Map.of("token", token));
     }
 }
