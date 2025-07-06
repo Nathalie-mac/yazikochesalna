@@ -10,4 +10,5 @@ include(":user-service")
 include(":message-storage-service")
 include(":messaging-service")
 include 'authorization-service'
+include 'file-service'
 
