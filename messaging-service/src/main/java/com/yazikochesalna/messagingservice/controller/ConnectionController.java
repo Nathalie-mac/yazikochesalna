@@ -11,13 +11,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/chat")
+@RequestMapping("/api/v1/ws")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
 public class ConnectionController {
@@ -25,7 +26,7 @@ public class ConnectionController {
 
     private final WebSocketTokenService tokenService;
 
-    @GetMapping("/connect")
+    @PostMapping("/connect")
     @Operation(
             summary = "Получить токен для установления websocket соединения",
             description = "Возвращает токен, который надо указать в качестве query параметра " +
