@@ -18,7 +18,7 @@ data class Message(
 
     @Column("type")
     @Enumerated(value = EnumType.STRING)
-    val type: MessageType,
+    val type: MessageType?,
 
     @Column("sender_id")
     @Indexed

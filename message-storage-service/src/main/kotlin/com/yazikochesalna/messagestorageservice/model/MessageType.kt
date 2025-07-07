@@ -8,8 +8,10 @@ enum class MessageType(val type: String) {
     NEW_AVATAR("NEW_AVATAR");
 
     companion object {
-        fun fromType(type: String): MessageType? {
-            return values().firstOrNull { it.type == type }
+        fun fromType(type: String?): MessageType? {
+            return type?.let { notNullType ->
+                entries.firstOrNull { it.type == notNullType }
+            }
         }
     }
 }
