@@ -70,7 +70,6 @@ open class CustomMessageRepositoryImpl(
             requireNotNull(cursorMessage) { "Cursor message not found" }
             val cursorTime = cursorMessage.sendTime
 
-            // Параллельные запросы:
             val beforeMessagesFlux = reactiveCqlTemplate.query(
                 beforeCursorSelectStmt,
                 { rs, _ -> deserializeMessage(rs) },
@@ -83,7 +82,6 @@ open class CustomMessageRepositoryImpl(
                 chatId, cursorTime, limitDown
             ).collectList()
 
-            // 3. Объединяем всё в один список
             Flux.zip(
                 beforeMessagesFlux,
                 afterMessagesFlux
@@ -91,14 +89,11 @@ open class CustomMessageRepositoryImpl(
                 val finalList = mutableListOf<Message>()
                 val beforeMessages = tuple.t1.filterNotNull()
                 finalList.addAll(beforeMessages.reversed())
-
                 if (cursorMessage != null) {
                     finalList.add(cursorMessage)
                 }
-
                 val afterMessages  = tuple.t2.filterNotNull()
                 finalList.addAll(afterMessages)
-
                 finalList
             }.flatMapIterable { it }
         }
