@@ -28,8 +28,7 @@ public class UserController {
     @Hidden
     public SearchDTO checkUsersExistence(@RequestBody List<Long> userIds) {
         List<Users> existingUsers = internalUserService.findAllByIdIn(userIds);
-        SearchDTO searchDTO = new SearchDTO(ListIdsMapper.mapUsersToIds(existingUsers));
-        return searchDTO;
+        return new SearchDTO(ListIdsMapper.mapUsersToIds(existingUsers));
     }
 
     @PostMapping
