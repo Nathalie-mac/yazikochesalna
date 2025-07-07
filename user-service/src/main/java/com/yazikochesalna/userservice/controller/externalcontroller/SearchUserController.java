@@ -1,5 +1,6 @@
 package com.yazikochesalna.userservice.controller.externalcontroller;
 
+import com.yazikochesalna.userservice.dto.SearchDTO;
 import com.yazikochesalna.userservice.service.UserSearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,13 +24,15 @@ public class SearchUserController {
 
     @GetMapping("/search")
     @Operation(summary = "Получить пользователей по userName", description = "Возвращает максимум 40 первых пользователей")
-    public ResponseEntity<List<Long>> searchUserIdsByUsername(
+    public ResponseEntity<SearchDTO> searchUserIdsByUsername(
             @RequestParam("username")
             @NotBlank
             String usernamePrefix) {
 
         List<Long> userIds = userSearchService.findUserIdsByUsernameStartsWith(usernamePrefix);
-        return ResponseEntity.ok(userIds);
+        SearchDTO searchDTO = new SearchDTO(userIds);
+
+        return ResponseEntity.ok(searchDTO);
     }
 
 }
