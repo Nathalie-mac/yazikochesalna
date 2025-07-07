@@ -89,8 +89,7 @@ public class MessageDTODeserializer extends StdDeserializer<MessageDTO> {
         }
 
 
-
-        return  messageDTO;
+        return messageDTO;
     }
 
 
