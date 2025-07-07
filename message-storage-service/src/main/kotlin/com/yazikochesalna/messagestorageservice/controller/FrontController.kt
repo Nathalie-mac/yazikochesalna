@@ -76,8 +76,8 @@ class FrontController(
                     userId = it,
                     chatId = chatId,
                     cursor = cursor,
-                    limitUp = limitUp ?: 0,
-                    limitDown = limitDown ?: 0
+                    limitUp = limitUp ?: 1,
+                    limitDown = limitDown ?: 1
                 )
             }
             ResponseEntity.ok(messagesToFrontDTOs)

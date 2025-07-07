@@ -7,6 +7,7 @@ import com.datastax.oss.driver.api.core.type.codec.TypeCodec
 import com.datastax.oss.driver.api.core.type.codec.TypeCodecs
 import com.datastax.oss.driver.api.core.type.reflect.GenericType
 import java.nio.ByteBuffer
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
@@ -29,26 +30,27 @@ class DateTimeCodec : TypeCodec<LocalDateTime> {
         return cqlType.asCql(false, true) == "timestamp"
     }
 
-    //TODO: обсудить с фронтом и бэком зону
     override fun decode(bytes: ByteBuffer?, protocolVersion: ProtocolVersion): LocalDateTime? {
-        val dateTime = TypeCodecs.TIMESTAMP.decode(bytes, protocolVersion)
-        return LocalDateTime.ofInstant(dateTime, ZoneId.systemDefault())
+        return bytes?.let {
+            val instant = TypeCodecs.TIMESTAMP.decode(bytes, protocolVersion)
+            instant?.atOffset(ZoneOffset.UTC)?.toLocalDateTime()
+        }
     }
 
     override fun format(p0: LocalDateTime?): String {
-        if (p0 == null) return "1900-01-01T00:00:00Z"
-        return p0.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+        //if (p0 == null) return "NULL"
+        return p0?.atOffset(ZoneOffset.UTC)?.format(DateTimeFormatter.ISO_INSTANT)?: "NULL"
     }
 
     override fun parse(p0: String?): LocalDateTime? {
         if (p0 == null) return null
-        return LocalDateTime.parse(p0)
+        return Instant.parse(p0).atOffset(ZoneOffset.UTC).toLocalDateTime()
     }
 
     override fun encode(p0: LocalDateTime?, p1: ProtocolVersion): ByteBuffer? {
         if (p0 == null) return null
         //val dtLength = TypeCodecs.INT.encodePrimitive(8, p1)
-        val dtBuffer = TypeCodecs.TIMESTAMP.encode(p0.toInstant(ZoneOffset.UTC), p1)
-        return ByteBuffer.allocate(dtBuffer!!.capacity())
+        val instant = p0.atOffset(ZoneOffset.UTC).toInstant()
+        return TypeCodecs.TIMESTAMP.encode(instant, p1)
     }
 }

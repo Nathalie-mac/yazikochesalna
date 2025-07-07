@@ -44,9 +44,16 @@ cqlsh -u "$ADMIN_USER" -p "$ADMIN_PASS" <<-CQL
       marked_to_delete BOOLEAN,
       PRIMARY KEY (id)
   );
-  CREATE INDEX IF NOT EXISTS messages_sender_idx ON messages (sender_id);
-  CREATE INDEX IF NOT EXISTS messages_chat_idx ON messages (chat_id);
-  CREATE INDEX IF NOT EXISTS messages_time_idx ON messages (send_time);
+  CREATE TABLE IF NOT EXISTS messages_by_chat (
+      chat_id BIGINT,
+      send_time TIMESTAMP,
+      id UUID,
+      text TEXT,
+      sender_id BIGINT,
+      type TEXT,
+      marked_to_delete BOOLEAN,
+      PRIMARY KEY ((chat_id), send_time, id)
+  ) WITH CLUSTERING ORDER BY (send_time DESC);
 
   CREATE TABLE IF NOT EXISTS attachments (
       id BIGINT,

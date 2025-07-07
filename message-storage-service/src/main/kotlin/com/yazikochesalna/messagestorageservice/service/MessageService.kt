@@ -50,7 +50,7 @@ class MessageService(
             ?.map { message -> MessagesToFrontDTO(
                 messageId = message.id,
                 senderId = message.senderId,
-                chatId = message.chatId,
+                text = message.text,
                 timestamp = message.sendTime) }
             ?: emptyList()
         //конвертируем в MessagesToFrontDTO (используя OpjectMapper)

@@ -6,7 +6,7 @@ import java.util.*
 class MessagesToFrontDTO(
     val messageId: UUID,
     val senderId: Long,
-    val chatId: Long,
+    val text: String,
     val timestamp: LocalDateTime,
 ) {
 

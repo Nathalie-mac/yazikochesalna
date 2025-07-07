@@ -1,6 +1,7 @@
 package com.yazikochesalna.messagestorageservice.controller
 
 import com.yazikochesalna.common.service.JwtService
+import io.swagger.v3.oas.annotations.Hidden
 import io.swagger.v3.oas.annotations.Operation
 import jakarta.annotation.security.PermitAll
 import lombok.RequiredArgsConstructor
@@ -24,5 +25,6 @@ open class DebugController(
 
     //Тащим сервисный токен
     @GetMapping("/service-token")
+    @Hidden
     fun generateToken() = jwtService.generateServiceToken()
 }

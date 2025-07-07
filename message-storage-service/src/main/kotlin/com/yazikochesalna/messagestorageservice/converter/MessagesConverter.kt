@@ -7,6 +7,6 @@ import java.util.*
 
 class MessagesConverter {
     fun convertMessageToMessageFrontDTO(Message : Message) : MessagesToFrontDTO {
-        return MessagesToFrontDTO(UUID.randomUUID(), 0, 0, LocalDateTime.now())
+        return MessagesToFrontDTO(UUID.randomUUID(), 0, "", LocalDateTime.now())
     }
 }

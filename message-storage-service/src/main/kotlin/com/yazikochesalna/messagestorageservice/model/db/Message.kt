@@ -29,7 +29,7 @@ data class Message(
     val chatId: Long,
 
     @Column
-    val text: String?,
+    val text: String,
 
     @Column("send_time")
     @Indexed
