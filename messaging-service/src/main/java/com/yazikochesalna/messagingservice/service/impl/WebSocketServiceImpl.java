@@ -1,7 +1,11 @@
 package com.yazikochesalna.messagingservice.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yazikochesalna.messagingservice.dto.kafka.*;
+import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
+import com.yazikochesalna.messagingservice.dto.kafka.MessageType;
+import com.yazikochesalna.messagingservice.dto.kafka.PayloadMessageDTO;
+import com.yazikochesalna.messagingservice.dto.kafka.PayloadNotificationDTO;
+import com.yazikochesalna.messagingservice.exception.UserNotHaveAccessToChatCustomException;
 import com.yazikochesalna.messagingservice.service.ChatServiceClient;
 import com.yazikochesalna.messagingservice.service.WebSocketService;
 import lombok.RequiredArgsConstructor;
@@ -66,7 +70,10 @@ public class WebSocketServiceImpl implements WebSocketService {
     public void sendMessageToKafka(WebSocketSession session, MessageDTO messageDTO) {
         var userId = (Long) session.getAttributes().get("userId");
 
-        PayloadDTO payload = messageDTO.<PayloadMessageDTO>getPayload().setSenderId(userId);
+        PayloadMessageDTO payload = messageDTO.<PayloadMessageDTO>getPayload();
+        if (!chatServiceClient.isUserInChat(userId, payload.getChatId())) {
+            throw new UserNotHaveAccessToChatCustomException();
+        }
 
         var message = messageDTO.setPayload(payload);
         sendMessageService.sendMessage(message);
@@ -84,11 +91,7 @@ public class WebSocketServiceImpl implements WebSocketService {
         Long chatId;
         if (messageDTO.getType() == MessageType.MESSAGE) {
             PayloadMessageDTO payload = messageDTO.<PayloadMessageDTO>getPayload();
-            Long senderId = payload.getSenderId();
             chatId = payload.getChatId();
-            if (!chatServiceClient.isUserInChat(senderId, chatId)) {
-                return;
-            }
         } else {
             PayloadNotificationDTO payload = messageDTO.<PayloadNotificationDTO>getPayload();
             chatId = payload.getChatId();

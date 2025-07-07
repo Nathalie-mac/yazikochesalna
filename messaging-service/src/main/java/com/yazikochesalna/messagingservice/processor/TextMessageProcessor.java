@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
 import com.yazikochesalna.messagingservice.dto.validator.MessageDTOValidator;
 import com.yazikochesalna.messagingservice.exception.InvalidMessageFormatCustomException;
+import com.yazikochesalna.messagingservice.exception.UserNotHaveAccessToChatCustomException;
 import com.yazikochesalna.messagingservice.service.WebSocketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -28,6 +29,8 @@ public class TextMessageProcessor {
 
         } catch (JsonProcessingException | InvalidMessageFormatCustomException e) {
             System.err.println("Ошибка обработки сообщения:" + e.getMessage());
+        }catch (UserNotHaveAccessToChatCustomException e){
+            System.err.println(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
         }
