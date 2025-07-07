@@ -32,31 +32,30 @@ CQL
 
 # 4. Создание таблиц и индексов
 echo "4. Создание таблиц и индексов..."
-cqlsh -u "$ADMIN_USER" -p "$ADMIN_PASS" <<CQL
-USE $KEYSPACE;
+cqlsh -u "$ADMIN_USER" -p "$ADMIN_PASS" <<-CQL
+  USE $KEYSPACE;
+  CREATE TABLE IF NOT EXISTS messages (
+      id UUID,
+      type TEXT,
+      sender_id BIGINT,
+      chat_id BIGINT,
+      text TEXT,
+      send_time TIMESTAMP,
+      marked_to_delete BOOLEAN,
+      PRIMARY KEY (id)
+  );
+  CREATE INDEX IF NOT EXISTS messages_sender_idx ON messages (sender_id);
+  CREATE INDEX IF NOT EXISTS messages_chat_idx ON messages (chat_id);
+  CREATE INDEX IF NOT EXISTS messages_time_idx ON messages (send_time);
 
-CREATE TABLE IF NOT EXISTS messages (
-    id UUID not null,
-    type TEXT not null,
-    sender_id BIGINT not null,
-    chat_id BIGINT not null,
-    text TEXT,
-    send_time TIMESTAMP not null,
-    marked_to_delete BOOLEAN,
-    PRIMARY KEY (id)
-);
-CREATE INDEX IF NOT EXISTS ON messages (sender_id);
-CREATE INDEX IF NOT EXISTS ON messages (chat_id);
-CREATE INDEX IF NOT EXISTS ON messages (send_time);
-
-CREATE TABLE IF NOT EXISTS attachments (
-    id BIGINT not null,
-    message_id UUID not null,
-    attachment_type TEXT,
-    attachment TEXT,
-    PRIMARY KEY (id)
-);
-CREATE INDEX IF NOT EXISTS ON attachments (message_id);
+  CREATE TABLE IF NOT EXISTS attachments (
+      id BIGINT,
+      message_id UUID,
+      attachment_type TEXT,
+      attachment TEXT,
+      PRIMARY KEY (id)
+  );
+  CREATE INDEX IF NOT EXISTS attachments_message_idx ON attachments (message_id);
 CQL
 
 

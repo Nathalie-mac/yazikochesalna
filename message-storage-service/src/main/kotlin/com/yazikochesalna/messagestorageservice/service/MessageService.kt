@@ -3,6 +3,7 @@ package com.yazikochesalna.messagestorageservice.service
 import com.datastax.oss.driver.shaded.guava.common.collect.Lists
 import com.yazikochesalna.messagestorageservice.converter.MessagesConverter
 import com.yazikochesalna.messagestorageservice.dto.MessagesToFrontDTO
+import com.yazikochesalna.messagestorageservice.model.db.Message
 import com.yazikochesalna.messagestorageservice.repository.MessageRepository
 import org.springframework.stereotype.Service
 import java.util.UUID
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 import reactor.core.publisher.Flux
 import java.time.LocalDateTime
+import java.time.Duration
 
 @Service
 class MessageService(
@@ -28,15 +30,29 @@ class MessageService(
 //        return
 //    }
 
-
     fun getMessagesAroundCursor(userId: Long, chatId: Long, cursor: UUID, limitUp: Int, limitDown: Int): List<MessagesToFrontDTO>{
         if (!isChatMember(userId, chatId)) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND)
         }
         //заглушка
-        var messagesToFrontDTOs = mutableListOf<MessagesToFrontDTO>()
+        //var messagesToFrontDTOs = mutableListOf<MessagesToFrontDTO>()
         //messagesToFrontDTOs.add(MessagesToFrontDTO(UUID.randomUUID(), userId, chatId, LocalDateTime.now()))
-        return messagesToFrontDTOs
+        //return messagesToFrontDTOs
         //messageRepository.findMessagesByCursor().map { message -> MessagesConverter::convertMessageToMessageFrontDTO }
+        return getCassandraMessages(chatId, cursor, limitUp, limitDown)
+    }
+
+    fun getCassandraMessages(chatId: Long, cursor: UUID, limitUp: Int, limitDown: Int): List<MessagesToFrontDTO>{
+        val cassandraMessages = messageRepository.findMessagesByCursor(chatId, cursor, limitUp, limitDown)
+        //превращаем в List<Message>
+        return cassandraMessages.collectList()
+            .block(Duration.ofSeconds(10))
+            ?.map { message -> MessagesToFrontDTO(
+                messageId = message.id,
+                senderId = message.senderId,
+                chatId = message.chatId,
+                timestamp = message.sendTime) }
+            ?: emptyList()
+        //конвертируем в MessagesToFrontDTO (используя OpjectMapper)
     }
 }

@@ -20,23 +20,20 @@ open class CustomMessageRepositoryImpl(
     fun init() {
         cursorMessagesSelectStmt = """
             SELECT * FROM messages 
-            WHERE chat_id = ? 
-            AND sender_id IN ? 
+            WHERE chat_id = 1 
             LIMIT 20
         """.trimIndent()
     }
 
     //жестко достаем сообщения
     override fun findMessagesByCursor(
-        userId: Long,
         chatId: Long,
         cursor: UUID,
         limitUp: Int,
         limitDown: Int
     ): Flux<Message> {
         val stmt = SimpleStatement.newInstance(
-            cursorMessagesSelectStmt,
-            userId, chatId, cursor, limitUp, limitDown
+            cursorMessagesSelectStmt
         )
         return operations.select(stmt, Message::class.java)
     }
