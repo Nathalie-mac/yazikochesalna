@@ -1,10 +1,10 @@
 package com.yazikochesalna.messagingservice.service.impl;
 
 import com.yazikochesalna.common.service.JwtService;
+import com.yazikochesalna.messagingservice.config.properties.ChatServiceProperties;
 import com.yazikochesalna.messagingservice.dto.chat.ChatUsersResponseDTO;
 import com.yazikochesalna.messagingservice.service.ChatServiceClient;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -18,14 +18,14 @@ public class ChatServiceClientImpl implements ChatServiceClient {
     public static final String GET_USERS_URL_FORMAT = "%s/api/v1/chats/%d/members";
     private final WebClient chatServiceWebClient;
     private final JwtService jwtService;
-    @Value("${chat.service.url}")
-    private String serviceBaseUrl;
+
+    private final ChatServiceProperties chatServiceProperties;
 
     //TODO: подумать над неблокирующими заросами
 
     @Override
     public boolean isUserInChat(Long userId, Long chatId) {
-        var url = String.format(CHECK_USER_IN_CHAT_URL_FORMAT, serviceBaseUrl, chatId, userId);
+        var url = String.format(CHECK_USER_IN_CHAT_URL_FORMAT, chatServiceProperties.getUrl(), chatId, userId);
 
         return Boolean.TRUE.equals(chatServiceWebClient.get()
                 .uri(url)
@@ -39,7 +39,7 @@ public class ChatServiceClientImpl implements ChatServiceClient {
 
     @Override
     public List<Long> getUsersByChatId(Long chatId) {
-        var url = String.format(GET_USERS_URL_FORMAT, serviceBaseUrl, chatId);
+        var url = String.format(GET_USERS_URL_FORMAT, chatServiceProperties.getUrl(), chatId);
 
         return chatServiceWebClient.get()
                 .uri(url)
