@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -58,7 +59,7 @@ public class ChatsController {
             @ApiResponse(responseCode = "200", description = "Чат создан"),
             @ApiResponse(responseCode = "500", description = "Ошибка сервера")
     })
-    public ResponseEntity<CreateChatResponse> createGroupChat(@RequestBody @NotNull CreateChatRequest request){
+    public ResponseEntity<CreateChatResponse> createGroupChat(@RequestBody @Valid @NotNull CreateChatRequest request){
         final long ownerId = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getUserId();
         return ResponseEntity.ok(chatService.createGroupChat(request, ownerId));
     }
@@ -69,7 +70,7 @@ public class ChatsController {
             @ApiResponse(responseCode = "403", description = "Выполнение операции запрещено " +
                     "(пользователь не является владельцем чата или список пользователей содержит некорректных пользователей)")
     })
-    public ResponseEntity<?> addMembersInChat(@PathVariable final Long chatId, @RequestBody final AddMembersRequest addMembersRequest) {
+    public ResponseEntity<?> addMembersInChat(@PathVariable final Long chatId, @RequestBody @Valid final AddMembersRequest addMembersRequest) {
         final long ownerId = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getUserId();
         final boolean result = chatService.addMembers(ownerId, chatId, addMembersRequest.newMembersIds());
         if (result) {
