@@ -1,6 +1,7 @@
 package com.yazikochesalna.messagingservice.service;
 
 import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
+import com.yazikochesalna.messagingservice.dto.response.ResponseResultType;
 import org.springframework.web.socket.WebSocketSession;
 
 public interface WebSocketService {
@@ -9,9 +10,10 @@ public interface WebSocketService {
 
     void removeSession(WebSocketSession session);
 
-    void sendMessageToKafka(WebSocketSession session, MessageDTO messageDTO);
+    void sendMessage(WebSocketSession session, MessageDTO messageDTO);
+    void sendErrorResponse(WebSocketSession session, ResponseResultType responseResultType, Long requestId);
 
-    void sendMessageToKafka(MessageDTO notificationDTO);
+    void sendMessage(MessageDTO notificationDTO);
 
     void broadcastMessageToParticipants(MessageDTO messageDTO);
 

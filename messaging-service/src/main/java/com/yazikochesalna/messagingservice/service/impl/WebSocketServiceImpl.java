@@ -1,14 +1,18 @@
 package com.yazikochesalna.messagingservice.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
 import com.yazikochesalna.messagingservice.dto.kafka.MessageType;
 import com.yazikochesalna.messagingservice.dto.kafka.PayloadMessageDTO;
 import com.yazikochesalna.messagingservice.dto.kafka.PayloadNotificationDTO;
+import com.yazikochesalna.messagingservice.dto.response.ResponseDTO;
+import com.yazikochesalna.messagingservice.dto.response.ResponseResultType;
 import com.yazikochesalna.messagingservice.exception.UserNotHaveAccessToChatCustomException;
 import com.yazikochesalna.messagingservice.service.ChatServiceClient;
 import com.yazikochesalna.messagingservice.service.WebSocketService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -18,8 +22,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 @Service
@@ -67,7 +73,7 @@ public class WebSocketServiceImpl implements WebSocketService {
 
 
     @Override
-    public void sendMessageToKafka(WebSocketSession session, MessageDTO messageDTO) {
+    public void sendMessage(WebSocketSession session, MessageDTO messageDTO) {
         var userId = (Long) session.getAttributes().get("userId");
 
         PayloadMessageDTO payload = messageDTO.<PayloadMessageDTO>getPayload();
@@ -76,13 +82,52 @@ public class WebSocketServiceImpl implements WebSocketService {
         }
 
         var message = messageDTO.setPayload(payload);
-        sendMessageService.sendMessage(message);
+        sendMessageToKafka(session, message);
     }
 
+    private void sendMessageToKafka(WebSocketSession session, MessageDTO messageDTO) {
+        BiConsumer<SendResult<String, MessageDTO>, Throwable> callback = (result, throwable) ->{
+            if(throwable != null){
+                sendOKResponse(session, messageDTO.getRequestId(), messageDTO.getMessageId());
+            }else {
+                sendErrorResponse(session, ResponseResultType.NOT_SENT_TO_STORAGE, messageDTO.getRequestId());
+            }
+        };
+        sendMessageService.sendMessage(messageDTO, callback);
+    }
 
     @Override
-    public void sendMessageToKafka(MessageDTO messageDTO) {
+    public void sendMessage(MessageDTO messageDTO) {
         sendMessageService.sendMessage(messageDTO);
+    }
+
+    @Override
+    public void sendErrorResponse(WebSocketSession session, ResponseResultType responseResultType, Long requestId) {
+        var responseDTO = ResponseDTO.builder()
+                .result(responseResultType)
+                .requestId(requestId)
+                .build();
+        sendResponseToWebSocketSession(session, responseDTO);
+    }
+    private void sendOKResponse(WebSocketSession session, Long requestId, UUID messageId) {
+        var responseDTO = ResponseDTO.builder()
+                .result(ResponseResultType.OK)
+                .requestId(requestId)
+                .messageId(messageId)
+                .build();
+        sendResponseToWebSocketSession(session, responseDTO);
+
+    }
+
+    private void sendResponseToWebSocketSession(WebSocketSession session, ResponseDTO responseDTO) {
+        try {
+            if(isOpenSession(session)){
+                var jsonResponse = objectMapper.writeValueAsString(responseDTO);
+                sendJsonToWebSocketSession(session, jsonResponse);
+            }
+        } catch (Exception ignored) {
+
+        }
     }
 
 
@@ -108,31 +153,42 @@ public class WebSocketServiceImpl implements WebSocketService {
             Set<WebSocketSession> recipientSessions = activeSessions.get(recipientId);
             if (recipientSessions != null && !recipientSessions.isEmpty()) {
                 for (WebSocketSession recipientSession : recipientSessions) {
-                    sendMessageToWebSocketSession(recipientSession, messageDTO);
+                    setMessageToWebSocketSession(recipientSession, messageDTO);
                 }
             }
         }
     }
 
+    private void setMessageToWebSocketSession(WebSocketSession session, MessageDTO messageDTO) {
+        try {
+            if(isOpenSession(session)){
+                var jsonResponse = objectMapper.writeValueAsString(messageDTO);
+                sendJsonToWebSocketSession(session, jsonResponse);
+            }
+        } catch (Exception ignored) {
 
-    private void sendMessageToWebSocketSession(WebSocketSession session, MessageDTO receiveMessageDTO) {
+        }
+    }
+
+
+    private void sendJsonToWebSocketSession(WebSocketSession session, String jsonMessage) {
 
         try {
-            if (session.isOpen()) {
-                var jsonResponse = objectMapper.writeValueAsString(receiveMessageDTO);
-                //вот би (била егэ) сделать неблокирующее отправление по вебсокетам
-                session.sendMessage(new TextMessage(jsonResponse));
-            }
+                session.sendMessage(new TextMessage(jsonMessage));
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.err.println("Ошибка отправки сообщения по ws, закрытие соединения: " + e.getMessage());
             try {
-                if (!session.isOpen()) {
+                if (!isOpenSession(session)) {
                     session.close();
                 }
-            } catch (IOException ignored) {
+            } catch (Exception ignored) {
             }
         }
+    }
+
+    private static boolean isOpenSession(WebSocketSession session) {
+        return session.isOpen();
     }
 
 

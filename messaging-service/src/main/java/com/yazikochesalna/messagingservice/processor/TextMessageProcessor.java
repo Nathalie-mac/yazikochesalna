@@ -25,7 +25,7 @@ public class TextMessageProcessor {
             String payload = message.getPayload();
             MessageDTO messageDTO = objectMapper.readValue(payload, MessageDTO.class);
             messageDTOValidator.validate(messageDTO);
-            webSocketService.sendMessageToKafka(session, messageDTO);
+            webSocketService.sendMessage(session, messageDTO);
 
         } catch (JsonProcessingException | InvalidMessageFormatCustomException e) {
             System.err.println("Ошибка обработки сообщения:" + e.getMessage());

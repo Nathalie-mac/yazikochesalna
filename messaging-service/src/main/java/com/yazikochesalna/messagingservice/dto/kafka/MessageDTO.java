@@ -3,6 +3,7 @@ package com.yazikochesalna.messagingservice.dto.kafka;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.yazikochesalna.messagingservice.dto.deserializer.MessageDTODeserializer;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -16,6 +17,8 @@ import java.util.UUID;
 @Accessors(chain = true)
 public class MessageDTO {
     private MessageType type;
+    @NotNull
+    private Long requestId;
     @Builder.Default
     private UUID messageId = UUID.randomUUID();
     @Builder.Default

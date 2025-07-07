@@ -33,7 +33,7 @@ public class NotificationController {
     })
     @Hidden
     public ResponseEntity<?> sendUpdateChatMembersNotification(@Valid @RequestBody MessageDTO messageDTO) {
-        webSocketService.sendMessageToKafka(messageDTO);
+        webSocketService.sendMessage(messageDTO);
         return ResponseEntity.ok().build();
     }
 
