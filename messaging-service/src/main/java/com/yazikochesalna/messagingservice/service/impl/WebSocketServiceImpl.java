@@ -52,35 +52,29 @@ public class WebSocketServiceImpl implements WebSocketService {
         Set<WebSocketSession> sessions = activeSessions.get(userId);
         if (sessions != null) {
             Set<WebSocketSession> updatedSessions = sessions.stream()
-                    .filter(decoratedSession -> !((ConcurrentWebSocketSessionDecorator) decoratedSession).getDelegate().equals(session))
+                    .filter(decoratedSession ->
+                            !((ConcurrentWebSocketSessionDecorator) decoratedSession).getDelegate().equals(session))
                     .collect(Collectors.toSet());
             if (updatedSessions.isEmpty()) {
                 activeSessions.remove(userId);
             }
         }
-
     }
 
 
     @Override
     public void sendMessageToKafka(WebSocketSession session, MessageDTO messageDTO) {
         var userId = (Long) session.getAttributes().get("userId");
-        PayloadDTO payload;
-        if (messageDTO.getType().equals(MessageType.MESSAGE)) {
-            payload = messageDTO.<PayloadMessageDTO>getPayload().setSenderId(userId);
-        } else {
-            payload = messageDTO.<PayloadNotificationDTO>getPayload();
-        }
+
+        PayloadDTO payload = messageDTO.<PayloadMessageDTO>getPayload().setSenderId(userId);
 
         var message = messageDTO.setPayload(payload);
-
-
         sendMessageService.sendMessage(message);
     }
 
 
     @Override
-    public void sendNotificationToKafka(MessageDTO messageDTO) {
+    public void sendMessageToKafka(MessageDTO messageDTO) {
         sendMessageService.sendMessage(messageDTO);
     }
 
@@ -100,7 +94,6 @@ public class WebSocketServiceImpl implements WebSocketService {
             chatId = payload.getChatId();
         }
 
-
         sendMessageToActiveSessions(messageDTO, chatId);
 
     }
@@ -108,30 +101,28 @@ public class WebSocketServiceImpl implements WebSocketService {
     private void sendMessageToActiveSessions(MessageDTO messageDTO, Long chatId) {
         List<Long> recipientUsers = chatServiceClient.getUsersByChatId(chatId);
 
-
         for (Long recipientId : recipientUsers) {
             Set<WebSocketSession> recipientSessions = activeSessions.get(recipientId);
             if (recipientSessions != null && !recipientSessions.isEmpty()) {
                 for (WebSocketSession recipientSession : recipientSessions) {
-                    sendMessage(recipientSession, messageDTO);
+                    sendMessageToWebSocketSession(recipientSession, messageDTO);
                 }
             }
         }
     }
 
 
-    private void sendMessage(WebSocketSession session, MessageDTO receiveMessageDTO) {
+    private void sendMessageToWebSocketSession(WebSocketSession session, MessageDTO receiveMessageDTO) {
 
         try {
             if (session.isOpen()) {
-                String jsonResponse = objectMapper.writeValueAsString(receiveMessageDTO);
+                var jsonResponse = objectMapper.writeValueAsString(receiveMessageDTO);
                 //вот би (била егэ) сделать неблокирующее отправление по вебсокетам
                 session.sendMessage(new TextMessage(jsonResponse));
             }
 
         } catch (IOException e) {
             System.err.println("Ошибка отправки сообщения по ws, закрытие соединения: " + e.getMessage());
-
             try {
                 if (!session.isOpen()) {
                     session.close();

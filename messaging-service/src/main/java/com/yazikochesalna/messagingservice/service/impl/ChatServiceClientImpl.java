@@ -23,7 +23,6 @@ public class ChatServiceClientImpl implements ChatServiceClient {
 
     //TODO: подумать над неблокирующими заросами
 
-
     @Override
     public boolean isUserInChat(Long userId, Long chatId) {
         var url = String.format(CHECK_USER_IN_CHAT_URL_FORMAT, serviceBaseUrl, chatId, userId);

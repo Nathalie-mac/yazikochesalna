@@ -52,7 +52,6 @@ public class KafkaConfig {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, kafkaProperties.getConsumer().getAutoOffsetReset());
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, kafkaProperties.getConsumer().isEnableAutoCommit());
 
-
         JsonDeserializer<MessageDTO> deserializer = new JsonDeserializer<>(MessageDTO.class);
         deserializer.addTrustedPackages(
                 kafkaProperties.getConsumer().getProperties().getSpring().getJson().getTrusted().getPackages());
@@ -66,7 +65,7 @@ public class KafkaConfig {
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
 
-        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.valueOf(kafkaProperties.getListener().getAckMode()));
         return factory;
     }
 }

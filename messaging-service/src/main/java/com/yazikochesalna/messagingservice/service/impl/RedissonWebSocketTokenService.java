@@ -18,7 +18,6 @@ public class RedissonWebSocketTokenService implements WebSocketTokenService {
     private static final Duration TOKEN_EXPIRATION = Duration.ofMinutes(5);
     private final RedissonClient redissonClient;
 
-
     public String generateToken(Long userId) {
         var token = UUID.randomUUID().toString();
 

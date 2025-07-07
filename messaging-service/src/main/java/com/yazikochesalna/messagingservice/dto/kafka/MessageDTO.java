@@ -2,6 +2,7 @@ package com.yazikochesalna.messagingservice.dto.kafka;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.yazikochesalna.messagingservice.dto.deserializer.MessageDTODeserializer;
+import jakarta.validation.Valid;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -19,6 +20,7 @@ public class MessageDTO {
     private UUID messageId = UUID.randomUUID();
     @Builder.Default
     private Instant timestamp = Instant.now();
+    @Valid
     private PayloadDTO payload;
 
 

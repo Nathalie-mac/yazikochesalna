@@ -40,7 +40,7 @@ public class ConnectionController {
             ),
             @ApiResponse(responseCode = "500", description = "Ошибка сервера")
     })
-    public ResponseEntity<?> requestWebSocketConnection() {
+    public ResponseEntity<?> getWebSocketToken() {
         Long userId = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getUserId();
 
         String token = tokenService.generateToken(userId);

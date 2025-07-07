@@ -11,10 +11,9 @@ public interface WebSocketService {
 
     void sendMessageToKafka(WebSocketSession session, MessageDTO messageDTO);
 
+    void sendMessageToKafka(MessageDTO notificationDTO);
 
     void broadcastMessageToParticipants(MessageDTO messageDTO);
-
-    void sendNotificationToKafka(MessageDTO notificationDTO);
 
 
 }

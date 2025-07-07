@@ -27,7 +27,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     }
 
-
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         webSocketService.removeSession(session);

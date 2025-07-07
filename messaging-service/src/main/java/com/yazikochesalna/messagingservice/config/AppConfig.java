@@ -21,6 +21,7 @@ public class AppConfig {
 
 
     private final ChatServiceProperties chatServiceProperties;
+
     @Bean
     public WebClient chatServiceWebClient() {
         return WebClient.builder()

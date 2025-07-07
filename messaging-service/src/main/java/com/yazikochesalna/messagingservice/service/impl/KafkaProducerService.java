@@ -12,7 +12,6 @@ public class KafkaProducerService {
     private static final String TOPIC_NAME = "messages";
     private final KafkaTemplate<String, MessageDTO> kafkaTemplate;
 
-
     public void sendMessage(MessageDTO message) {
         kafkaTemplate.send(TOPIC_NAME, message);
     }
