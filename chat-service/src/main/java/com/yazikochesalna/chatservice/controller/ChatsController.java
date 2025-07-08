@@ -170,7 +170,7 @@ public class ChatsController {
             @ApiResponse(responseCode = "404", description = "Пользователь не состоит в чате")
     })
     @Hidden
-    public ResponseEntity<MembersListDto> checkUserInChat(@PathVariable long chatId) {
+    public ResponseEntity<MembersListDto> getChatMembers(@PathVariable long chatId) {
         MembersListDto members = chatService.getChatMembers(chatId);
         if (members.isEmpty()) {
             return ResponseEntity.notFound().build();

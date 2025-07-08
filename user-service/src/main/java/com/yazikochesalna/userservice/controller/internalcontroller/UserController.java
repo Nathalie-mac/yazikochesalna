@@ -1,9 +1,7 @@
 package com.yazikochesalna.userservice.controller.internalcontroller;
 
 import com.yazikochesalna.userservice.data.entity.Users;
-import com.yazikochesalna.userservice.dto.CreateUserRequestDTO;
-import com.yazikochesalna.userservice.dto.CreateUserResponseDTO;
-import com.yazikochesalna.userservice.dto.SearchDTO;
+import com.yazikochesalna.userservice.dto.*;
 import com.yazikochesalna.userservice.service.InternalUserService;
 import com.yazikochesalna.userservice.service.mapper.ListIdsMapper;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -26,9 +24,9 @@ public class UserController {
     @PostMapping("/check")
     @RolesAllowed("SERVICE")
     @Hidden
-    public SearchDTO checkUsersExistence(@RequestBody List<Long> userIds) {
-        List<Users> existingUsers = internalUserService.findAllByIdIn(userIds);
-        return new SearchDTO(ListIdsMapper.mapUsersToIds(existingUsers));
+    public CheckUsersResponseDTO checkUsersExistence(@RequestBody CheckUsersRequestDTO checkUsersRequest) {
+        List<Users> existingUsers = internalUserService.findAllByIdIn(checkUsersRequest.usersIds());
+        return new CheckUsersResponseDTO(ListIdsMapper.mapUsersToIds(existingUsers));
     }
 
     @PostMapping

@@ -10,7 +10,6 @@ import com.yazikochesalna.chatservice.dto.createChat.CreateChatResponse;
 import com.yazikochesalna.chatservice.enums.ChatType;
 import com.yazikochesalna.chatservice.exception.ChatCreationException;
 import com.yazikochesalna.chatservice.exception.DialogNotFoundException;
-import com.yazikochesalna.chatservice.exception.InvalidUserIdException;
 import com.yazikochesalna.chatservice.mapper.MapperToChatInList;
 import com.yazikochesalna.chatservice.mapper.MapperToGetGroupChatInfoDto;
 import com.yazikochesalna.chatservice.model.Chat;
@@ -56,9 +55,7 @@ public class ChatService {
         details.setChat(chat);
 
         if (request.memberIds() != null) {
-            if (userService.getExitingUsers(request.memberIds()).size() != request.memberIds().size()) {
-                throw new InvalidUserIdException();
-            }
+            userService.validateUsers(request.memberIds());
             List<ChatUser> members = request.memberIds().stream().map(userId -> new ChatUser(null, userId, null, chat)).toList();
             chat.setMembers(members);
             if (!request.memberIds().contains(ownerId)) {
@@ -94,9 +91,7 @@ public class ChatService {
         if (!isOwner(chat, ownerId)) {
             return false;
         }
-        if (userService.getExitingUsers(newMembersIds).size() != newMembersIds.size()) {
-            throw new InvalidUserIdException();
-        }
+        userService.validateUsers(newMembersIds);
         final List<ChatUser> members = chat.getMembers();
         final List<Long> currentMembersIds = members.stream().map(ChatUser::getUserId).toList();
         final List<ChatUser> newMembers = newMembersIds
@@ -174,6 +169,7 @@ public class ChatService {
         Chat chat = new Chat(null, ChatType.PRIVATE, null, new LinkedList<>());
         chat.addMember(new ChatUser(null, userId, null, chat));
         chat.addMember(new ChatUser(null, partnerId, null, chat));
+        userService.validateUsers(List.of(userId, partnerId));
         try {
             chatRepository.save(chat);
         } catch (DataIntegrityViolationException e) {
