@@ -3,11 +3,11 @@ package com.yazikochesalna.chatservice.dto.members;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
-import java.util.List;
+import java.util.Set;
 
 @Builder
 public record AddMembersRequest(
         @NotNull
-        List<Long> newMembersIds
+        Set<Long> newMembersIds
 ) {
 }

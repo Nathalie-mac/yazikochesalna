@@ -21,6 +21,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -36,6 +37,7 @@ public class ChatService {
 
     private final MapperToChatInList mapperToChatInList;
     private final MapperToGetGroupChatInfoDto mapperToGetGroupChatInfoDto;
+    private final MessagingServiceClient messagingServiceClient;
 
     public ChatListDto getUserChats(final long userId) {
         return new ChatListDto(
@@ -65,6 +67,7 @@ public class ChatService {
             chat.addMember(new ChatUser(null, ownerId, null, chat));
         }
         chatRepository.save(chat);
+        chat.getMembers().forEach(member -> messagingServiceClient.sendMemberAddedNotification(chat.getId(),member.getId()));
         return new CreateChatResponse(chat.getId());
     }
 
@@ -86,22 +89,22 @@ public class ChatService {
         return membersList;
     }
 
-    public boolean addMembers(long ownerId, @NotNull Long chatId, @NotNull List<Long> newMembersIds) {
+    public boolean addMembers(long ownerId, @NotNull Long chatId, @NotNull Set<Long> newMembersIds) {
         final Chat chat = chatRepository.getChatById(chatId);
         if (!isOwner(chat, ownerId)) {
             return false;
         }
         userService.validateUsers(newMembersIds);
-        final List<ChatUser> members = chat.getMembers();
-        final List<Long> currentMembersIds = members.stream().map(ChatUser::getUserId).toList();
-        final List<ChatUser> newMembers = newMembersIds
-                .stream()
-                .filter(Objects::nonNull)
-                .filter(id -> !currentMembersIds.contains(id))
-                .map(userId -> new ChatUser(null, userId, null, chat))
-                .toList();
-        members.addAll(newMembers);
-        chatRepository.save(chat);
+
+        for (Long newMemberId: newMembersIds) {
+            ChatUser member = new ChatUser(chatId, newMemberId, null, chat);
+            try {
+                chatUsersRepository.save(member);
+                messagingServiceClient.sendMemberAddedNotification(newMemberId, chatId);
+            } catch (DuplicateKeyException e) {
+                //do nothing, user was in chat or was added in other thread/instance
+            }
+        }
         return true;
     }
 
@@ -110,8 +113,9 @@ public class ChatService {
         if (!isOwner(chat, ownerId)) {
             return false;
         }
-        chat.getMembers().removeIf(chatUser -> chatUser.getUserId().equals(deletedUserId));
-        chatRepository.save(chat);
+        if (chatUsersRepository.deleteByUserIdAndChatIdIfExits(chatId, deletedUserId) > 0) {
+            messagingServiceClient.sendMemberRemovedNotification(deletedUserId, chatId);
+        }
         return true;
     }
 
@@ -172,6 +176,7 @@ public class ChatService {
         userService.validateUsers(List.of(userId, partnerId));
         try {
             chatRepository.save(chat);
+            chat.getMembers().forEach(member -> messagingServiceClient.sendMemberAddedNotification(chat.getId(),member.getId()));
         } catch (DataIntegrityViolationException e) {
             //Ожидаемое исключение. Чат мог быть добавлен параллельно в другом потоке/запросе
         }
