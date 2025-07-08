@@ -140,8 +140,8 @@ open class CustomMessageRepositoryImpl(
             senderId = rs.getLong("sender_id"),
             chatId = rs.getLong("chat_id"),
             text = rs.getString("text"),
-            sendTime = LocalDateTime.now(),//rs.get("send_time", LocalDateTime::class.java)
-            //?: throw NullCassandraFiledException("send_time"),            markedToDelete = rs.getBoolean("marked_to_delete")
+            sendTime = rs.get("send_time", LocalDateTime::class.java) ?: throw NullCassandraFiledException("send_time"),
+            markedToDelete = rs.getBoolean("marked_to_delete")
         )
     }.getOrElse { e ->
         when (e) {
