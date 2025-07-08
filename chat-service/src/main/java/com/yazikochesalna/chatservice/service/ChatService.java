@@ -3,6 +3,7 @@ package com.yazikochesalna.chatservice.service;
 import com.yazikochesalna.chatservice.dto.GetDialogResponseDto;
 import com.yazikochesalna.chatservice.dto.GetGroupChatInfoDto;
 import com.yazikochesalna.chatservice.dto.MembersListDto;
+import com.yazikochesalna.chatservice.dto.ShortChatInfoResponse;
 import com.yazikochesalna.chatservice.dto.chatList.ChatListDto;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatRequest;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatResponse;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @AllArgsConstructor
 @Service
@@ -120,6 +122,25 @@ public class ChatService {
         return true;
     }
 
+
+    public ShortChatInfoResponse getShortChatInfo(long userId, long chatId) {
+        final Chat chat = chatRepository.getChatById(chatId);
+        if (chat == null) {
+            return null;
+        }
+        final Optional<ChatUser> user =  chat.getMembers().stream().filter(chatUser -> chatUser.getUserId()==userId).findAny();
+        if (user.isEmpty()) {
+            return null;
+        }
+        final List<Long> members = chat.getMembers().stream().map(ChatUser::getUserId).toList();
+        final ShortChatInfoResponse response = new ShortChatInfoResponse(
+                user.get().getLastReadMessageId(),
+                chat.getType(),
+                members
+        );
+        return response;
+    }
+
     private boolean isOwner(final Chat chat, final Long userId) {
         if (chat == null) {
             return false;
@@ -153,7 +174,7 @@ public class ChatService {
 
     private GetDialogResponseDto createDialog(long userId, long partnerId) {
         Chat chat = new Chat(null, ChatType.PRIVATE, null, new LinkedList<>());
-        chat.getMembers().add(new ChatUser(null, userId, null, chat));
+        chat.addMember(new ChatUser(null, userId, null, chat));
         chat.addMember(new ChatUser(null, partnerId, null, chat));
         try {
             chatRepository.save(chat);

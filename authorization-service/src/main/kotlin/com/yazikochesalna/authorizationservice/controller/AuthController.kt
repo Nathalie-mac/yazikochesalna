@@ -1,7 +1,7 @@
 package com.yazikochesalna.authorizationservice.controller
 
-import com.yazikochesalna.authorizationservice.com.yazikochesalna.authorizationservice.dto.GetLoginResponseDto
-import com.yazikochesalna.authorizationservice.com.yazikochesalna.authorizationservice.dto.RegisterRequestDto
+import com.yazikochesalna.authorizationservice.dto.GetLoginResponseDto
+import com.yazikochesalna.authorizationservice.dto.RegisterRequestDto
 import com.yazikochesalna.authorizationservice.dto.AuthRequestDto
 import com.yazikochesalna.authorizationservice.dto.TokenResponseDto
 import com.yazikochesalna.authorizationservice.exception.AuthException

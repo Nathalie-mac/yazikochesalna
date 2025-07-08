@@ -8,6 +8,7 @@ public class UserProfileDTOMapper {
     public static UserProfileDTO convertUserToUserProfileDTO(Users users){
         UserProfileDTO userProfileDTO = new UserProfileDTO();
         userProfileDTO.setUserName(users.getUsername());
+
         return userProfileDTO;
     }
 }

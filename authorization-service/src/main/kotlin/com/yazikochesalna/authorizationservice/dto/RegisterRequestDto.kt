@@ -1,4 +1,4 @@
-package com.yazikochesalna.authorizationservice.com.yazikochesalna.authorizationservice.dto
+package com.yazikochesalna.authorizationservice.dto
 
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull

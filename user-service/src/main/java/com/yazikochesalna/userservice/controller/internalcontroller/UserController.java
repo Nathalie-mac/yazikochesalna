@@ -1,16 +1,19 @@
 package com.yazikochesalna.userservice.controller.internalcontroller;
 
 import com.yazikochesalna.userservice.data.entity.Users;
+import com.yazikochesalna.userservice.dto.CreateUserRequestDTO;
+import com.yazikochesalna.userservice.dto.CreateUserResponseDTO;
+import com.yazikochesalna.userservice.dto.SearchDTO;
 import com.yazikochesalna.userservice.service.InternalUserService;
 import com.yazikochesalna.userservice.service.mapper.ListIdsMapper;
-import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,19 +24,21 @@ public class UserController {
     private final InternalUserService internalUserService;
 
     @PostMapping("/check")
-    @Operation(summary = "Проверка существования пользователей", description = "Возвращает список существующих пользователей")
-    public List<Long> checkUsersExistence(@RequestBody List<Long> userIds) {
+    @RolesAllowed("SERVICE")
+    @Hidden
+    public SearchDTO checkUsersExistence(@RequestBody List<Long> userIds) {
         List<Users> existingUsers = internalUserService.findAllByIdIn(userIds);
-        return ListIdsMapper.mapUsersToIds(existingUsers);
+        return new SearchDTO(ListIdsMapper.mapUsersToIds(existingUsers));
     }
 
     @PostMapping
-    @Operation(summary = "Создание пользователя в бд пользователей", description = "Возвращает id созданного пользователя")
-    public ResponseEntity<Long> createUser(
-            @RequestBody Map<String, String> request) {
+    @RolesAllowed("SERVICE")
+    @Hidden
+    public ResponseEntity<CreateUserResponseDTO> createUser(
+            @RequestBody CreateUserRequestDTO request) {
 
-        String username = request.get("username");
-        Users newUser = internalUserService.createUser(username);
-        return ResponseEntity.ok(newUser.getId());
+        Users newUser = internalUserService.createUser(request.getUsername());
+        CreateUserResponseDTO createUserResponseDTO = new CreateUserResponseDTO(newUser.getId());
+        return ResponseEntity.ok(createUserResponseDTO);
     }
 }

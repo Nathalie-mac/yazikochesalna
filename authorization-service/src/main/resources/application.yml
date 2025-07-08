@@ -29,6 +29,9 @@ security:
 
 server:
   port: 8085
+  error:
+    whitelabel:
+      enabled: false
 
 springdoc:
   api-docs:
@@ -52,3 +55,6 @@ springdoc:
       scheme: bearer
       bearerFormat: JWT
 
+user:
+  service:
+    url: ${USER_SERVICE_URL}

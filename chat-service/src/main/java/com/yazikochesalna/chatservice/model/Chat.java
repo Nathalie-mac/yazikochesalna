@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Entity
 @Table(name="chat")
@@ -29,6 +30,12 @@ public class Chat {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "chat", orphanRemoval = true)
     private List<ChatUser> members = new ArrayList<>();
+
+
+    public Chat setMembers(List<ChatUser> members) {
+        this.members = new CopyOnWriteArrayList<>(members);
+        return this;
+    }
 
     public void addMember(ChatUser member) {
         members.add(member);
