@@ -1,7 +1,6 @@
-package com.yazikochesalna.messagingservice.service.impl;
+package com.yazikochesalna.messagingservice.service;
 
 import com.yazikochesalna.messagingservice.exception.InvalidWebSocketTokenCustomException;
-import com.yazikochesalna.messagingservice.service.WebSocketTokenService;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RBucket;
 import org.redisson.api.RedissonClient;
@@ -12,7 +11,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class RedissonWebSocketTokenService implements WebSocketTokenService {
+public class RedissonWebSocketTokenService {
 
     private static final String TOKEN_PREFIX = "ws_token:";
     private static final Duration TOKEN_EXPIRATION = Duration.ofMinutes(5);

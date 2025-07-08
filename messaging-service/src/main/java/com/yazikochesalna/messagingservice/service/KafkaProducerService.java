@@ -1,4 +1,4 @@
-package com.yazikochesalna.messagingservice.service.impl;
+package com.yazikochesalna.messagingservice.service;
 
 import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +18,7 @@ public class KafkaProducerService {
     public void sendMessage(MessageDTO message, BiConsumer<SendResult<String, MessageDTO>, Throwable> callback) {
         kafkaTemplate.send(TOPIC_NAME, message).whenComplete(callback);
     }
+
     public void sendMessage(MessageDTO message) {
         kafkaTemplate.send(TOPIC_NAME, message);
     }

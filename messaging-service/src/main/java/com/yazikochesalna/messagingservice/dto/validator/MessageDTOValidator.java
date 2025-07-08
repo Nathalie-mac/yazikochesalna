@@ -1,5 +1,6 @@
 package com.yazikochesalna.messagingservice.dto.validator;
 
+import com.yazikochesalna.messagingservice.dto.kafka.AwaitingResponseMessageDTO;
 import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
 import com.yazikochesalna.messagingservice.exception.InvalidMessageFormatCustomException;
 import jakarta.validation.ConstraintViolation;
@@ -14,8 +15,9 @@ import java.util.Set;
 public class MessageDTOValidator {
     private final Validator validator;
 
-    public void validate(MessageDTO messageDTO) {
-        Set<ConstraintViolation<MessageDTO>> violations = validator.validate(messageDTO);
+
+    public void validate(AwaitingResponseMessageDTO messageDTO) {
+        Set<ConstraintViolation<AwaitingResponseMessageDTO>> violations = validator.validate(messageDTO);
         if (!violations.isEmpty()) {
             violations.forEach(violation ->
                     System.err.println(violation.getPropertyPath() + ": " + violation.getMessage()));

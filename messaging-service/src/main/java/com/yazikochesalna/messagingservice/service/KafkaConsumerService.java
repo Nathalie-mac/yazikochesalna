@@ -1,7 +1,6 @@
-package com.yazikochesalna.messagingservice.service.impl;
+package com.yazikochesalna.messagingservice.service;
 
 import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
-import com.yazikochesalna.messagingservice.service.WebSocketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;

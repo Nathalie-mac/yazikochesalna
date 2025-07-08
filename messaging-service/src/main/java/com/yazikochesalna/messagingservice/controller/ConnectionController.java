@@ -1,7 +1,7 @@
 package com.yazikochesalna.messagingservice.controller;
 
 import com.yazikochesalna.common.authentication.JwtAuthenticationToken;
-import com.yazikochesalna.messagingservice.service.WebSocketTokenService;
+import com.yazikochesalna.messagingservice.service.RedissonWebSocketTokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,7 +23,7 @@ import java.util.Map;
 public class ConnectionController {
 
 
-    private final WebSocketTokenService tokenService;
+    private final RedissonWebSocketTokenService tokenService;
 
     @PostMapping("/connect")
     @Operation(

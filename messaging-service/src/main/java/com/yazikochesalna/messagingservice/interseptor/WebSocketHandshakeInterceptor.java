@@ -1,7 +1,7 @@
 package com.yazikochesalna.messagingservice.interseptor;
 
 import com.yazikochesalna.messagingservice.exception.InvalidWebSocketTokenCustomException;
-import com.yazikochesalna.messagingservice.service.WebSocketTokenService;
+import com.yazikochesalna.messagingservice.service.RedissonWebSocketTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.ServerHttpRequest;
@@ -15,7 +15,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
-    private final WebSocketTokenService tokenService;
+    private final RedissonWebSocketTokenService tokenService;
 
     @Override
     public boolean beforeHandshake(ServerHttpRequest request,

@@ -2,10 +2,10 @@ package com.yazikochesalna.messagingservice.processor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
+import com.yazikochesalna.messagingservice.dto.kafka.AwaitingResponseMessageDTO;
+import com.yazikochesalna.messagingservice.dto.response.ResponseResultType;
 import com.yazikochesalna.messagingservice.dto.validator.MessageDTOValidator;
 import com.yazikochesalna.messagingservice.exception.InvalidMessageFormatCustomException;
-import com.yazikochesalna.messagingservice.exception.UserNotHaveAccessToChatCustomException;
 import com.yazikochesalna.messagingservice.service.WebSocketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -23,14 +23,13 @@ public class TextMessageProcessor {
     public void processMessage(WebSocketSession session, TextMessage message) {
         try {
             String payload = message.getPayload();
-            MessageDTO messageDTO = objectMapper.readValue(payload, MessageDTO.class);
+            var messageDTO = objectMapper.readValue(payload, AwaitingResponseMessageDTO.class);
             messageDTOValidator.validate(messageDTO);
             webSocketService.sendMessage(session, messageDTO);
 
         } catch (JsonProcessingException | InvalidMessageFormatCustomException e) {
             System.err.println("Ошибка обработки сообщения:" + e.getMessage());
-        }catch (UserNotHaveAccessToChatCustomException e){
-            System.err.println(e.getMessage());
+            webSocketService.sendErrorResponse(session, ResponseResultType.INVALID_FORMAT, null);
         } catch (Exception e) {
             e.printStackTrace();
         }
