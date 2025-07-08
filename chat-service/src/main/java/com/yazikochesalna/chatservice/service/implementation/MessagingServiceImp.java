@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class MessagingServiceImp implements MessagingServiceClient {
-    private static final String NOTIFICATION_URL_FORMAT = "%s/api/v1/ws/notification";
+    private static final String NOTIFICATION_URL_FORMAT = "%s/api/v1/ws/notification/";
     private static final Logger logger = LoggerFactory.getLogger(MessagingServiceClient.class);
 
     private final JwtService jwtService;
