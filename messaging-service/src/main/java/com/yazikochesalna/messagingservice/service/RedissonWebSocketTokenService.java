@@ -26,14 +26,14 @@ public class RedissonWebSocketTokenService {
     }
 
     public Long validateAndGetUserId(String token) {
-        if (!validateToken(token)) {
+        if (!isTokenValid(token)) {
             throw new InvalidWebSocketTokenCustomException();
         }
         RBucket<Long> bucket = redissonClient.getBucket(TOKEN_PREFIX + token);
         return bucket.getAndDelete();
     }
 
-    private boolean validateToken(String token) {
+    private boolean isTokenValid(String token) {
         RBucket<Long> bucket = redissonClient.getBucket(TOKEN_PREFIX + token);
         return bucket.isExists();
     }

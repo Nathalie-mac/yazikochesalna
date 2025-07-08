@@ -4,5 +4,5 @@ public enum ResponseResultType {
     OK,
     INVALID_FORMAT,
     NOT_ALLOWED,
-    NOT_SENT_TO_STORAGE
+    KAFKA_PROBLEM
 }

@@ -84,7 +84,7 @@ public class WebSocketService {
                 if (throwable == null) {
                     sendOKResponse(session, awaitingResponseMessageDTO.getRequestId(), awaitingResponseMessageDTO.getMessageId());
                 } else {
-                    sendErrorResponse(session, ResponseResultType.NOT_SENT_TO_STORAGE, awaitingResponseMessageDTO.getRequestId());
+                    sendErrorResponse(session, ResponseResultType.KAFKA_PROBLEM, awaitingResponseMessageDTO.getRequestId());
                 }
             }
         };
@@ -189,13 +189,7 @@ public class WebSocketService {
         try {
             session.sendMessage(new TextMessage(jsonMessage));
         } catch (Exception e) {
-            System.err.println("Ошибка отправки сообщения по ws, закрытие соединения: " + e.getMessage());
-            try {
-                if (!isOpenSession(session)) {
-                    session.close();
-                }
-            } catch (Exception ignored) {
-            }
+            System.err.println("Ошибка отправки сообщения по ws: " + e.getMessage());
         }
     }
 

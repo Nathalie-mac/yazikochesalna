@@ -6,5 +6,5 @@ import java.util.List;
 
 @Data
 public class ChatUsersResponseDTO {
-    private List<Long> usersIds;
+    private List<Long> userIds;
 }

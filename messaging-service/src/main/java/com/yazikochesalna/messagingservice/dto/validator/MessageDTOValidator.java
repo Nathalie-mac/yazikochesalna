@@ -1,7 +1,6 @@
 package com.yazikochesalna.messagingservice.dto.validator;
 
 import com.yazikochesalna.messagingservice.dto.kafka.AwaitingResponseMessageDTO;
-import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
 import com.yazikochesalna.messagingservice.exception.InvalidMessageFormatCustomException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;

@@ -45,7 +45,7 @@ public class ChatServiceClient {
                 .headers(headers -> headers.setBearerAuth(jwtService.generateServiceToken()))
                 .retrieve()
                 .bodyToMono(ChatUsersResponseDTO.class)
-                .map(ChatUsersResponseDTO::getUsersIds)
+                .map(ChatUsersResponseDTO::getUserIds)
                 .onErrorReturn(Collections.emptyList())
                 .block();
     }

@@ -10,8 +10,6 @@ import com.yazikochesalna.messagingservice.dto.kafka.MessageType;
 import com.yazikochesalna.messagingservice.dto.kafka.PayloadDTO;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.util.UUID;
 
 public class MessageDTODeserializer extends StdDeserializer<MessageDTO> {
 
@@ -34,17 +32,19 @@ public class MessageDTODeserializer extends StdDeserializer<MessageDTO> {
         PayloadDTO payload = DTODeserializer.getPayload(mapper, type, node);
 
 
-        UUID messageId = DTODeserializer.getMessageId(node);
-
-        Instant timestamp = DTODeserializer.getTime(node);
-
-
-        return MessageDTO.builder()
+        var messageDTO = MessageDTO.builder()
                 .type(type)
                 .payload(payload)
-                .messageId(messageId)
-                .timestamp(timestamp)
                 .build();
+
+        if (node.get("messageId") != null) {
+            messageDTO.setMessageId(DTODeserializer.getMessageId(node));
+        }
+        if (node.get("timestamp") != null) {
+            messageDTO.setTimestamp(DTODeserializer.getTime(node));
+        }
+
+        return messageDTO;
     }
 
 

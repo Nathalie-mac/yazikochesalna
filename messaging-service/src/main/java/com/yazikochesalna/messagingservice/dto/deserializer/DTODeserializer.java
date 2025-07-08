@@ -13,18 +13,19 @@ import java.time.Instant;
 import java.util.UUID;
 
 public class DTODeserializer {
+    private static final Long NANOSECONDS_IN_SECOND = 1_000_000_000L;
+
     public static Instant getTime(JsonNode node) {
         JsonNode timestampNode = node.get("timestamp");
-        Instant timestamp;
         if (timestampNode.isNumber()) {
             double timestampValue = timestampNode.asDouble();
             long seconds = (long) timestampValue;
-            long nanos = (long) ((timestampValue - seconds) * 1_000_000_000);
-            timestamp = Instant.ofEpochSecond(seconds, nanos);
+            long nanos = (long) ((timestampValue - seconds) * NANOSECONDS_IN_SECOND);
+            return Instant.ofEpochSecond(seconds, nanos);
         } else {
             throw new InvalidMessageFormatCustomException();
         }
-        return timestamp;
+
     }
 
     public static PayloadDTO getPayload(ObjectMapper mapper, MessageType type, JsonNode node) throws IOException {
