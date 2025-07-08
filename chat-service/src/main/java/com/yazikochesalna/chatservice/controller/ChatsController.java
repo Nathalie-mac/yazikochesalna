@@ -1,9 +1,6 @@
 package com.yazikochesalna.chatservice.controller;
 
-import com.yazikochesalna.chatservice.dto.GetDialogResponseDto;
-import com.yazikochesalna.chatservice.dto.GetGroupChatInfoDto;
-import com.yazikochesalna.chatservice.dto.MembersListDto;
-import com.yazikochesalna.chatservice.dto.ShortChatInfoResponse;
+import com.yazikochesalna.chatservice.dto.*;
 import com.yazikochesalna.chatservice.dto.chatList.ChatListDto;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatRequest;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatResponse;
@@ -137,6 +134,15 @@ public class ChatsController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         return  ResponseEntity.ok(info);
+    }
+    
+    @PostMapping({"/{chatId}/lastRead", "/{chatId}/lastRead/"})
+    public ResponseEntity<?> updateLastReadMessage(@PathVariable long chatId, @Valid @RequestBody UpdateLastReadMessageRequestDto updateLastReadMessageRequest){
+        final long userId = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getUserId();
+        if (chatService.updateLastReadMessage(chatId, userId, updateLastReadMessageRequest.lastRead())) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     @GetMapping({"/check/{chatId}/{userId}", "/check/{chatId}/{userId}/"})

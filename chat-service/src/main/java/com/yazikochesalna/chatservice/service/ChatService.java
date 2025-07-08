@@ -18,15 +18,13 @@ import com.yazikochesalna.chatservice.model.ChatUser;
 import com.yazikochesalna.chatservice.model.GroupChatDetails;
 import com.yazikochesalna.chatservice.repository.ChatRepository;
 import com.yazikochesalna.chatservice.repository.ChatUsersRepository;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @AllArgsConstructor
 @Service
@@ -194,5 +192,9 @@ public class ChatService {
             return null;
         }
         return chat.getFirst().getId();
+    }
+
+    public boolean updateLastReadMessage(long chatId, long userId, @NotNull @NotEmpty UUID messageId) {
+        return chatUsersRepository.updateLastReadMessageId(chatId, userId, messageId) > 0;
     }
 }
