@@ -1,5 +1,7 @@
 package com.yazikochesalna.messagestorageservice.model.enums
 
+import com.yazikochesalna.messagestorageservice.exception.ErrorInMessageTypeException
+
 enum class MessageType(val type: String) {
     MESSAGE("MESSAGE"),
     NEW_MEMBER("NEW_MEMBER"),
@@ -8,10 +10,11 @@ enum class MessageType(val type: String) {
     NEW_AVATAR("NEW_AVATAR");
 
     companion object {
-        fun fromType(type: String?): MessageType? {
-            return type?.let { notNullType ->
-                entries.firstOrNull { it.type == notNullType }
-            }
+        fun fromType(type: String?): MessageType {
+            return type?.let { type ->
+                entries.firstOrNull { it.type == type }
+                    ?: throw ErrorInMessageTypeException("Unknown MessageType: $type")
+            } ?: throw ErrorInMessageTypeException("Message type cannot be null!")
         }
     }
 }

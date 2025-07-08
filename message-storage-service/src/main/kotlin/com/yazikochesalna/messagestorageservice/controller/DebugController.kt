@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/debug")
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 open class DebugController(
     @Autowired
     private val jwtService: JwtService

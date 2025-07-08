@@ -31,19 +31,11 @@ open class CustomMessageRepositoryImpl(
 
     @PostConstruct
     fun init() {
-        beforeCursorSelectStmt = """  
-            SELECT * FROM messages_by_chat            WHERE chat_id = ?   
-            AND send_time < ?  
-            ORDER BY send_time DESC            LIMIT ?        """.trimIndent()
+        beforeCursorSelectStmt = CassandraQueries.BEFORE_CURSOR_SELECT.trimIndent()
 
-        afterCursorSelectStmt = """  
-            SELECT * FROM messages_by_chat            WHERE chat_id = ?   
-            AND send_time > ?  
-            ORDER BY send_time ASC            LIMIT ?        """.trimIndent()
+        afterCursorSelectStmt = CassandraQueries.AFTER_CURSOR_SELECT.trimIndent()
 
-        cursorMessageSelectStmt = """  
-            SELECT * FROM messages            WHERE id = ?  
-        """.trimIndent()
+        cursorMessageSelectStmt = CassandraQueries.CURSOR_MESSAGE_SELECT.trimIndent()
     }
 
     override fun findMessagesByCursor(

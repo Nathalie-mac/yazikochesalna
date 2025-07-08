@@ -1,5 +1,8 @@
 package com.yazikochesalna.messagestorageservice.model.enums
 
+import com.yazikochesalna.messagestorageservice.exception.ErrorInAttachmentTypeException
+import com.yazikochesalna.messagestorageservice.exception.ErrorInMessageTypeException
+
 enum class AttachmentType(val at: String){
     REPLY("REPLY"),
     FORWARD("FORWARD"),
@@ -7,7 +10,10 @@ enum class AttachmentType(val at: String){
     ATTACHMENT("ATTACHMENT");
     companion object {
         fun fromType(at: String): AttachmentType? {
-            return AttachmentType.values().firstOrNull { it.at == at }
+            return at?.let{type ->
+                entries.firstOrNull{it.at == type}
+                    ?: throw ErrorInAttachmentTypeException("Unknown AttachmentType: $type")
+            }?: throw ErrorInAttachmentTypeException("Attachment type cannot be null!")
         }
     }
 }

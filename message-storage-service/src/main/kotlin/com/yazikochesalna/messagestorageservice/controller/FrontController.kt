@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import java.util.*
 
+const val MAX_LIMIT: Int = 100
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/messages")
@@ -24,7 +26,7 @@ import java.util.*
 class FrontController(
     private val messageService: MessageService
 ) {
-    private val maxLimit: Int = 100
+    //private val maxLimit: Int = 100
 
     @GetMapping("/{chatId}")
     @Operation(
@@ -56,21 +58,22 @@ class FrontController(
         @RequestParam(required = false) limitUp: Int?,
         @RequestParam(required = false) limitDown: Int?,
         @RequestParam(required = false) cursor: UUID?
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<List<MessagesJsonFormatDTO>?> {
         //Тащим id пользователя
         var userId = (SecurityContextHolder.getContext().authentication as? JwtAuthenticationToken)?.userId
 
         // Валидация параметров limit & cursor
         if (validateLimit(limitUp, limitDown)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Limit не должен превышать значение $maxLimit!")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
         if (cursor == null){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cursor должен быть null!")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
 
+
         //Получаем сообщения
-        return try {
-            val messagesToFrontDTOs = userId?.let {
+        return runCatching {
+            val body = userId?.let {
                 messageService.getMessagesAroundCursor(
                     userId = it,
                     chatId = chatId,
@@ -79,30 +82,19 @@ class FrontController(
                     limitDown = limitDown ?: 0
                 )
             }
-            ResponseEntity.ok(messagesToFrontDTOs)
-        } catch (e: ResponseStatusException) {
-            //не нашли чат или у пользователя нет прав доступа
-            ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+            ResponseEntity.ok(body)
+        }.getOrElse { e ->
+            when (e) {
+                is ResponseStatusException -> ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+                else -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+            }
         }
 
-//        val messagesToFrontDTOs = userId?.let {
-//            messageService.getMessagesAroundCursor(
-//                userId = it,
-//                chatId = chatId,
-//                cursor = cursor,
-//                limitUp = limitUp ?: 0,
-//                limitDown = limitDown ?: 0
-//            )
-//        }
-//        //не нашли чат или у пользователя нет прав доступа
-//        if (messagesToFrontDTOs !=null && messagesToFrontDTOs.isEmpty()){
-//            return ResponseEntity.notFound().build()
-//        }
-//        return ResponseEntity.ok(messagesToFrontDTOs)
+
     }
 
     private fun validateLimit(limitUp: Int?, limitDown: Int?): Boolean{
-        return ((limitUp != null && (limitUp < 0 || limitUp > maxLimit)) ||
-                (limitDown != null && (limitDown < 0 || limitDown > maxLimit)))
+        return ((limitUp != null && (limitUp < 0 || limitUp > MAX_LIMIT)) ||
+                (limitDown != null && (limitDown < 0 || limitDown > MAX_LIMIT)))
     }
 }
