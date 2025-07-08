@@ -1,5 +1,6 @@
 package com.yazikochesalna.authorizationservice.config
 
+import com.yazikochesalna.authorizationservice.config.properties.FrontProperties
 import com.yazikochesalna.common.filter.JwtFilter
 import lombok.RequiredArgsConstructor
 import org.springframework.context.annotation.Bean
@@ -23,7 +24,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @RequiredArgsConstructor
 @EnableMethodSecurity(jsr250Enabled = true)
 open class SecurityConfig(
-    private val jwtFilter: JwtFilter
+    private val jwtFilter: JwtFilter,
+    private val frontProperties: FrontProperties
 ) {
     @Bean
     open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -56,7 +58,7 @@ open class SecurityConfig(
     open fun corsConfigurationSource(): CorsConfigurationSource {
         return UrlBasedCorsConfigurationSource().apply {
             registerCorsConfiguration("/**", CorsConfiguration().apply {
-                allowedOrigins = listOf("http://localhost:3000")
+                allowedOrigins = listOf(frontProperties.url)
                 allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 allowedHeaders = listOf("*")
                 allowCredentials = true
