@@ -1,5 +1,6 @@
 package com.yazikochesalna.messagestorageservice.model.db
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.yazikochesalna.messagestorageservice.model.enums.MessageType
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -9,7 +10,7 @@ import org.springframework.data.cassandra.core.mapping.Table
 import java.time.LocalDateTime
 import java.util.*
 
-
+//@JsonSerialize(using = MessagesJSONSerializer::class)
 @Table("messages")
 data class Message(
     @PrimaryKey

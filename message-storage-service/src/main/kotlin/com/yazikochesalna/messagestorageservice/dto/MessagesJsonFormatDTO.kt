@@ -7,14 +7,14 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
-@JsonSerialize(using = MessagesJSONSerializer::class)
+//@JsonSerialize(using = MessagesJSONSerializer::class)
 data class MessagesJsonFormatDTO(
     val messageId: UUID?,
     val type: MessageType?,
     val timestamp: LocalDateTime?,
     val payload: PayLoadDTO?
 ) {
-    fun <T : PayLoadDTO?> getPayLoad(): T {
-        return payload as T
-    }
+//    fun <T : PayLoadDTO?> getPayLoad(): T {
+//        return payload as T
+//    }
 }

@@ -58,11 +58,10 @@ class FrontController(
         @RequestParam(required = false) cursor: UUID?
     ): ResponseEntity<Any> {
         //Тащим id пользователя
-        val userId = (SecurityContextHolder.getContext().authentication as? JwtAuthenticationToken)?.userId
+        var userId = (SecurityContextHolder.getContext().authentication as? JwtAuthenticationToken)?.userId
 
         // Валидация параметров limit & cursor
-        if ((limitUp != null && (limitUp < 0 || limitUp > maxLimit)) ||
-            (limitDown != null && (limitDown < 0 || limitDown > maxLimit))) {
+        if (validateLimit(limitUp, limitDown)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Limit не должен превышать значение $maxLimit!")
         }
         if (cursor == null){
@@ -100,5 +99,10 @@ class FrontController(
 //            return ResponseEntity.notFound().build()
 //        }
 //        return ResponseEntity.ok(messagesToFrontDTOs)
+    }
+
+    private fun validateLimit(limitUp: Int?, limitDown: Int?): Boolean{
+        return ((limitUp != null && (limitUp < 0 || limitUp > maxLimit)) ||
+                (limitDown != null && (limitDown < 0 || limitDown > maxLimit)))
     }
 }
