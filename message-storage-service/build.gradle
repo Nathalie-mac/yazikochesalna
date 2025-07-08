@@ -2,6 +2,7 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '2.0.0'
     id 'org.springframework.boot' version '3.5.3'
     id 'io.spring.dependency-management' version '1.1.7'
+    //id "org.jetbrains.kotlin.plugin.allopen" version "2.2.0"
 }
 kotlin {
     jvmToolchain(21)
@@ -17,6 +18,11 @@ configurations {
     }
 }
 
+//allOpen {
+//    annotation("com.yazikochesalna.messagestorageservice.OpenAnnotation")
+    // annotations("com.another.Annotation", "com.third.Annotation")
+//}
+
 repositories {
     mavenCentral()
 }
@@ -28,21 +34,41 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-configuration-processor'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
-    implementation 'org.postgresql:postgresql:42.7.4'
     implementation 'org.liquibase:liquibase-core:4.27.0'
     implementation project(':jwt-module')
-
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    //for jsons
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.+")
+    //lombok
     compileOnly 'org.projectlombok:lombok'
-
     annotationProcessor 'org.projectlombok:lombok'
 
+    //test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    //spring logs
+    implementation("org.springframework.boot:spring-boot-starter-logging")
+
+    // Spring WebFlux (включает WebClient)
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+
+    //for corutines and async
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+
     // cassandra db
     implementation("org.springframework.boot:spring-boot-starter-data-cassandra")
     implementation("org.springframework.boot:spring-boot-starter-data-cassandra-reactive")
-    //implementation(kotlin("stdlib-jdk8"))
+    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
     implementation ("org.liquibase:liquibase-core")
+    //datastax
+    implementation("com.datastax.oss:java-driver-core:4.14.1")
+    implementation("com.datastax.oss:java-driver-query-builder:4.14.1")
+    implementation("com.datastax.oss:java-driver-mapper-runtime:4.14.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
+    //swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
 
 }
 

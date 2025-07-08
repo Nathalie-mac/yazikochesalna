@@ -51,15 +51,18 @@ services:
       - "9042:9042"
     volumes:
       - cassandra-messages-data:/var/lib/cassandra
+      - cassandra-init-flag:/bitnami/cassandra/initialized
       - ./message-storage-service/cassandra-init-scripts:/docker-entrypoint-initdb.d:Z
+     # - ./message-storage-service/cassandra-conf/cassandra.yaml:/opt/bitnami/cassandra/conf/cassandra.yaml
     environment:
-      - CASSANDRA_USER=cassandra
-      - CASSANDRA_PASSWORD=cassandra
+      - CASSANDRA_USER=db_admin
+      - CASSANDRA_PASSWORD=1234
       - CASSANDRA_PASSWORD_SEEDER=yes
       - CASSANDRA_CLUSTER_NAME=MyCluster
       - CASSANDRA_DATACENTER=datacenter1
       - CASSANDRA_AUTHENTICATOR=PasswordAuthenticator
       - CASSANDRA_AUTHORIZER=CassandraAuthorizer
+      - CASSANDRA_ENABLE_MATERIALIZED_VIEWS=true
 #      - CASSANDRA_AUTHENTICATOR=AllowAllAuthenticator
     healthcheck:
       test: [ "CMD-SHELL", "cqlsh -u cassandra -p cassandra -e 'DESCRIBE KEYSPACES'" ]
@@ -113,6 +116,7 @@ volumes:
   redis-websocket-tokens:
   kafka-message-storage:
   cassandra-messages-data:
+  cassandra-init-flag:
 
 networks:
   cassandra_network:

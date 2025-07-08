@@ -3,54 +3,94 @@
 # Конфигурация
 CASSANDRA_CONTAINER="cassandra_db"
 WAIT_MINUTES=3
+RETRY_INTERVAL=15
 CASSANDRA_USER="cassandra"
 CASSANDRA_PASS="cassandra"
 ADMIN_USER="db_admin"
 ADMIN_PASS="1234"
 KEYSPACE="storage_service_keyspace"
 DC_NAME="datacenter1"
-INIT_SCRIPT="/docker-entrypoint-initdb.d/init-table.cql"
+INIT_FLAG="/bitnami/cassandra/.initialized"
 
-echo "=== Начало инициализации Cassandra ==="
+# Проверяем прошедшую инициализацию
+if [ ! -f "$INIT_FLAG" ]; then
 
-# 1. Ожидание 3 минуты
-echo "1. Ожидание ${WAIT_MINUTES} минут перед началом..."
-sleep $((WAIT_MINUTES * 60))
+#INIT_SCRIPT="/docker-entrypoint-initdb.d/init-table.cql"
+
+echo "=== Starting Cassandra initialization ==="
+
+echo "1. Pending for Cassandra (max $MAX_WAIT_MINUTES minutes)..."
+start_time=$(date +%s)
+end_time=$((start_time + MAX_WAIT_MINUTES * 60))
+success=0
+
+while [ $(date +%s) -lt $end_time ]; do
+    if cqlsh -u "$CASSANDRA_USER" -p "$CASSANDRA_PASS" -e "DESCRIBE KEYSPACES" >/dev/null 2>&1; then
+        success=1
+        break
+    fi
+    echo "Failed to acccess, next try in $RETRY_INTERVAL seconds..."
+    sleep $RETRY_INTERVAL
+done
+
+if [ $success -eq 0 ]; then
+    echo "Fatal error: Cassandra is not available during $MAX_WAIT_MINUTES minutes"
+    exit 1
+fi
+
+elapsed_time=$(( $(date +%s) - start_time ))
+echo "Cassandra available within  $elapsed_time seconds"
 
 # 2. Подключение к Cassandra и выполнение команд
-echo "2. Создание администратора и keyspace..."
-cqlsh -u "$CASSANDRA_USER" -p "$CASSANDRA_PASS" <<CQL
-CREATE ROLE IF NOT EXISTS $ADMIN_USER WITH SUPERUSER = true AND LOGIN = true AND PASSWORD = '$ADMIN_PASS';
-CREATE KEYSPACE IF NOT EXISTS $KEYSPACE WITH REPLICATION = {'class': 'NetworkTopologyStrategy', '$DC_NAME': 1};
-GRANT ALL PERMISSIONS ON KEYSPACE $KEYSPACE TO $ADMIN_USER;
-CQL
-
-# 3. Отключение стандартного пользователя
-echo "3. Отключение пользователя cassandra..."
+echo "2. Creating keyspace and deleting default cassandra user..."
 cqlsh -u "$ADMIN_USER" -p "$ADMIN_PASS" <<CQL
+CREATE KEYSPACE IF NOT EXISTS $KEYSPACE WITH REPLICATION = {'class': 'NetworkTopologyStrategy', '$DC_NAME': 1};
 ALTER ROLE cassandra WITH SUPERUSER = false AND LOGIN = false;
 LIST ROLES;
 CQL
 
-# 4. Создание таблиц и индексов
-echo "4. Создание таблиц и индексов..."
-cqlsh -u "$ADMIN_USER" -p "$ADMIN_PASS" <<CQL
-USE $KEYSPACE;
+# 3. Создание таблиц и индексов
+echo "3. Creating tables and indexes..."
+cqlsh -u "$ADMIN_USER" -p "$ADMIN_PASS" <<-CQL
+  USE $KEYSPACE;
+  CREATE TABLE IF NOT EXISTS messages (
+      id UUID,
+      type TEXT,
+      sender_id BIGINT,
+      chat_id BIGINT,
+      text TEXT,
+      send_time TIMESTAMP,
+      marked_to_delete BOOLEAN,
+      PRIMARY KEY (id)
+  );
+  CREATE TABLE IF NOT EXISTS messages_by_chat (
+      chat_id BIGINT,
+      send_time TIMESTAMP,
+      id UUID,
+      text TEXT,
+      sender_id BIGINT,
+      type TEXT,
+      marked_to_delete BOOLEAN,
+      PRIMARY KEY ((chat_id), send_time, id)
+  ) WITH CLUSTERING ORDER BY (send_time DESC);
 
-CREATE TABLE IF NOT EXISTS messages (
-    id UUID,
-    sender_id BIGINT,
-    chat_id BIGINT,
-    text TEXT,
-    send_time TIMESTAMP,
-    marked_to_delete BOOLEAN,
-    PRIMARY KEY (id)
-);
-
-CREATE INDEX IF NOT EXISTS ON messages (sender_id);
-CREATE INDEX IF NOT EXISTS ON messages (chat_id);
+  CREATE TABLE IF NOT EXISTS attachments (
+      id BIGINT,
+      message_id UUID,
+      attachment_type TEXT,
+      attachment TEXT,
+      PRIMARY KEY (id)
+  );
+  CREATE INDEX IF NOT EXISTS attachments_message_idx ON attachments (message_id);
 CQL
 
-echo "=== Инициализация завершена успешно ==="
-echo "=== Запуск основного процесса Cassandra==="
+
+mkdir -p "$(dirname "$INIT_FLAG")"
+    touch "$INIT_FLAG"
+    echo "=== Initialiation completed! ==="
+else
+    echo "=== Scip custom initialization scripts (flag $INIT_FLAG already exists) ==="
+fi
+
+echo "=== Start default Cassandra process ==="
 exec /opt/bitnami/scripts/cassandra/run.sh
