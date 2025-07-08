@@ -1,7 +1,7 @@
 package com.yazikochesalna.messagingservice.controller;
 
 import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
-import com.yazikochesalna.messagingservice.service.WebSocketService;
+import com.yazikochesalna.messagingservice.service.WebSocketMessageService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
 public class NotificationController {
-    private final WebSocketService webSocketService;
+    private final WebSocketMessageService webSocketMessageService;
 
     @PostMapping("/")
     @RolesAllowed("SERVICE")
@@ -33,7 +33,7 @@ public class NotificationController {
     })
     @Hidden
     public ResponseEntity<?> sendUpdateChatMembersNotification(@Valid @RequestBody MessageDTO messageDTO) {
-        webSocketService.sendMessage(messageDTO);
+        webSocketMessageService.sendMessage(messageDTO);
         return ResponseEntity.ok().build();
     }
 

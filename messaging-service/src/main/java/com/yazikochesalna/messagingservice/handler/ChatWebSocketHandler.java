@@ -1,7 +1,8 @@
 package com.yazikochesalna.messagingservice.handler;
 
 import com.yazikochesalna.messagingservice.processor.TextMessageProcessor;
-import com.yazikochesalna.messagingservice.service.WebSocketService;
+import com.yazikochesalna.messagingservice.service.WebSocketMessageService;
+import com.yazikochesalna.messagingservice.service.WebSocketSessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -13,12 +14,12 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 @RequiredArgsConstructor
 public class ChatWebSocketHandler extends TextWebSocketHandler {
     private final TextMessageProcessor textMessageProcessor;
-    private final WebSocketService webSocketService;
+    private final WebSocketSessionService webSocketSessionService;
 
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        webSocketService.addSession(session);
+        webSocketSessionService.addSession(session);
     }
 
     @Override
@@ -29,6 +30,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        webSocketService.removeSession(session);
+        webSocketSessionService.removeSession(session);
     }
 }

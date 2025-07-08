@@ -16,8 +16,6 @@ import java.util.UUID;
 @Configuration
 @RequiredArgsConstructor
 public class KafkaConfig {
-
-
     private final KafkaProperties kafkaProperties;
 
     @Bean
@@ -26,12 +24,10 @@ public class KafkaConfig {
         return new DefaultKafkaProducerFactory<>(config);
     }
 
-
     @Bean
     public KafkaTemplate<String, MessageDTO> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
-
 
     @Bean
     public ConsumerFactory<String, MessageDTO> consumerFactory() {

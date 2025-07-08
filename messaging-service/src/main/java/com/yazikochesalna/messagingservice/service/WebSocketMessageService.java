@@ -12,60 +12,27 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class WebSocketService {
+public class WebSocketMessageService {
 
-    private final Map<Long, Set<ConcurrentWebSocketSessionDecorator>> activeSessions = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper;
     private final ChatServiceClient chatServiceClient;
     private final KafkaProducerService kafkaProducerService;
+    private final WebSocketSessionService webSocketSessionService;
 
-
-    private final int SEND_TIME_LIMIT = 10 * 1000;
-    private final int SEND_BUFFER_SIZE_LIMIT = 512 * 1024;
 
     private static boolean isOpenSession(WebSocketSession session) {
         return session.isOpen();
     }
 
-    public void addSession(WebSocketSession session) {
-        var userId = (Long) session.getAttributes().get("userId");
-        var concurrentSession = new ConcurrentWebSocketSessionDecorator(session, SEND_TIME_LIMIT, SEND_BUFFER_SIZE_LIMIT);
-        Set<ConcurrentWebSocketSessionDecorator> sessions = activeSessions.get(userId);
-        if (sessions == null) {
-            sessions = new CopyOnWriteArraySet<>();
-            sessions.add(concurrentSession);
-            activeSessions.put(userId, sessions);
-        } else {
-            sessions.add(concurrentSession);
-        }
-    }
-
-    public void removeSession(WebSocketSession session) {
-        var userId = (Long) session.getAttributes().get("userId");
-        Set<ConcurrentWebSocketSessionDecorator> sessions = activeSessions.get(userId);
-        if (sessions != null) {
-            Set<WebSocketSession> updatedSessions = sessions.stream()
-                    .filter(decoratedSession ->
-                            !decoratedSession.getDelegate().equals(session))
-                    .collect(Collectors.toSet());
-            if (updatedSessions.isEmpty()) {
-                activeSessions.remove(userId);
-            }
-        }
-    }
 
     public void sendMessage(WebSocketSession session, AwaitingResponseMessageDTO awaitingResponseMessageDTO) {
-        var userId = (Long) session.getAttributes().get("userId");
+        var userId = webSocketSessionService.getUserId(session);
 
         PayloadMessageDTO payload = awaitingResponseMessageDTO.<PayloadMessageDTO>getPayload();
         if (!chatServiceClient.isUserInChat(userId, payload.getChatId())) {
@@ -97,7 +64,7 @@ public class WebSocketService {
     }
 
     public void sendErrorResponse(WebSocketSession session, ResponseResultType responseResultType, Long requestId) {
-        ConcurrentWebSocketSessionDecorator concurrentSession = getConcurrentWebSocketSessionDecorator(session);
+        ConcurrentWebSocketSessionDecorator concurrentSession = webSocketSessionService.getConcurrentSession(session);
         if (concurrentSession == null) {
             return;
         }
@@ -109,7 +76,7 @@ public class WebSocketService {
     }
 
     private void sendOKResponse(WebSocketSession session, Long requestId, UUID messageId) {
-        ConcurrentWebSocketSessionDecorator concurrentSession = getConcurrentWebSocketSessionDecorator(session);
+        ConcurrentWebSocketSessionDecorator concurrentSession = webSocketSessionService.getConcurrentSession(session);
         if (concurrentSession == null) {
             return;
         }
@@ -122,18 +89,6 @@ public class WebSocketService {
 
     }
 
-    private ConcurrentWebSocketSessionDecorator getConcurrentWebSocketSessionDecorator(WebSocketSession session) {
-        var userId = (Long) session.getAttributes().get("userId");
-        Set<ConcurrentWebSocketSessionDecorator> userSessions = activeSessions.get(userId);
-        if (userSessions != null) {
-            return userSessions.stream()
-                    .filter(decoratedSession ->
-                            decoratedSession.getDelegate().equals(session))
-                    .findAny().get();
-        }
-        return null;
-
-    }
 
     private void sendResponseToWebSocketSession(ConcurrentWebSocketSessionDecorator session, ResponseDTO responseDTO) {
         try {
@@ -164,7 +119,8 @@ public class WebSocketService {
         List<Long> recipientUsers = chatServiceClient.getUsersByChatId(chatId);
 
         for (Long recipientId : recipientUsers) {
-            Set<ConcurrentWebSocketSessionDecorator> recipientSessions = activeSessions.get(recipientId);
+            Set<ConcurrentWebSocketSessionDecorator> recipientSessions =
+                    webSocketSessionService.getUserSessions(recipientId);
             if (recipientSessions != null && !recipientSessions.isEmpty()) {
                 for (ConcurrentWebSocketSessionDecorator recipientSession : recipientSessions) {
                     setMessageToWebSocketSession(recipientSession, messageDTO);

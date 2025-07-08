@@ -14,8 +14,6 @@ import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-
-
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ExceptionDTO> handleInvalidMessageFormatCustomException(RuntimeException ex, WebRequest request) {
         Map<String, Object> details = new HashMap<>();
@@ -25,7 +23,6 @@ public class GlobalExceptionHandler {
         var errorResponse = new ExceptionDTO(ex.getMessage(), details);
         return new ResponseEntity<>(errorResponse, getStatus(ex.getClass()));
     }
-
 
     private HttpStatus getStatus(Class<? extends Throwable> exceptionClass) {
         ResponseStatus responseStatus = exceptionClass.getAnnotation(ResponseStatus.class);

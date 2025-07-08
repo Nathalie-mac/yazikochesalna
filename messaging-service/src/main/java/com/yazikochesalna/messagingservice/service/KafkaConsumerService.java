@@ -12,11 +12,11 @@ public class KafkaConsumerService {
 
     private static final String TOPIC_NAME = "messages";
 
-    private final WebSocketService webSocketService;
+    private final WebSocketMessageService webSocketMessageService;
 
     @KafkaListener(topics = TOPIC_NAME)
     public void listenMessage(MessageDTO message, Acknowledgment ack) {
-        webSocketService.broadcastMessageToParticipants(message);
+        webSocketMessageService.broadcastMessageToParticipants(message);
         ack.acknowledge();
     }
 

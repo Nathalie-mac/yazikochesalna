@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @RequiredArgsConstructor
-public class RedisConfig {
+public class RedissonConfig {
 
     private final RedisProperties redisProperties;
 
