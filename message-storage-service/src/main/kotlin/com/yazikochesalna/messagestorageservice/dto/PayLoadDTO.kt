@@ -1,4 +1,4 @@
 package com.yazikochesalna.messagestorageservice.dto
 
-class MessagesFromKafkaDTO {
+sealed interface PayLoadDTO {
 }

@@ -38,8 +38,7 @@ dependencies {
     implementation project(':jwt-module')
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     //for jsons
-    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
-
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     //lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

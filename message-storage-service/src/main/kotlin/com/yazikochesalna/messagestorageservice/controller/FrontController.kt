@@ -1,7 +1,7 @@
 package com.yazikochesalna.messagestorageservice.controller
 
 import com.yazikochesalna.common.authentication.JwtAuthenticationToken
-import com.yazikochesalna.messagestorageservice.dto.MessagesToFrontDTO
+import com.yazikochesalna.messagestorageservice.dto.MessagesJsonFormatDTO
 import com.yazikochesalna.messagestorageservice.service.MessageService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -39,7 +39,7 @@ class FrontController(
                 content = [
                     Content(
                         mediaType = "application/json",
-                        schema = Schema(implementation = MessagesToFrontDTO::class)
+                        schema = Schema(implementation = MessagesJsonFormatDTO::class)
                     )]),
             ApiResponse(
                 responseCode = "400",

@@ -1,6 +1,6 @@
 package com.yazikochesalna.messagestorageservice.model.db
 
-import com.yazikochesalna.messagestorageservice.model.AttachmentType
+import com.yazikochesalna.messagestorageservice.model.enums.AttachmentType
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import org.springframework.data.cassandra.core.mapping.Column
@@ -12,16 +12,16 @@ import java.util.*
 @Table("attachments")
 data class Attachment(
     @PrimaryKey
-    val id: Long,
+    var id: Long,
 
     @Column("message_id")
     @Indexed
-    val message_id: UUID,
+    var message_id: UUID,
 
     @Column("attachment_type")
     @Enumerated(value = EnumType.STRING)
-    val attachmentType: AttachmentType,
+    var attachmentType: AttachmentType,
 
     @Column("attachment")
-    val attachment: String
+    var attachment: String
 )

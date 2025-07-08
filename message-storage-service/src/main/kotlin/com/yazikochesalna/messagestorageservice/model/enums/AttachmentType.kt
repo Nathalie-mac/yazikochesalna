@@ -1,4 +1,4 @@
-package com.yazikochesalna.messagestorageservice.model
+package com.yazikochesalna.messagestorageservice.model.enums
 
 enum class AttachmentType(val at: String){
     REPLY("REPLY"),

@@ -6,6 +6,7 @@ import com.datastax.oss.driver.api.core.type.DataTypes
 import com.datastax.oss.driver.api.core.type.codec.TypeCodec
 import com.datastax.oss.driver.api.core.type.codec.TypeCodecs
 import com.datastax.oss.driver.api.core.type.reflect.GenericType
+import org.springframework.stereotype.Component
 import java.nio.ByteBuffer
 import java.time.Instant
 import java.time.LocalDateTime
@@ -13,7 +14,9 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
+@Component
 class DateTimeCodec : TypeCodec<LocalDateTime> {
+
     override fun getJavaType(): GenericType<LocalDateTime> {
         return GenericType.LOCAL_DATE_TIME
     }

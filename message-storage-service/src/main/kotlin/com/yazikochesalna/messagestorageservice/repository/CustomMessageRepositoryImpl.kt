@@ -1,29 +1,28 @@
 package com.yazikochesalna.messagestorageservice.repository
 
+import com.datastax.dse.driver.api.core.cql.reactive.ReactiveSession
 import com.datastax.oss.driver.api.core.cql.Row
-import com.datastax.oss.driver.api.core.cql.SimpleStatement
-import com.yazikochesalna.messagestorageservice.model.MessageType
+import com.datastax.oss.driver.api.core.metadata.schema.ClusteringOrder
+import com.datastax.oss.driver.api.querybuilder.QueryBuilder.literal
+import com.datastax.oss.driver.api.querybuilder.QueryBuilder.selectFrom
+import com.yazikochesalna.messagestorageservice.exception.NullCassandraFiledException
 import com.yazikochesalna.messagestorageservice.model.db.Message
+import com.yazikochesalna.messagestorageservice.model.enums.MessageType
 import jakarta.annotation.PostConstruct
-import org.springframework.data.cassandra.core.ReactiveCassandraOperations
-import org.springframework.data.cassandra.core.ReactiveCassandraTemplate
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.cassandra.core.cql.ReactiveCqlTemplate
-import org.springframework.data.cassandra.core.cql.queryForFlux
-import org.springframework.data.cassandra.core.cql.queryForObject
-import org.springframework.data.cassandra.core.query.Criteria
-import org.springframework.data.cassandra.core.query.Query
-import org.springframework.data.cassandra.core.query.and
-import org.springframework.data.crossstore.ChangeSetPersister
 import org.springframework.stereotype.Repository
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.lang.IllegalStateException
 import java.time.LocalDateTime
 import java.util.*
+
 
 @Repository
 open class CustomMessageRepositoryImpl(
     private val reactiveCqlTemplate: ReactiveCqlTemplate,
-    private val reactiveCassandraTemplate: ReactiveCassandraTemplate
+    @Qualifier("session") private val reactiveSession: ReactiveSession
 ) : CustomMessageRepository {
 
     private lateinit var cursorMessageSelectStmt: String
@@ -32,25 +31,18 @@ open class CustomMessageRepositoryImpl(
 
     @PostConstruct
     fun init() {
-        beforeCursorSelectStmt = """
-            SELECT * FROM messages_by_chat 
-            WHERE chat_id = ? 
-            AND send_time < ?
-            ORDER BY send_time DESC
-            LIMIT ?
-        """.trimIndent()
+        beforeCursorSelectStmt = """  
+            SELECT * FROM messages_by_chat            WHERE chat_id = ?   
+            AND send_time < ?  
+            ORDER BY send_time DESC            LIMIT ?        """.trimIndent()
 
-        afterCursorSelectStmt = """
-            SELECT * FROM messages_by_chat 
-            WHERE chat_id = ? 
-            AND send_time > ?
-            ORDER BY send_time ASC
-            LIMIT ?
-        """.trimIndent()
+        afterCursorSelectStmt = """  
+            SELECT * FROM messages_by_chat            WHERE chat_id = ?   
+            AND send_time > ?  
+            ORDER BY send_time ASC            LIMIT ?        """.trimIndent()
 
-        cursorMessageSelectStmt = """
-            SELECT * FROM messages 
-            WHERE id = ?
+        cursorMessageSelectStmt = """  
+            SELECT * FROM messages            WHERE id = ?  
         """.trimIndent()
     }
 
@@ -60,8 +52,9 @@ open class CustomMessageRepositoryImpl(
         limitUp: Int,
         limitDown: Int
     ): Flux<Message> {
+
         val cursorMessageMono = reactiveCqlTemplate.query(
-            "SELECT * FROM messages WHERE id = ?",
+            cursorMessageSelectStmt,
             { rs, _ -> deserializeMessage(rs) },
             cursor
         ).single()
@@ -88,33 +81,72 @@ open class CustomMessageRepositoryImpl(
             ).map { tuple ->
                 val finalList = mutableListOf<Message>()
                 val beforeMessages = tuple.t1.filterNotNull()
-                finalList.addAll(beforeMessages.reversed())
-                if (cursorMessage != null) {
-                    finalList.add(cursorMessage)
-                }
                 val afterMessages  = tuple.t2.filterNotNull()
+
+
+                finalList.addAll(beforeMessages.reversed())
+                finalList.add(cursorMessage)
                 finalList.addAll(afterMessages)
+
                 finalList
             }.flatMapIterable { it }
-        }
+        }//
+//        val cursorFlx = Flux
+//            .from(reactiveSession.executeReactive(cursorQuery))
+//            .map { row -> deserializeMessage(row) }
+//            //.switchIfEmpty(Mono.error(("Cursor message not found")))
+//
+//        return cursorFlx.flatMap { cursorMessage ->
+//            val cursorTime = cursorMessage?.sendTime
+//
+//            val beforeCursorQuery = selectFrom("messages_by_chat")
+//                .all().whereColumn("chat_id").isEqualTo(literal(chatId))
+//                .whereColumn("send_time").isLessThan(literal(cursorTime))
+//                .orderBy("send_time", ClusteringOrder.DESC)
+//                .limit(limitUp).build()
+//
+//            val afterCursorQuery = selectFrom("messages_by_chat")
+//                .all().whereColumn("chat_id").isEqualTo(literal(chatId))
+//                .whereColumn("send_time").isGreaterThan(literal(cursorTime))
+//                .orderBy("send_time", ClusteringOrder.ASC)
+//                .limit(limitDown).build()
+//
+//            val beforeMessagesFlux = Flux.from(reactiveSession.executeReactive(afterCursorQuery))
+//                .map { row -> deserializeMessage(row) }
+//
+//            val afterMessagesFlux = Flux.from(reactiveSession.executeReactive(beforeCursorQuery))
+//                .map { row -> deserializeMessage(row) }
+//
+//            Flux.concat(
+//                beforeMessagesFlux.collectList().map { it.reversed() },
+//                Flux.just(cursorMessage),
+//                afterMessagesFlux.collectList()
+//            )
+////            Flux.zip(beforeMessagesFlux, afterMessagesFlux)
+////                .flatMapIterable { (beforeMessages, afterMessages) ->
+////                    val result = mutableListOf<Message>()
+////                    result.addAll(beforeMessages.reversed()) // Старые сообщения (DESC → переворачиваем)
+////                    result.add(cursorMessage) // Сам курсор
+////                    result.addAll(afterMessages) // Новые сообщения (ASC)
+////                    result
+////                }
     }
 
-    //TODO: сериализация с помощью MessageCodec
-    private fun deserializeMessage(rs: Row): Message? {
-        return rs.getUuid("id")?.let {
-            rs.get("send_time", LocalDateTime::class.java)?.let { it1 ->
-                rs.getString("text")?.let { it2 ->
-                    Message(
-                        id = it,
-                        type = MessageType.fromType(rs.getString("type")),
-                        senderId = rs.getLong("sender_id"),
-                        chatId = rs.getLong("chat_id"),
-                        text = it2,
-                        sendTime = it1,
-                        markedToDelete = rs.getBoolean("marked_to_delete")
-                    )
-                }
-            }
+
+    private fun deserializeMessage(rs: Row): Message = kotlin.runCatching {
+        Message(
+            id = rs.getUuid("id") ?: throw NullCassandraFiledException("id"),
+            type = MessageType.fromType(rs.getString("type")) ?: throw NullCassandraFiledException("type"),
+            senderId = rs.getLong("sender_id"),
+            chatId = rs.getLong("chat_id"),
+            text = rs.getString("text"),
+            sendTime = LocalDateTime.now(),//rs.get("send_time", LocalDateTime::class.java)
+            //?: throw NullCassandraFiledException("send_time"),            markedToDelete = rs.getBoolean("marked_to_delete")
+        )
+    }.getOrElse { e ->
+        when (e) {
+            is NullCassandraFiledException -> throw e
+            else -> throw IllegalStateException("Deserialization in table Message failed", e)
         }
     }
 }

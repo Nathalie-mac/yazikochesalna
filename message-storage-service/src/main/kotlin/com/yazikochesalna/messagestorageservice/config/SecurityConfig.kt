@@ -1,20 +1,17 @@
 package com.yazikochesalna.messagestorageservice.config
 
 import com.yazikochesalna.common.filter.JwtFilter
+import com.yazikochesalna.messagestorageservice.config.properties.FrontProperties
 import lombok.RequiredArgsConstructor
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer.AuthorizationManagerRequestMatcherRegistry
-import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer
-import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer
-import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.HttpStatusEntryPoint
@@ -24,7 +21,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 @EnableMethodSecurity(jsr250Enabled = true)
-open class SecurityConfig(private val jwtFilter: JwtFilter)
+@EnableConfigurationProperties(FrontProperties::class)
+open class SecurityConfig(private val jwtFilter: JwtFilter,
+    private val frontProperties: FrontProperties)
 {
 
     @Bean
@@ -38,7 +37,8 @@ open class SecurityConfig(private val jwtFilter: JwtFilter)
                     "/swagger-resources/**",
                     "/v3/api-docs/**",
                     "/error",
-                    "/debug/service-token"
+                    "/debug/service-token",
+                    frontProperties.url
                 ).permitAll().anyRequest().authenticated()
             }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
