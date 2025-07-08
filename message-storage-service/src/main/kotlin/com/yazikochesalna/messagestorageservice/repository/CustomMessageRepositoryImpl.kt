@@ -52,28 +52,34 @@ open class CustomMessageRepositoryImpl(
         limitUp: Int,
         limitDown: Int
     ): Flux<Message> {
-
         val cursorMessageMono = reactiveCqlTemplate.query(
             cursorMessageSelectStmt,
             { rs, _ -> deserializeMessage(rs) },
-            cursor
-        ).single()
+            cursor).single()
 
         return cursorMessageMono.flatMapMany { cursorMessage ->
             requireNotNull(cursorMessage) { "Cursor message not found" }
             val cursorTime = cursorMessage.sendTime
 
-            val beforeMessagesFlux = reactiveCqlTemplate.query(
-                beforeCursorSelectStmt,
-                { rs, _ -> deserializeMessage(rs) },
-                chatId, cursorTime, limitUp
-            ).collectList()
+            val beforeMessagesFlux = if (limitUp > 0) {
+                reactiveCqlTemplate.query(
+                    beforeCursorSelectStmt,
+                    { rs, _ -> deserializeMessage(rs) },
+                    chatId, cursorTime, limitUp
+                ).collectList()
+            } else {
+                Mono.just(emptyList<Message>())
+            }
 
-            val afterMessagesFlux = reactiveCqlTemplate.query(
-                afterCursorSelectStmt,
-                { rs, _ -> deserializeMessage(rs) },
-                chatId, cursorTime, limitDown
-            ).collectList()
+            val afterMessagesFlux = if (limitDown > 0) {
+                reactiveCqlTemplate.query(
+                    afterCursorSelectStmt,
+                    { rs, _ -> deserializeMessage(rs) },
+                    chatId, cursorTime, limitDown
+                ).collectList()
+            } else {
+                Mono.just(emptyList<Message>())
+            }
 
             Flux.zip(
                 beforeMessagesFlux,
@@ -90,46 +96,7 @@ open class CustomMessageRepositoryImpl(
 
                 finalList
             }.flatMapIterable { it }
-        }//
-//        val cursorFlx = Flux
-//            .from(reactiveSession.executeReactive(cursorQuery))
-//            .map { row -> deserializeMessage(row) }
-//            //.switchIfEmpty(Mono.error(("Cursor message not found")))
-//
-//        return cursorFlx.flatMap { cursorMessage ->
-//            val cursorTime = cursorMessage?.sendTime
-//
-//            val beforeCursorQuery = selectFrom("messages_by_chat")
-//                .all().whereColumn("chat_id").isEqualTo(literal(chatId))
-//                .whereColumn("send_time").isLessThan(literal(cursorTime))
-//                .orderBy("send_time", ClusteringOrder.DESC)
-//                .limit(limitUp).build()
-//
-//            val afterCursorQuery = selectFrom("messages_by_chat")
-//                .all().whereColumn("chat_id").isEqualTo(literal(chatId))
-//                .whereColumn("send_time").isGreaterThan(literal(cursorTime))
-//                .orderBy("send_time", ClusteringOrder.ASC)
-//                .limit(limitDown).build()
-//
-//            val beforeMessagesFlux = Flux.from(reactiveSession.executeReactive(afterCursorQuery))
-//                .map { row -> deserializeMessage(row) }
-//
-//            val afterMessagesFlux = Flux.from(reactiveSession.executeReactive(beforeCursorQuery))
-//                .map { row -> deserializeMessage(row) }
-//
-//            Flux.concat(
-//                beforeMessagesFlux.collectList().map { it.reversed() },
-//                Flux.just(cursorMessage),
-//                afterMessagesFlux.collectList()
-//            )
-////            Flux.zip(beforeMessagesFlux, afterMessagesFlux)
-////                .flatMapIterable { (beforeMessages, afterMessages) ->
-////                    val result = mutableListOf<Message>()
-////                    result.addAll(beforeMessages.reversed()) // Старые сообщения (DESC → переворачиваем)
-////                    result.add(cursorMessage) // Сам курсор
-////                    result.addAll(afterMessages) // Новые сообщения (ASC)
-////                    result
-////                }
+        }
     }
 
 
