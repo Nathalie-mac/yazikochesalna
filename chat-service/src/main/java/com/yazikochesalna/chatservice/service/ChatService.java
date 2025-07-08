@@ -21,7 +21,6 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -97,11 +96,11 @@ public class ChatService {
         userService.validateUsers(newMembersIds);
 
         for (Long newMemberId: newMembersIds) {
-            ChatUser member = new ChatUser(chatId, newMemberId, null, chat);
+            ChatUser member = new ChatUser(null, newMemberId, null, chat);
             try {
                 chatUsersRepository.save(member);
                 messagingServiceClient.sendMemberAddedNotification(newMemberId, chatId);
-            } catch (DuplicateKeyException e) {
+            } catch (DataIntegrityViolationException e) {
                 //do nothing, user was in chat or was added in other thread/instance
             }
         }
