@@ -2,7 +2,8 @@
 
 # Конфигурация
 CASSANDRA_CONTAINER="cassandra_db"
-WAIT_MINUTES=1
+WAIT_MINUTES=3
+RETRY_INTERVAL=15
 CASSANDRA_USER="cassandra"
 CASSANDRA_PASS="cassandra"
 ADMIN_USER="db_admin"
@@ -16,22 +17,40 @@ if [ ! -f "$INIT_FLAG" ]; then
 
 #INIT_SCRIPT="/docker-entrypoint-initdb.d/init-table.cql"
 
-echo "=== Начало инициализации Cassandra ==="
+echo "=== Starting Cassandra initialization ==="
 
-# 1. Ожидание 3 минуты
-echo "1. Ожидание ${WAIT_MINUTES} минут перед началом..."
-sleep $((WAIT_MINUTES * 60))
+echo "1. Pending for Cassandra (max $MAX_WAIT_MINUTES minutes)..."
+start_time=$(date +%s)
+end_time=$((start_time + MAX_WAIT_MINUTES * 60))
+success=0
+
+while [ $(date +%s) -lt $end_time ]; do
+    if cqlsh -u "$CASSANDRA_USER" -p "$CASSANDRA_PASS" -e "DESCRIBE KEYSPACES" >/dev/null 2>&1; then
+        success=1
+        break
+    fi
+    echo "Failed to acccess, next try in $RETRY_INTERVAL seconds..."
+    sleep $RETRY_INTERVAL
+done
+
+if [ $success -eq 0 ]; then
+    echo "Fatal error: Cassandra is not available during $MAX_WAIT_MINUTES minutes"
+    exit 1
+fi
+
+elapsed_time=$(( $(date +%s) - start_time ))
+echo "Cassandra available within  $elapsed_time seconds"
 
 # 2. Подключение к Cassandra и выполнение команд
-echo "2. Создание keyspace и отключение пользователя cassandra..."
+echo "2. Creating keyspace and deleting default cassandra user..."
 cqlsh -u "$ADMIN_USER" -p "$ADMIN_PASS" <<CQL
 CREATE KEYSPACE IF NOT EXISTS $KEYSPACE WITH REPLICATION = {'class': 'NetworkTopologyStrategy', '$DC_NAME': 1};
 ALTER ROLE cassandra WITH SUPERUSER = false AND LOGIN = false;
 LIST ROLES;
 CQL
 
-# 4. Создание таблиц и индексов
-echo "4. Создание таблиц и индексов..."
+# 3. Создание таблиц и индексов
+echo "3. Creating tables and indexes..."
 cqlsh -u "$ADMIN_USER" -p "$ADMIN_PASS" <<-CQL
   USE $KEYSPACE;
   CREATE TABLE IF NOT EXISTS messages (
@@ -68,10 +87,10 @@ CQL
 
 mkdir -p "$(dirname "$INIT_FLAG")"
     touch "$INIT_FLAG"
-    echo "=== Инициализация завершена ==="
+    echo "=== Initialiation completed! ==="
 else
-    echo "=== Пропускаем инициализацию (флаг $INIT_FLAG существует) ==="
+    echo "=== Scip custom initialization scripts (flag $INIT_FLAG already exists) ==="
 fi
 
-echo "=== Запуск основного процесса Cassandra ==="
+echo "=== Start default Cassandra process ==="
 exec /opt/bitnami/scripts/cassandra/run.sh
