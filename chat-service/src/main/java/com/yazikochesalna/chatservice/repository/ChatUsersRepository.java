@@ -22,4 +22,9 @@ public interface ChatUsersRepository extends JpaRepository<ChatUser, Long> {
     @Transactional
     @Query("UPDATE ChatUser cu SET cu.lastReadMessageId = :messageId WHERE cu.chat.id = :chatId AND cu.userId = :userId")
     int updateLastReadMessageId(@Param("chatId") long chatId, @Param("userId") long userId, @Param("messageId") @NotNull @NotEmpty UUID messageId);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM ChatUser record WHERE record.userId = :userId and record.chat.id = :chatId")
+    int deleteByUserIdAndChatIdIfExits(@Param("chatId") long chatId, @Param("userId") Long userId);
 }
