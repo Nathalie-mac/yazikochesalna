@@ -68,6 +68,8 @@ dependencies {
     //Minio
     implementation 'io.minio:minio:8.5.17'
 
+    implementation 'net.bramp.ffmpeg:ffmpeg:0.8.0'
+
 //    implementation(project(":jwt-module"))
 }
 
