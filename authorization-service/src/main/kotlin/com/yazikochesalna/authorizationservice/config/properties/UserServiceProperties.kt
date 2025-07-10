@@ -1,4 +1,4 @@
-package com.yazikochesalna.authorizationservice.com.yazikochesalna.authorizationservice.config.properties
+package com.yazikochesalna.authorizationservice.config.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component

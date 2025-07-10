@@ -30,7 +30,7 @@ open class AuthService(
             userRepository.findByLogin(login)
         }.getOrElse {
             throw AuthException("Invalid credentials")
-        }!!
+        } ?: throw AuthException("Invalid credentials")
 
         if (!passwordEncoder.matches(password, user.password)) {
             throw AuthException("Invalid credentials")
