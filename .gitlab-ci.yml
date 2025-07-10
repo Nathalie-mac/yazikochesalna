@@ -87,7 +87,7 @@ docker-message-storage-service:
     SERVICE_DIR: "message-storage-service"
     DOCKER_IMAGE_NAME: "message-storage-service"
   dependencies:
-    - build-messaging-service
+    - build-message-storage-service
 
 docker-messaging-service:
   <<: *build-docker-template
