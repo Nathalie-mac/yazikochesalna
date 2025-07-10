@@ -1,15 +1,8 @@
-image: docker:latest
 
 variables:
   # Имя Docker Registry
   DOCKER_REGISTRY: registry.gitlab.com
   PROJECT_NAME: liza.antipa/yazikochesalna
-
-before_script:
-  image: docker:latest
-  script:
-      - echo "Авторизация в Docker Registry"
-      - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
 stages:
   - build
@@ -26,8 +19,11 @@ stages:
 
 .build-docker-template: &build-docker-template
   stage: package
+  image: docker:latest
   script:
     - cd "$SERVICE_DIR"
+  - echo "Авторизация в Docker Registry"
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -t "$DOCKER_REGISTRY/$PROJECT_NAME/$DOCKER_IMAGE_NAME:$CI_COMMIT_BRANCH" .
     - docker push "$DOCKER_REGISTRY/$PROJECT_NAME/$DOCKER_IMAGE_NAME:$CI_COMMIT_BRANCH"
 
