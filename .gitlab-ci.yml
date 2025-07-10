@@ -13,7 +13,7 @@ stages:
   image: amazoncorretto:21-alpine
   script:
     - chmod +x ./gradlew
-    - ./gradlew build -x test :$SERVICE_DIR:build
+    - ./gradlew :$SERVICE_DIR:build -x test
   artifacts:
     paths:
       - "$SERVICE_DIR/build/libs/"
