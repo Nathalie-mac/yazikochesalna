@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: messenger
+  labels:
+    app: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7.0-alpine
+          ports:
+            - containerPort: 6379
+          volumeMounts:
+            - name: redis-websocket-tokens
+              mountPath: /data
+          livenessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 15
+            periodSeconds: 5
+      volumes:
+        - name: redis-websocket-tokens
+          persistentVolumeClaim:
+            claimName: redis-websocket-tokens-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: messenger
+spec:
+  ports:
+    - port: 6379
+      targetPort: 6379
+  selector:
+    app: redis
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-websocket-tokens-pvc
+  namespace: messenger
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

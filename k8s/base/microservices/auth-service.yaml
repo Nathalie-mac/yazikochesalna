@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: messenger
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+
+      containers:
+        - name: auth-service
+          image: auth-service:latest
+          ports:
+            - containerPort: 8085
+          env:
+            - name: JWT_SECRET_KEY
+              value: "5d1a51090ece358e6afa19650833608a44732a9a6251cbd4c6e1cb0ca2eb6735d439efc354d1fccd73f461124023f4cea4020de8efaf57843e4c63d8296bc7f9"
+            - name: JWT_ACCESS_TOKEN_EXPIRATION
+              value: "36000000"
+            - name: JWT_REFRESH_TOKEN_EXPIRATION
+              value: "252000000"
+            - name: WEBCLIENT_TIMEOUT
+              value: "50000"
+            - name: CHAT_SERVICE_URL
+              value: "http://localhost:8080"
+            - name: MESSAGE_STORAGE_SERVICE_URL
+              value: "http://localhost:8081"
+            - name: MESSAGING_SERVICE_URL
+              value: "http://localhost:8082"
+            - name: USER_SERVICE_URL
+              value: "http://localhost:8083"
+            - name: AUTHORIZATION_SERVICE_URL
+              value: "http://localhost:8085"
+            - name: FRONT_SERVER_URL
+              value: "http://localhost:5173"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: messenger
+spec:
+  ports:
+    - port: 8085
+      targetPort: 8085
+  selector:
+    app: auth-service

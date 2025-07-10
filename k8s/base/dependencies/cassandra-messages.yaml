@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cassandra-messages
+  namespace: messenger
+  labels:
+    app: cassandra-messages
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cassandra-messages
+  template:
+    metadata:
+      labels:
+        app: cassandra-messages
+    spec:
+      containers:
+        - name: cassandra-messages
+          image: bitnami/cassandra:latest
+          ports:
+            - containerPort: 9042
+          env:
+            - name: CASSANDRA_USER
+              value: "db_admin"
+            - name: CASSANDRA_PASSWORD
+              value: "1234"
+            - name: CASSANDRA_PASSWORD_SEEDER
+              value: "yes"
+            - name: CASSANDRA_CLUSTER_NAME
+              value: "MyCluster"
+            - name: CASSANDRA_DATACENTER
+              value: "datacenter1"
+            - name: CASSANDRA_AUTHENTICATOR
+              value: "PasswordAuthenticator"
+            - name: CASSANDRA_AUTHORIZER
+              value: "CassandraAuthorizer"
+            - name: CASSANDRA_ENABLE_MATERIALIZED_VIEWS
+              value: "true"
+          volumeMounts:
+            - name: cassandra-messages-data
+              mountPath: /var/lib/cassandra
+            - name: cassandra-init-flag
+              mountPath: /bitnami/cassandra/initialized
+          livenessProbe:
+            exec:
+              command: ["cqlsh", "-u", "cassandra", "-p", "cassandra", "-e", "DESCRIBE KEYSPACES"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+      volumes:
+        - name: cassandra-messages-data
+          persistentVolumeClaim:
+            claimName: cassandra-messages-pvc
+        - name: cassandra-init-flag
+          persistentVolumeClaim:
+            claimName: cassandra-init-flag-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cassandra-messages
+  namespace: messenger
+spec:
+  ports:
+    - port: 9042
+      targetPort: 9042
+  selector:
+    app: cassandra-messages
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cassandra-messages-pvc
+  namespace: messenger
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cassandra-init-flag-pvc
+  namespace: messenger
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi

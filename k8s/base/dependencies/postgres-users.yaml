@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-users
+  namespace: messenger
+  labels:
+    app: postgres-users
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-users
+  template:
+    metadata:
+      labels:
+        app: postgres-users
+    spec:
+      containers:
+        - name: postgres-users
+          image: postgres:latest
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: "userdatabase"
+            - name: POSTGRES_USER
+              value: "user"
+            - name: POSTGRES_PASSWORD
+              value: "1234"
+          volumeMounts:
+            - name: postgres-user-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-user-data
+          persistentVolumeClaim:
+            claimName: postgres-user-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-users
+  namespace: messenger
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: postgres-users
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-user-pvc
+  namespace: messenger
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

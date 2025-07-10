@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: messenger
+resources:
+  - dependencies/postgres-chat.yaml
+  - dependencies/postgres-users.yaml
+  - dependencies/postgres-auth.yaml
+  - dependencies/cassandra-messages.yaml
+  - dependencies/redis.yaml
+  - dependencies/kafka.yaml
+  - microservices/auth-service.yaml
+  - microservices/user-service.yaml
+  - microservices/chat-service.yaml
+  - microservices/message-storage-service.yaml
+  - microservices/messaging-service.yaml

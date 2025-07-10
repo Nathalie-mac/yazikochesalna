@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-chat
+  namespace: messenger
+  labels:
+    app: postgres-chat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-chat
+  template:
+    metadata:
+      labels:
+        app: postgres-chat
+    spec:
+      containers:
+        - name: postgres-chat
+          image: postgres:latest
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: "chatdatabase"
+            - name: POSTGRES_USER
+              value: "user"
+            - name: POSTGRES_PASSWORD
+              value: "1234"
+          volumeMounts:
+            - name: postgres-chat-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-chat-data
+          persistentVolumeClaim:
+            claimName: postgres-chat-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-chat
+  namespace: messenger
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: postgres-chat
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-chat-pvc
+  namespace: messenger
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
