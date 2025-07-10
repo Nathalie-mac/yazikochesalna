@@ -21,6 +21,8 @@ stages:
 .build-docker-template: &build-docker-template
   stage: package
   image: docker:latest
+  services:
+    - docker:dind
   script:
     - cd "$SERVICE_DIR"
     - echo "Авторизация в Docker Registry"
