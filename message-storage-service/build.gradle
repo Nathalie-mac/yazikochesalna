@@ -70,7 +70,7 @@ dependencies {
     //kafka
     //implementation("org.apache.kafka:kafka-clients:3.6.1")
     implementation ("org.springframework.kafka:spring-kafka")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.+")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0'
     //implementation 'org.springframework.kafka:spring-kafka'
