@@ -13,6 +13,9 @@ java {
     }
 }
 
+bootJar {
+    archiveFileName = 'messaging-service.jar'
+}
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
