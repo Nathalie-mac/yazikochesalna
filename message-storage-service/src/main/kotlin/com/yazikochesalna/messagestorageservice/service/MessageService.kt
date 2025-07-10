@@ -6,6 +6,7 @@ import com.yazikochesalna.messagestorageservice.dto.MessagesJsonFormatDTO
 import com.yazikochesalna.messagestorageservice.dto.PayLoadMessageDTO
 import com.yazikochesalna.messagestorageservice.dto.PayLoadNoticeDTO
 import com.yazikochesalna.messagestorageservice.exception.customexceptions.ErrorInEnumException
+import com.yazikochesalna.messagestorageservice.model.db.CassandraEntitiesConvertor
 import com.yazikochesalna.messagestorageservice.model.db.Message
 import com.yazikochesalna.messagestorageservice.model.db.MessageByChat
 import com.yazikochesalna.messagestorageservice.model.enums.MessageType
@@ -34,6 +35,7 @@ class MessageService(
 //    val jsonGenerator = objectMapper.createGenerator(StringWriter())
 
     val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
+    val cassandraEntitiesConvertor = CassandraEntitiesConvertor()
 
     private fun isChatMember(userId: Long, chatId: Long): Boolean{
         return chatServiceClient.checkUserInChat(userId, chatId)
@@ -50,21 +52,27 @@ class MessageService(
         val cassandraMessages = messageRepository.findMessagesByCursor(chatId, cursor, limitUp, limitDown)
 
         return cassandraMessages
-            .map { message -> convertToMessagesJsonFormstDto(message)}
+            .map { message -> cassandraEntitiesConvertor.convertToMessagesJsonFormstDto(message)}
             .collectList()
             .block(Duration.ofSeconds(20)) ?: emptyList()
     }
 
-    fun saveMessagesBatch(messages: List<MessagesJsonFormatDTO>): Mono<Void>{
-        if(messages.isEmpty() || messages.size > 20){return Mono.error(IllegalArgumentException("Invalid batch size"))}
-        return saveMessagesToBothTables(Flux.fromIterable(messages.map { message -> message.toMessage() }))
+    fun saveMessagesBatch(messages: List<MessagesJsonFormatDTO>): Mono<Void> {
+        if (messages.isEmpty() || messages.size > 20) {
+            return Mono.error(IllegalArgumentException("Invalid batch size"))
+        }
+        return saveMessagesToBothTables(
+            Flux
+                .fromIterable(messages
+                    .map { message -> cassandraEntitiesConvertor.convertToMessage(message) })
+        )
             .then()
     }
 
 
     fun saveMessagesToBothTables(messages: Flux<Message>): Flux<Message> {
         return messages.flatMap { message ->
-            val messageByChat = convertToMessageByChat(message)
+            val messageByChat = cassandraEntitiesConvertor.convertToMessageByChat(message)
             Mono.zip(
                 messageRepository.save(message),
                 messageByChatRepository.save(messageByChat)
@@ -72,64 +80,5 @@ class MessageService(
         }
     }
 
-    fun convertToMessagesJsonFormstDto(message: Message): MessagesJsonFormatDTO {
-        return MessagesJsonFormatDTO(
-            messageId = message.id,
-            type = message.type,
-            timestamp = message.sendTime,
-            payload = when (message.type){
-                MessageType.MESSAGE -> PayLoadMessageDTO(
-                    senderId = message.senderId,
-                    chatId = message.chatId,
-                    text = message.text?: ""
-                )
-                MessageType.NEW_MEMBER,
-                MessageType.DROP_MEMBER -> PayLoadNoticeDTO(
-                    memberId = message.senderId,
-                    chatId = message.chatId,
-                )
-                else -> throw IllegalArgumentException("Not supported message type ${message.type}")
-            }
-        )
-    }
-
-    fun MessagesJsonFormatDTO.toMessage(): Message {
-        return when (type) {
-            MessageType.MESSAGE -> {
-                val payload = payload as PayLoadMessageDTO
-                Message(
-                    id = messageId,
-                    type = type,
-                    sendTime = timestamp,
-                    senderId = payload.senderId,
-                    chatId = payload.chatId,
-                    text = payload.text
-                )
-            }
-            MessageType.NEW_MEMBER, MessageType.DROP_MEMBER -> {
-                val payload = payload as PayLoadNoticeDTO
-                Message(
-                    id = messageId,
-                    type = type,
-                    sendTime = timestamp,
-                    senderId = payload.memberId,
-                    chatId = payload.chatId,
-                    text = null
-                )
-            }
-            else -> throw ErrorInEnumException("Not supported message type $type")
-        }
-    }
-
-        fun convertToMessageByChat(message: Message): MessageByChat {
-        return MessageByChat(
-            id = message.id,
-            chatId = message.chatId,
-            senderId = message.senderId,
-            sendTime = message.sendTime,
-            text = message.text,
-            type = message.type
-        )
-    }
 
 }

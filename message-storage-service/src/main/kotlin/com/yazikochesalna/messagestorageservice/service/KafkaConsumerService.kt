@@ -32,9 +32,20 @@ class KafkaConsumerService(private val messageService: MessageService) {
         records.forEach {
             log.info("type: ${it.type}, UUID: ${it.messageId}")
         }
-        ack.acknowledge()
-        log.info("Susseccfully Committed offsets up to ${offsets.last()}")
+//        ack.acknowledge()
+//        log.info("Susseccfully Committed offsets up to ${offsets.last()}")
+//
+//        messageService.saveMessagesBatch(records)
 
         messageService.saveMessagesBatch(records)
+            .doOnSuccess {
+                log.info("Successfully saved ${records.size} messages to DB")
+                ack.acknowledge()
+                log.info("Successfully committed offsets up to ${offsets.last()}")
+            }
+            .doOnError { error ->
+                log.error("Failed to save messages to DB: ${error.message}", error)
+            }
+            .subscribe()
     }
 }
