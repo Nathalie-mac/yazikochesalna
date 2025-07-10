@@ -1,4 +1,4 @@
-image: gradle:17-jdk-alpine
+image: amazoncorretto:21-alpine
 
 variables:
   # Имя Docker Registry
