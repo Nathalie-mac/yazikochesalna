@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kafka
+  name: kafka-message-storage
   namespace: messenger
   labels:
-    app: kafka
+    app: kafka-message-storage
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kafka
+      app: kafka-message-storage
   template:
     metadata:
       labels:
-        app: kafka
+        app: kafka-message-storage
     spec:
       containers:
         - name: kafka-message-storage
@@ -31,7 +31,7 @@ spec:
             - name: KAFKA_LISTENERS
               value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
             - name: KAFKA_ADVERTISED_LISTENERS
-              value: "PLAINTEXT://kafka.messenger.svc.cluster.local:9092"
+              value: "PLAINTEXT://kafka-message-storage.messenger.svc.cluster.local:9092"
             - name: KAFKA_INTER_BROKER_LISTENER_NAME
               value: "PLAINTEXT"
             - name: KAFKA_CONTROLLER_LISTENER_NAMES
@@ -45,9 +45,10 @@ spec:
               mountPath: /data
           livenessProbe:
             exec:
-              command: ["kafka-topics.sh", "--list", "--bootstrap-server", "kafka.messenger.svc.cluster.local:9092"]
+              command: ["kafka-topics.sh", "--list", "--bootstrap-server", "kafka-message-storage.messenger.svc.cluster.local:9092"]
             initialDelaySeconds: 60
             periodSeconds: 10
+
       volumes:
         - name: kafka-message-storage
           persistentVolumeClaim:
@@ -56,7 +57,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: kafka
+  name: kafka-message-storage
   namespace: messenger
 spec:
   ports:
@@ -67,7 +68,7 @@ spec:
       port: 9093
       targetPort: 9093
   selector:
-    app: kafka
+    app: kafka-message-storage
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

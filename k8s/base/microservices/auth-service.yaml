@@ -29,17 +29,17 @@ spec:
             - name: WEBCLIENT_TIMEOUT
               value: "50000"
             - name: CHAT_SERVICE_URL
-              value: "http://localhost:8080"
+              value: "http://chat-service.messenger.svc.cluster.local:8080"
             - name: MESSAGE_STORAGE_SERVICE_URL
-              value: "http://localhost:8081"
+              value: "http://message-storage-service.messenger.svc.cluster.local:8081"
             - name: MESSAGING_SERVICE_URL
-              value: "http://localhost:8082"
+              value: "http://messaging-service.messenger.svc.cluster.local:8082"
             - name: USER_SERVICE_URL
-              value: "http://localhost:8083"
+              value: "http://user-service.messenger.svc.cluster.local:8083"
             - name: AUTHORIZATION_SERVICE_URL
-              value: "http://localhost:8085"
+              value: "http://authorization-service.messenger.svc.cluster.local:8085"
             - name: FRONT_SERVER_URL
-              value: "http://localhost:5173"
+              value: "http://front-server.messenger.svc.cluster.local:5173"
 ---
 apiVersion: v1
 kind: Service
