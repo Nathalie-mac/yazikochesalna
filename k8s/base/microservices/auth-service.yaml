@@ -4,7 +4,7 @@ metadata:
   name: auth-service
   namespace: messenger
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: auth-service
@@ -13,7 +13,10 @@ spec:
       labels:
         app: auth-service
     spec:
-
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox
+          command: [ "/bin/sh", "-c", "until nc -z postgres-auth.messenger.svc.cluster.local 5432; do echo waiting for postgres-auth; sleep 5; done; echo postgres-auth is up;" ]
       containers:
         - name: auth-service
           image: auth-service:latest

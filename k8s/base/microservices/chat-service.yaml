@@ -4,7 +4,7 @@ metadata:
   name: chat-service
   namespace: messenger
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: chat-service
@@ -13,6 +13,10 @@ spec:
       labels:
         app: chat-service
     spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox
+          command: [ "/bin/sh", "-c", "until nc -z postgres-chat.messenger.svc.cluster.local 5432; do echo waiting for postgres-auth; sleep 5; done; echo postgres-auth is up;" ]
       containers:
         - name: chat-service
           image: chat-service:latest

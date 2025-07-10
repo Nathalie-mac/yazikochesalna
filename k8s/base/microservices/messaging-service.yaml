@@ -4,7 +4,7 @@ metadata:
   name: messaging-service
   namespace: messenger
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: messaging-service
@@ -13,6 +13,13 @@ spec:
       labels:
         app: messaging-service
     spec:
+      initContainers:
+        - name: wait-for-kafka
+          image: confluentinc/cp-kafka:latest
+          command: [ 'sh', '-c', 'until kafka-topics.sh --list --bootstrap-server kafka-message-storage.messenger.svc.cluster.local:9092; do echo waiting for Kafka; sleep 5; done;' ]
+        - name: wait-for-redis
+          image: redis:7.0-alpine
+          command: [ 'sh', '-c', 'until redis-cli -h redis.messenger.svc.cluster.local -p 6379 ping | grep -q PONG; do echo waiting for Redis; sleep 5; done;' ]
       containers:
         - name: messaging-service
           image: messaging-service:latest
