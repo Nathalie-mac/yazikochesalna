@@ -1,4 +1,4 @@
-image: amazoncorretto:21-alpine
+image: docker:latest
 
 variables:
   # Имя Docker Registry
@@ -15,6 +15,7 @@ stages:
 
 .build-template: &build-template
   stage: build
+  image: amazoncorretto:21-alpine
   script:
     - gradle build -x tests :$SERVICE_DIR:build
   artifacts:
