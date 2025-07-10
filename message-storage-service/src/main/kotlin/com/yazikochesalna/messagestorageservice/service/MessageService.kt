@@ -1,13 +1,11 @@
 package com.yazikochesalna.messagestorageservice.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.yazikochesalna.messagestorageservice.dto.MessagesJsonFormatDTO
 import com.yazikochesalna.messagestorageservice.dto.PayLoadMessageDTO
 import com.yazikochesalna.messagestorageservice.dto.PayLoadNoticeDTO
-import com.yazikochesalna.messagestorageservice.exception.ErrorInMessageTypeException
+import com.yazikochesalna.messagestorageservice.exception.customexceptions.ErrorInEnumException
 import com.yazikochesalna.messagestorageservice.model.db.Message
 import com.yazikochesalna.messagestorageservice.model.db.MessageByChat
 import com.yazikochesalna.messagestorageservice.model.enums.MessageType
@@ -19,7 +17,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.io.StringWriter
 import java.time.Duration
 
 @Service
@@ -120,7 +117,7 @@ class MessageService(
                     text = null
                 )
             }
-            else -> throw ErrorInMessageTypeException("Not supported message type $type")
+            else -> throw ErrorInEnumException("Not supported message type $type")
         }
     }
 
