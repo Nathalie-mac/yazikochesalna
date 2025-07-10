@@ -1,22 +1,19 @@
 package com.yazikochesalna.chatservice.service;
 
 import com.yazikochesalna.chatservice.exception.InvalidUserIdException;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
-@Service
-//mock service
-public class UserServiceClient {
+public interface UserServiceClient {
 
-    public void validateUserId(long userId) {
-        if (userId < 10) {
-            return;
-        }
-        throw new InvalidUserIdException();
-    }
+    void validateUserId(long userId) throws InvalidUserIdException;
 
-    public List<Long> getExitingUsers(List<Long> checkingUsers) {
-        return checkingUsers.stream().filter((id) -> id < 10).toList();
+    Set<Long> getExitingUsers(Set<Long> checkingUsers);
+
+    void validateUsers(Set<Long> checkingUsers) throws InvalidUserIdException;
+
+    default void validateUsers(List<Long> checkingUsers) throws InvalidUserIdException {
+        validateUsers(Set.copyOf(checkingUsers));
     }
 }

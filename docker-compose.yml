@@ -51,15 +51,18 @@ services:
       - "9042:9042"
     volumes:
       - cassandra-messages-data:/var/lib/cassandra
+      - cassandra-init-flag:/bitnami/cassandra/initialized
       - ./message-storage-service/cassandra-init-scripts:/docker-entrypoint-initdb.d:Z
+     # - ./message-storage-service/cassandra-conf/cassandra.yaml:/opt/bitnami/cassandra/conf/cassandra.yaml
     environment:
-      - CASSANDRA_USER=cassandra
-      - CASSANDRA_PASSWORD=cassandra
+      - CASSANDRA_USER=db_admin
+      - CASSANDRA_PASSWORD=1234
       - CASSANDRA_PASSWORD_SEEDER=yes
       - CASSANDRA_CLUSTER_NAME=MyCluster
       - CASSANDRA_DATACENTER=datacenter1
       - CASSANDRA_AUTHENTICATOR=PasswordAuthenticator
       - CASSANDRA_AUTHORIZER=CassandraAuthorizer
+      - CASSANDRA_ENABLE_MATERIALIZED_VIEWS=true
 #      - CASSANDRA_AUTHENTICATOR=AllowAllAuthenticator
     healthcheck:
       test: [ "CMD-SHELL", "cqlsh -u cassandra -p cassandra -e 'DESCRIBE KEYSPACES'" ]
@@ -69,11 +72,51 @@ services:
     networks:
       - cassandra_network
 
+  redis:
+    image: redis:7.0-alpine
+    container_name: redis_messaging_service
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-websocket-tokens:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka_message_storage
+    environment:
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:9093'
+      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://localhost:9092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      CLUSTER_ID: 'kafka-message-storage-cluster-1'
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    volumes:
+      - kafka-message-storage:/data
+    healthcheck:
+      test: [ "CMD", "kafka-topics.sh", "--list", "--bootstrap-server", "localhost:9092" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 volumes:
   postgres-chat-data:
   postgres-user-data:
   postgres-auth-data:
+  redis-websocket-tokens:
+  kafka-message-storage:
   cassandra-messages-data:
+  cassandra-init-flag:
 
 networks:
   cassandra_network:

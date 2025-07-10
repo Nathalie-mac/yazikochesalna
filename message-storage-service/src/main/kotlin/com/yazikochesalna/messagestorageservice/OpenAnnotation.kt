@@ -1,0 +1,3 @@
+package com.yazikochesalna.messagestorageservice
+
+annotation class OpenAnnotation

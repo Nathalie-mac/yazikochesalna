@@ -10,7 +10,6 @@ import com.yazikochesalna.chatservice.dto.createChat.CreateChatResponse;
 import com.yazikochesalna.chatservice.enums.ChatType;
 import com.yazikochesalna.chatservice.exception.ChatCreationException;
 import com.yazikochesalna.chatservice.exception.DialogNotFoundException;
-import com.yazikochesalna.chatservice.exception.InvalidUserIdException;
 import com.yazikochesalna.chatservice.mapper.MapperToChatInList;
 import com.yazikochesalna.chatservice.mapper.MapperToGetGroupChatInfoDto;
 import com.yazikochesalna.chatservice.model.Chat;
@@ -18,15 +17,13 @@ import com.yazikochesalna.chatservice.model.ChatUser;
 import com.yazikochesalna.chatservice.model.GroupChatDetails;
 import com.yazikochesalna.chatservice.repository.ChatRepository;
 import com.yazikochesalna.chatservice.repository.ChatUsersRepository;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @AllArgsConstructor
 @Service
@@ -39,6 +36,7 @@ public class ChatService {
 
     private final MapperToChatInList mapperToChatInList;
     private final MapperToGetGroupChatInfoDto mapperToGetGroupChatInfoDto;
+    private final MessagingServiceClient messagingServiceClient;
 
     public ChatListDto getUserChats(final long userId) {
         return new ChatListDto(
@@ -58,9 +56,7 @@ public class ChatService {
         details.setChat(chat);
 
         if (request.memberIds() != null) {
-            if (userService.getExitingUsers(request.memberIds()).size() != request.memberIds().size()) {
-                throw new InvalidUserIdException();
-            }
+            userService.validateUsers(request.memberIds());
             List<ChatUser> members = request.memberIds().stream().map(userId -> new ChatUser(null, userId, null, chat)).toList();
             chat.setMembers(members);
             if (!request.memberIds().contains(ownerId)) {
@@ -70,6 +66,7 @@ public class ChatService {
             chat.addMember(new ChatUser(null, ownerId, null, chat));
         }
         chatRepository.save(chat);
+        chat.getMembers().forEach(member -> messagingServiceClient.sendMemberAddedNotification(chat.getId(),member.getId()));
         return new CreateChatResponse(chat.getId());
     }
 
@@ -91,24 +88,22 @@ public class ChatService {
         return membersList;
     }
 
-    public boolean addMembers(long ownerId, @NotNull Long chatId, @NotNull List<Long> newMembersIds) {
+    public boolean addMembers(long ownerId, @NotNull Long chatId, @NotNull Set<Long> newMembersIds) {
         final Chat chat = chatRepository.getChatById(chatId);
         if (!isOwner(chat, ownerId)) {
             return false;
         }
-        if (userService.getExitingUsers(newMembersIds).size() != newMembersIds.size()) {
-            throw new InvalidUserIdException();
+        userService.validateUsers(newMembersIds);
+
+        for (Long newMemberId: newMembersIds) {
+            ChatUser member = new ChatUser(null, newMemberId, null, chat);
+            try {
+                chatUsersRepository.save(member);
+                messagingServiceClient.sendMemberAddedNotification(newMemberId, chatId);
+            } catch (DataIntegrityViolationException e) {
+                //do nothing, user was in chat or was added in other thread/instance
+            }
         }
-        final List<ChatUser> members = chat.getMembers();
-        final List<Long> currentMembersIds = members.stream().map(ChatUser::getUserId).toList();
-        final List<ChatUser> newMembers = newMembersIds
-                .stream()
-                .filter(Objects::nonNull)
-                .filter(id -> !currentMembersIds.contains(id))
-                .map(userId -> new ChatUser(null, userId, null, chat))
-                .toList();
-        members.addAll(newMembers);
-        chatRepository.save(chat);
         return true;
     }
 
@@ -117,8 +112,9 @@ public class ChatService {
         if (!isOwner(chat, ownerId)) {
             return false;
         }
-        chat.getMembers().removeIf(chatUser -> chatUser.getUserId().equals(deletedUserId));
-        chatRepository.save(chat);
+        if (chatUsersRepository.deleteByUserIdAndChatIdIfExits(chatId, deletedUserId) > 0) {
+            messagingServiceClient.sendMemberRemovedNotification(deletedUserId, chatId);
+        }
         return true;
     }
 
@@ -176,8 +172,10 @@ public class ChatService {
         Chat chat = new Chat(null, ChatType.PRIVATE, null, new LinkedList<>());
         chat.addMember(new ChatUser(null, userId, null, chat));
         chat.addMember(new ChatUser(null, partnerId, null, chat));
+        userService.validateUsers(List.of(userId, partnerId));
         try {
             chatRepository.save(chat);
+            chat.getMembers().forEach(member -> messagingServiceClient.sendMemberAddedNotification(chat.getId(),member.getId()));
         } catch (DataIntegrityViolationException e) {
             //Ожидаемое исключение. Чат мог быть добавлен параллельно в другом потоке/запросе
         }
@@ -194,5 +192,9 @@ public class ChatService {
             return null;
         }
         return chat.getFirst().getId();
+    }
+
+    public boolean updateLastReadMessage(long chatId, long userId, @NotNull @NotEmpty UUID messageId) {
+        return chatUsersRepository.updateLastReadMessageId(chatId, userId, messageId) > 0;
     }
 }
