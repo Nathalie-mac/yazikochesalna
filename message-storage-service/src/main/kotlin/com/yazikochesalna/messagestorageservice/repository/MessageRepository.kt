@@ -1,6 +1,7 @@
 package com.yazikochesalna.messagestorageservice.repository
 
 import com.yazikochesalna.messagestorageservice.model.db.Message
+import com.yazikochesalna.messagestorageservice.model.db.MessageByChat
 import org.springframework.data.cassandra.repository.AllowFiltering
 import org.springframework.data.cassandra.repository.ReactiveCassandraRepository
 import org.springframework.stereotype.Repository

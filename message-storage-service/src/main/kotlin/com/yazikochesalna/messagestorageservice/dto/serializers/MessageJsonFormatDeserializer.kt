@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
-import com.fasterxml.jackson.databind.node.TextNode
 import com.yazikochesalna.messagestorageservice.dto.MessagesJsonFormatDTO
 import com.yazikochesalna.messagestorageservice.dto.PayLoadDTO
 import com.yazikochesalna.messagestorageservice.dto.PayLoadMessageDTO
@@ -28,12 +27,26 @@ class MessageJsonFormatDeserializer: StdDeserializer<MessagesJsonFormatDTO> {
         val mapper = jp.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jp)
 
-        val type = getMessageType(node)
-        val payload = getPayLoad(mapper, type, node)
-        val timestamp = convertToLDT(node["timestamp"].asDouble())
-        val messageId = UUID.fromString(node["messageId"].asText())
-        val messagesJsonFormatDTO = MessagesJsonFormatDTO(messageId, type, timestamp, payload)
-        return messagesJsonFormatDTO
+        return kotlin.runCatching {
+            val type = getMessageType(node)
+            MessagesJsonFormatDTO(
+                messageId = UUID.fromString(node["messageId"].asText()),
+                type,
+                timestamp = convertToLDT(node["timestamp"].asDouble()),
+                payload = getPayLoad(mapper, type, node)
+            )
+        }.getOrElse { e ->
+            when (e) {
+                is ErrorInMessageTypeException -> throw e
+                else -> throw ErrorKafkaDeserializatonException("deserialization")
+            }
+        }
+//        val type = getMessageType(node)
+//        val payload = getPayLoad(mapper, type, node)
+//        val timestamp = convertToLDT(node["timestamp"].asDouble())
+//        val messageId = UUID.fromString(node["messageId"].asText())
+//        val messagesJsonFormatDTO = MessagesJsonFormatDTO(messageId, type, timestamp, payload)
+//        return messagesJsonFormatDTO
     }
 
     private fun convertToLDT(instantStr: Double): LocalDateTime {
@@ -46,10 +59,7 @@ class MessageJsonFormatDeserializer: StdDeserializer<MessagesJsonFormatDTO> {
 
     private fun getMessageType(node: JsonNode): MessageType {
         val typeNode = node["type"]
-        if (typeNode == null) {
-            throw ErrorInMessageTypeException("Message type cannot be null")
-
-        }
+            ?: throw ErrorInMessageTypeException("Message type cannot be null")
         val typeStr = typeNode.asText()
         return try {
             MessageType.fromType(typeStr)
