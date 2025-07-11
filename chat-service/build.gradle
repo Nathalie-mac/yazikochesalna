@@ -7,6 +7,11 @@ plugins {
 group = 'com.yazikochesalna'
 version = '0.0.1-SNAPSHOT'
 
+
+bootJar {
+    archiveFileName = 'chat-service.jar'
+}
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
@@ -23,6 +28,9 @@ repositories {
     mavenCentral()
 }
 
+springBoot {
+    mainClass = 'com.yazikochesalna.chatservice.ChatServiceApplication'
+}
 
 dependencies {
     //basic

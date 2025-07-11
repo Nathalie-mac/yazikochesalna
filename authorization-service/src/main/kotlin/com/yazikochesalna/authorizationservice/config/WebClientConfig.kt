@@ -1,6 +1,6 @@
 package com.yazikochesalna.authorizationservice.config
 
-import com.yazikochesalna.authorizationservice.com.yazikochesalna.authorizationservice.config.properties.UserServiceProperties
+import com.yazikochesalna.authorizationservice.config.properties.UserServiceProperties
 import lombok.RequiredArgsConstructor
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

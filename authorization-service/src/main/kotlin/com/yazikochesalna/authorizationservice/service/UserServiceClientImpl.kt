@@ -1,6 +1,6 @@
 package com.yazikochesalna.authorizationservice.service
 
-import com.yazikochesalna.authorizationservice.com.yazikochesalna.authorizationservice.config.properties.UserServiceProperties
+import com.yazikochesalna.authorizationservice.config.properties.UserServiceProperties
 import com.yazikochesalna.authorizationservice.dto.userservice.CreateUserRequest
 import com.yazikochesalna.authorizationservice.dto.userservice.CreateUserResponse
 import com.yazikochesalna.authorizationservice.exception.userservice.UserConflictCustomException
