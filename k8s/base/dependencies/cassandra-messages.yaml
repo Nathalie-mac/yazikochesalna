@@ -45,7 +45,7 @@ spec:
           livenessProbe:
             exec:
               command: ["cqlsh", "-u", "cassandra", "-p",  "cassandra", "cassandra-messages.messenger.svc.cluster.local", "9042", "-e", "DESCRIBE KEYSPACES"]
-            initialDelaySeconds: 60
+            initialDelaySeconds: 30
             periodSeconds: 10
       volumes:
         - name: cassandra-messages-data

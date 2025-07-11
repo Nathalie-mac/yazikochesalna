@@ -13,6 +13,8 @@ spec:
       labels:
         app: messaging-service
     spec:
+      imagePullSecrets:
+        - name: gitlab-regcred
       initContainers:
         - name: wait-for-kafka
           image: busybox
@@ -22,7 +24,7 @@ spec:
           command: [ 'sh', '-c', 'until redis-cli -h redis.messenger.svc.cluster.local -p 6379 ping | grep -q PONG; do echo waiting for Redis; sleep 5; done;' ]
       containers:
         - name: messaging-service
-          image: messaging-service:latest
+          image: registry.gitlab.com/liza.antipa/yazikochesalna/messaging-service:main
           ports:
             - containerPort: 8082
           env:

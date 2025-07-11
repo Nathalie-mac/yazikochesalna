@@ -46,7 +46,7 @@ spec:
         livenessProbe:
           tcpSocket:
             port: 9092
-          initialDelaySeconds: 60
+          initialDelaySeconds: 30
           periodSeconds: 10
 
       volumes:

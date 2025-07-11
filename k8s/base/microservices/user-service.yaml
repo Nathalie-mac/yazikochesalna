@@ -13,13 +13,15 @@ spec:
       labels:
         app: user-service
     spec:
+      imagePullSecrets:
+        - name: gitlab-regcred
       initContainers:
         - name: wait-for-postgres
           image: busybox
           command: [ "/bin/sh", "-c", "until nc -z postgres-users.messenger.svc.cluster.local 5432; do echo waiting for postgres-auth; sleep 5; done; echo postgres-auth is up;" ]
       containers:
         - name: user-service
-          image: user-service:latest
+          image: registry.gitlab.com/liza.antipa/yazikochesalna/user-service:main
           ports:
             - containerPort: 8083
           env:
