@@ -128,10 +128,12 @@ public class ChatService {
         if (user.isEmpty()) {
             return null;
         }
+        Long ownerId = chat.getGroupChatDetails() != null ? chat.getGroupChatDetails().getOwnerId() : null;
         final List<Long> members = chat.getMembers().stream().map(ChatUser::getUserId).toList();
         final ShortChatInfoResponse response = new ShortChatInfoResponse(
                 user.get().getLastReadMessageId(),
                 chat.getType(),
+                ownerId,
                 members
         );
         return response;
