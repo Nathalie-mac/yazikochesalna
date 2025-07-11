@@ -44,8 +44,8 @@ spec:
               mountPath: /bitnami/cassandra/initialized
           livenessProbe:
             exec:
-              command: ["cqlsh", "-u", "cassandra", "-p", "cassandra", "-e", "DESCRIBE KEYSPACES"]
-            initialDelaySeconds: 30
+              command: ["cqlsh", "-u", "cassandra", "-p",  "cassandra", "cassandra-messages.messenger.svc.cluster.local", "9042", "-e", "DESCRIBE KEYSPACES"]
+            initialDelaySeconds: 60
             periodSeconds: 10
       volumes:
         - name: cassandra-messages-data

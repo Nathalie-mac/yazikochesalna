@@ -16,38 +16,38 @@ spec:
         app: kafka-message-storage
     spec:
       containers:
-        - name: kafka-message-storage
-          image: confluentinc/cp-kafka:latest
-          ports:
-            - containerPort: 9092
-            - containerPort: 9093
-          env:
-            - name: KAFKA_PROCESS_ROLES
-              value: "broker,controller"
-            - name: KAFKA_NODE_ID
-              value: "1"
-            - name: KAFKA_CONTROLLER_QUORUM_VOTERS
-              value: "1@kafka.messenger.svc.cluster.local:9093"
-            - name: KAFKA_LISTENERS
-              value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
-            - name: KAFKA_ADVERTISED_LISTENERS
-              value: "PLAINTEXT://kafka-message-storage.messenger.svc.cluster.local:9092"
-            - name: KAFKA_INTER_BROKER_LISTENER_NAME
-              value: "PLAINTEXT"
-            - name: KAFKA_CONTROLLER_LISTENER_NAMES
-              value: "CONTROLLER"
-            - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
-              value: "1"
-            - name: CLUSTER_ID
-              value: "kafka-message-storage-cluster-1"
-          volumeMounts:
-            - name: kafka-message-storage
-              mountPath: /data
-          livenessProbe:
-            exec:
-              command: ["kafka-topics.sh", "--list", "--bootstrap-server", "kafka-message-storage.messenger.svc.cluster.local:9092"]
-            initialDelaySeconds: 60
-            periodSeconds: 10
+      - name: kafka-message-storage
+        image: confluentinc/cp-kafka:latest
+        ports:
+          - containerPort: 9092
+          - containerPort: 9093
+        env:
+          - name: KAFKA_PROCESS_ROLES
+            value: "broker,controller"
+          - name: KAFKA_NODE_ID
+            value: "1"
+          - name: KAFKA_CONTROLLER_QUORUM_VOTERS
+            value: "1@kafka.messenger.svc.cluster.local:9093"
+          - name: KAFKA_LISTENERS
+            value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+          - name: KAFKA_ADVERTISED_LISTENERS
+            value: "PLAINTEXT://kafka-message-storage.messenger.svc.cluster.local:9092"
+          - name: KAFKA_INTER_BROKER_LISTENER_NAME
+            value: "PLAINTEXT"
+          - name: KAFKA_CONTROLLER_LISTENER_NAMES
+            value: "CONTROLLER"
+          - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+            value: "1"
+          - name: CLUSTER_ID
+            value: "kafka-message-storage-cluster-1"
+        volumeMounts:
+          - name: kafka-message-storage
+            mountPath: /data
+        livenessProbe:
+          exec:
+            command: ["kafka-topics.sh", "--list", "--bootstrap-server", "kafka-message-storage.messenger.svc.cluster.local:9092"]
+          initialDelaySeconds: 60
+          periodSeconds: 10
 
       volumes:
         - name: kafka-message-storage
