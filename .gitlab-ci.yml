@@ -18,23 +18,22 @@ stages:
     paths:
       - "$SERVICE_DIR/build/libs/"
 
-.build-docker-template: &build-docker-template
+.build-buildah-template: &build-docker-template
   stage: package
-  image: docker:latest
-  services:
-    - docker:dind
+  image: quay.io/buildah/stable:latest
+  variables:
+    XDG_RUNTIME_DIR: /tmp
   script:
     - cd "$SERVICE_DIR"
-    - echo "Авторизация в Docker Registry"
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - echo "Авторизация в Container Registry"
+    - buildah login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
     - TAG_NAME=$(echo $CI_COMMIT_BRANCH | sed 's/\//./g')
-    - IMAGE_PATH=$DOCKER_REGISTRY/$PROJECT_NAME/$DOCKER_IMAGE_NAME:$TAG_NAME
-    - echo "Имя образа = $DOCKER_IMAGE_NAME"
-    - echo "Тег образа = $TAG_NAME"
-    - echo "Полный путь = $IMAGE_PATH"
-    - docker build -t "$IMAGE_PATH" .
-    - docker push "$IMAGE_PATH"
-
+    - IMAGE_PATH="$DOCKER_REGISTRY/$PROJECT_NAME/$DOCKER_IMAGE_NAME:$TAG_NAME"
+    - echo "Сборка образа с Buildah"
+    - buildah bud -t "$IMAGE_PATH" .
+    - echo "Пуш образа в registry"
+    - buildah push "$IMAGE_PATH"
+    
 # --- Определяем job для каждого сервиса --- #
 
 build-authorization-service:
@@ -80,7 +79,7 @@ docker-chat-service:
     DOCKER_IMAGE_NAME: "chat-service"
   dependencies:
     - build-chat-service
-    
+
 docker-message-storage-service:
   <<: *build-docker-template
   variables:
