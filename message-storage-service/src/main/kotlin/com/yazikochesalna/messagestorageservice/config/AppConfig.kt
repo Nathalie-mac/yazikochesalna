@@ -3,6 +3,7 @@ package com.yazikochesalna.messagestorageservice.config
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.api.core.type.codec.TypeCodecs
 import com.datastax.oss.driver.api.core.type.codec.registry.CodecRegistry
+import com.datastax.oss.driver.api.mapper.annotations.NamingStrategy
 import com.yazikochesalna.messagestorageservice.config.properties.CassandraProperties
 import com.yazikochesalna.messagestorageservice.model.codecs.DateTimeCodec
 import com.yazikochesalna.messagestorageservice.repository.AttachmentRepository
@@ -15,6 +16,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.data.cassandra.config.AbstractReactiveCassandraConfiguration
 import org.springframework.data.cassandra.core.ReactiveCassandraTemplate
 import org.springframework.data.cassandra.core.cql.ReactiveCqlTemplate
+import org.springframework.data.cassandra.core.mapping.CassandraMappingContext
 import org.springframework.data.cassandra.repository.config.EnableCassandraRepositories
 import java.net.InetSocketAddress
 
@@ -33,4 +35,13 @@ open class AppConfig {
             .addTypeCodecs(dateTimeCodec)
             .build()
     }
+
+    @Bean
+    open fun cassandraMapping(): CassandraMappingContext = CassandraMappingContext().apply {
+        setNamingStrategy(org.springframework.data.cassandra.core.mapping.NamingStrategy.SNAKE_CASE)
+    }
+// {       val context = CassandraMappingContext()
+//        context.setNamingStrategy(org.springframework.data.cassandra.core.mapping.NamingStrategy.SNAKE_CASE)
+//        return context
+//    }
 }

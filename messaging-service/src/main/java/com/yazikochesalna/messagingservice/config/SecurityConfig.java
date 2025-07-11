@@ -57,7 +57,7 @@ public class SecurityConfig {
                                 "/error",
                                 "/ws"
                         ).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()//authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .exceptionHandling(exceptions -> exceptions

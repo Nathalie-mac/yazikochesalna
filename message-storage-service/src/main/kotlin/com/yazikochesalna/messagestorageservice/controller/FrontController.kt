@@ -63,7 +63,7 @@ class FrontController(
         var userId = (SecurityContextHolder.getContext().authentication as? JwtAuthenticationToken)?.userId
 
         // Валидация параметров limit & cursor
-        if (validateLimit(limitUp, limitDown)) {
+        if (!isLimitCorrect(limitUp, limitDown)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
         if (cursor == null){
@@ -93,8 +93,7 @@ class FrontController(
 
     }
 
-    private fun validateLimit(limitUp: Int?, limitDown: Int?): Boolean{
-        return ((limitUp != null && (limitUp < 0 || limitUp > MAX_LIMIT)) ||
+    private fun isLimitCorrect(limitUp: Int?, limitDown: Int?): Boolean =
+        !((limitUp != null && (limitUp < 0 || limitUp > MAX_LIMIT)) ||
                 (limitDown != null && (limitDown < 0 || limitDown > MAX_LIMIT)))
-    }
 }

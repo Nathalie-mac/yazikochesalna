@@ -22,7 +22,7 @@ data class MessageByChat (
     var id: UUID,
 
     @Column("text")
-    var text: String,
+    var text: String?,
 
     @Column("sender_id")
     var senderId: Long,
