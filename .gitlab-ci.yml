@@ -1,0 +1,107 @@
+
+variables:
+  # Имя Docker Registry
+  DOCKER_REGISTRY: registry.gitlab.com
+  PROJECT_NAME: liza.antipa/yazikochesalna
+
+stages:
+  - build
+  - package
+
+.build-template: &build-template
+  stage: build
+  image: amazoncorretto:21-alpine
+  script:
+    - chmod +x ./gradlew
+    - ./gradlew :$SERVICE_DIR:build -x test
+  artifacts:
+    paths:
+      - "$SERVICE_DIR/build/libs/"
+
+.build-docker-template: &build-docker-template
+  stage: package
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - cd "$SERVICE_DIR"
+    - echo "Авторизация в Docker Registry"
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - TAG_NAME=$(echo $CI_COMMIT_BRANCH | sed 's/\//./g')
+    - IMAGE_PATH=$DOCKER_REGISTRY/$PROJECT_NAME/$DOCKER_IMAGE_NAME:$TAG_NAME
+    - echo "Имя образа = $DOCKER_IMAGE_NAME"
+    - echo "Тег образа = $TAG_NAME"
+    - echo "Полный путь = $IMAGE_PATH"
+    - docker build -t "$IMAGE_PATH" .
+    - docker push "$IMAGE_PATH"
+
+# --- Определяем job для каждого сервиса --- #
+
+build-authorization-service:
+  <<: *build-template
+  variables:
+    SERVICE_DIR: "authorization-service"
+
+build-chat-service:
+  <<: *build-template
+  variables:
+    SERVICE_DIR: "chat-service"
+
+build-message-storage-service:
+  <<: *build-template
+  variables:
+    SERVICE_DIR: "message-storage-service"
+
+build-messaging-service:
+  <<: *build-template
+  variables:
+    SERVICE_DIR: "messaging-service"
+
+build-user-service:
+  <<: *build-template
+  variables:
+    SERVICE_DIR: "user-service"
+
+
+# --- Определяем Docker сборку для каждого сервиса --- #
+
+docker-authorization-service:
+  <<: *build-docker-template
+  variables:
+    SERVICE_DIR: "authorization-service"
+    DOCKER_IMAGE_NAME: "authorization-service"
+  dependencies:
+    - build-authorization-service
+
+docker-chat-service:
+  <<: *build-docker-template
+  variables:
+    SERVICE_DIR: "chat-service"
+    DOCKER_IMAGE_NAME: "chat-service"
+  dependencies:
+    - build-chat-service
+    
+docker-message-storage-service:
+  <<: *build-docker-template
+  variables:
+    SERVICE_DIR: "message-storage-service"
+    DOCKER_IMAGE_NAME: "message-storage-service"
+  dependencies:
+    - build-message-storage-service
+
+docker-messaging-service:
+  <<: *build-docker-template
+  variables:
+    SERVICE_DIR: "messaging-service"
+    DOCKER_IMAGE_NAME: "messaging-service"
+  dependencies:
+    - build-messaging-service
+
+docker-user-service:
+  <<: *build-docker-template
+  variables:
+    SERVICE_DIR: "user-service"
+    DOCKER_IMAGE_NAME: "user-service"
+  dependencies:
+    - build-user-service
+

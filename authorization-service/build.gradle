@@ -25,6 +25,10 @@ repositories {
     mavenCentral()
 }
 
+springBoot {
+    mainClass = 'com.yazikochesalna.authorizationservice.AuthorizationServiceApplicationKt'
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0'

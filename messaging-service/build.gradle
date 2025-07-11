@@ -16,6 +16,11 @@ java {
 bootJar {
     archiveFileName = 'messaging-service.jar'
 }
+
+springBoot {
+    mainClass = "com.yazikochesalna.messagingservice.MessagingServiceApplication"
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
