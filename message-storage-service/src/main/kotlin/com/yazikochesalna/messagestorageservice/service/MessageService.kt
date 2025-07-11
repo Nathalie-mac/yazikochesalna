@@ -3,13 +3,8 @@ package com.yazikochesalna.messagestorageservice.service
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.yazikochesalna.messagestorageservice.dto.MessagesJsonFormatDTO
-import com.yazikochesalna.messagestorageservice.dto.PayLoadMessageDTO
-import com.yazikochesalna.messagestorageservice.dto.PayLoadNoticeDTO
-import com.yazikochesalna.messagestorageservice.exception.customexceptions.ErrorInEnumException
 import com.yazikochesalna.messagestorageservice.model.db.CassandraEntitiesConvertor
 import com.yazikochesalna.messagestorageservice.model.db.Message
-import com.yazikochesalna.messagestorageservice.model.db.MessageByChat
-import com.yazikochesalna.messagestorageservice.model.enums.MessageType
 import com.yazikochesalna.messagestorageservice.repository.MessageByChatRepository
 import com.yazikochesalna.messagestorageservice.repository.MessageRepository
 import org.springframework.stereotype.Service
@@ -26,7 +21,8 @@ private const val BATCH_SIZE: Int = 20
 class MessageService(
     private val chatServiceClient: ChatServiceClient,
     private val messageRepository: MessageRepository,
-    private val messageByChatRepository: MessageByChatRepository
+    private val messageByChatRepository: MessageByChatRepository,
+    private val cassandraEntitiesConvertor: CassandraEntitiesConvertor
     //private val messagesJSONSerializer: MessagesJSONSerializer
     ){
 //    val objectMapper = ObjectMapper().apply {
@@ -36,12 +32,11 @@ class MessageService(
 //    val serializer = MessagesJSONSerializer()
 //    val jsonGenerator = objectMapper.createGenerator(StringWriter())
 
-    val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
-    val cassandraEntitiesConvertor = CassandraEntitiesConvertor()
+    //val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
+    //val cassandraEntitiesConvertor = CassandraEntitiesConvertor()
 
-    private fun isChatMember(userId: Long, chatId: Long): Boolean{
-        return chatServiceClient.checkUserInChat(userId, chatId)
-    }
+    private fun isChatMember(userId: Long, chatId: Long): Boolean =
+        chatServiceClient.checkUserInChat(userId, chatId)
 
     fun getMessagesAroundCursor(userId: Long, chatId: Long, cursor: UUID, limitUp: Int, limitDown: Int): List<MessagesJsonFormatDTO>{
         if (!isChatMember(userId, chatId)) {
@@ -54,7 +49,7 @@ class MessageService(
         val cassandraMessages = messageRepository.findMessagesByCursor(chatId, cursor, limitUp, limitDown)
 
         return cassandraMessages
-            .map { message -> cassandraEntitiesConvertor.convertToMessagesJsonFormstDto(message)}
+            .map { message -> cassandraEntitiesConvertor.convertToMessagesJsonFormatDto(message)}
             .collectList()
             .block(Duration.ofSeconds(BLOCK_DURATION)) ?: emptyList()
     }

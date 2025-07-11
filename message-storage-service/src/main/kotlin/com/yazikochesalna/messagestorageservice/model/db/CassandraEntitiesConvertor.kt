@@ -5,9 +5,11 @@ import com.yazikochesalna.messagestorageservice.dto.PayLoadMessageDTO
 import com.yazikochesalna.messagestorageservice.dto.PayLoadNoticeDTO
 import com.yazikochesalna.messagestorageservice.exception.customexceptions.ErrorInEnumException
 import com.yazikochesalna.messagestorageservice.model.enums.MessageType
+import org.springframework.stereotype.Component
 
+@Component
 class CassandraEntitiesConvertor {
-    fun convertToMessagesJsonFormstDto(message: Message): MessagesJsonFormatDTO {
+    fun convertToMessagesJsonFormatDto(message: Message): MessagesJsonFormatDTO {
         return MessagesJsonFormatDTO(
             messageId = message.id,
             type = message.type,
