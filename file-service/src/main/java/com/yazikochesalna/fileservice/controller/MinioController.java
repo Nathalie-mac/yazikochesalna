@@ -1,30 +1,33 @@
 package com.yazikochesalna.fileservice.controller;
 
-import com.yazikochesalna.fileservice.service.FileMetadataFactory;
+import com.yazikochesalna.fileservice.advice.MinioFileNotFoundCustomException;
+import com.yazikochesalna.fileservice.data.BaseFileInfo;
+import com.yazikochesalna.fileservice.dto.RequestDTO;
+import com.yazikochesalna.fileservice.dto.UploadResponseDTO;
+import com.yazikochesalna.fileservice.service.*;
 import io.minio.*;
-import io.minio.errors.ErrorResponseException;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.InputStream;
-import java.time.Instant;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
+@Validated
 @RequestMapping("/api/v1/files")
 @Tag(name = "Minio API")
 public class MinioController {
@@ -32,178 +35,62 @@ public class MinioController {
     @Autowired
     private MinioClient minioClient;
 
-    private final FileMetadataFactory fileMetadataFactory;
+    @Value("${minio.bucket.name}")
+    private String BUCKET;
+
+    private final UploadMinioService uploadMinioService;
+    private final GetMetadataMinioService getFileMetadataService;
+    private final DownloadMinioService downloadMinioService;
+    private final CommonService commonService;
 
     @PostMapping("/upload")
-    //public FileInfo uploadFile(
-    public ResponseEntity<Map<String, String>> uploadFile(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam Map<String, String> metadata // Доп. метаданные из формы
+    @RolesAllowed("SERVICE")
+    @Hidden
+    public ResponseEntity<UploadResponseDTO> uploadFile(
+            @RequestParam("file") @NotNull MultipartFile file,
+            @ModelAttribute RequestDTO metadata
     ) throws Exception {
 
-        // Генерируем уникальный ключ для MinIO
-        String objectName = "user-uploads/" + UUID.randomUUID();
+        String folderName = commonService.resolveFolderName(metadata);
+        String fileId = String.valueOf(UUID.randomUUID());
+        String objectName = folderName + fileId;
+        Map<String, String> userMetadata = uploadMinioService.buildMetadata(file, metadata);
 
-        // 2. Извлекаем технические метаданные по Content-Type
-        Map<String, String> extractedMetadata = fileMetadataFactory.extractMetadataByContentType(file);
+        uploadMinioService.uploadFile(file, objectName, userMetadata);
 
-        // Комбинируем метаданные
-        Map<String, String> userMetadata = new HashMap<>();
-        userMetadata.put("original-filename", file.getOriginalFilename());
-        userMetadata.put("uploaded-at", Instant.now().toString());
-        userMetadata.putAll(extractedMetadata);
-        userMetadata.putAll(metadata); // Добавляем пользовательские метаданные
-
-        // Загружаем в MinIO
-        minioClient.putObject(
-                PutObjectArgs.builder()
-                        .bucket("mybucket")
-                        .object(objectName)
-                        .stream(file.getInputStream(), file.getSize(), -1)
-                        .contentType(file.getContentType())
-                        .userMetadata(userMetadata) // <- Важно!
-                        .build()
-        );
-
-       // return new FileInfo(objectName, file.getOriginalFilename());
-        // Возвращаем ID файла, заменить на дто!!!, возможно возвращать только ид без папки
-        return ResponseEntity.ok(Map.of(
-                "fileId", objectName
-        ));
-
+        return ResponseEntity.ok(new UploadResponseDTO(fileId));
     }
 
-    @GetMapping("/metadata/{fileId:.+}")
-    public ResponseEntity<Map<String, String>> getFileMetadata(
-            @PathVariable String fileId,
-            @RequestParam(required = false) String bucket
-    ) {
-        try {
-            String bucketName = bucket != null ? bucket : "mybucket";
+    @GetMapping("/metadata")
+    @RolesAllowed("SERVICE")
+    @Hidden
+    public ResponseEntity<BaseFileInfo> getFileMetadata(@ModelAttribute RequestDTO requestDTO)
+            throws MinioFileNotFoundCustomException {
+        String folder = commonService.resolveFolderName(requestDTO);
+        StatObjectResponse stat = commonService.getFileStat(folder + requestDTO.getFileUuid());
 
-            StatObjectResponse stat = minioClient.statObject(
-                    StatObjectArgs.builder()
-                            .bucket(bucketName)
-                            .object("user-uploads/" + fileId)
-                            .build()
-            );
+        BaseFileInfo fileInfo =  getFileMetadataService.buildFileInfo(requestDTO.getFileUuid(), stat);
 
-            Map<String, String> metadata = new HashMap<>();
-            metadata.put("fileId", fileId);
-            metadata.put("bucket", bucketName);
-            metadata.put("contentType", stat.contentType());
-            metadata.put("size", String.valueOf(stat.size()));
-            metadata.put("lastModified", stat.lastModified().toString());
-
-            // Добавляем пользовательские метаданные
-            if (stat.userMetadata() != null) {
-                metadata.putAll(stat.userMetadata());
-            }
-
-            return ResponseEntity.ok(metadata);
-        } catch (ErrorResponseException e) {
-            if (e.errorResponse().code().equals("NoSuchKey")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("error", "File not found"));
-            }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to retrieve file metadata"));
-        }
+        return ResponseEntity.ok(fileInfo);
     }
 
-    @GetMapping("/download/{fileId:.+}")
+
+    @GetMapping("/download")
+    @RolesAllowed("SERVICE")
+    @Hidden
     public ResponseEntity<InputStreamResource> downloadFile(
-            @PathVariable String fileId,
-            @RequestParam(required = false, defaultValue = "mybucket") String bucket,
-            HttpServletResponse response) {
+            @Valid @ModelAttribute RequestDTO requestDTO) throws MinioFileNotFoundCustomException {
 
-        try {
-            // Получаем метаданные файла
-            StatObjectResponse stat = minioClient.statObject(
-                    StatObjectArgs.builder()
-                            .bucket(bucket)
-                            .object(fileId)
-                            .build()
-            );
+        String objectPath = commonService.resolveFolderName(requestDTO) + requestDTO.getFileUuid();
 
-            // Получаем поток файла из MinIO
-            InputStream fileStream = minioClient.getObject(
-                    GetObjectArgs.builder()
-                            .bucket(bucket)
-                            .object(fileId)
-                            .build()
-            );
+        InputStream fileStream = downloadMinioService.getFileStream(objectPath);
+        StatObjectResponse stat = commonService.getFileStat(objectPath);
 
-            // Определяем оригинальное имя файла из метаданных
-            String originalFilename = stat.userMetadata().getOrDefault("original-filename", fileId);
+        HttpHeaders headers = downloadMinioService.createResponseHeaders(stat, objectPath);
 
-            // Устанавливаем заголовки ответа
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.parseMediaType(stat.contentType()));
-            headers.setContentLength(stat.size());
-            headers.setContentDispositionFormData("attachment", originalFilename);
-            headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
-
-            // Возвращаем файл как поток
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .body(new InputStreamResource(fileStream));
-
-        } catch (ErrorResponseException e) {
-            if (e.errorResponse().code().equals("NoSuchKey")) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found");
-            }
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error downloading file");
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
-        }
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(new InputStreamResource(fileStream));
     }
-
-
-//    @GetMapping("/download/{fileId}")
-//    public ResponseEntity<Resource> downloadFile(
-//            @PathVariable String fileId
-////            HttpServletResponse response
-//    ) {
-//        try {
-//            // 1. Получаем метаданные файла
-////            StatObjectResponse stat = minioClient.statObject(
-////                    StatObjectArgs.builder()
-////                            .bucket("mybucket")
-////                            .object("user-uploads/" + fileId)
-////                            .build()
-////            );
-//
-//            // 2. Получаем сам файл
-//            InputStream fileStream = minioClient.getObject(
-//                    GetObjectArgs.builder()
-//                            .bucket("mybucket")
-//                             .object("user-uploads/" + fileId)
-//          //                  .object(fileId)
-//                            .build()
-//            );
-//
-//            // 3. Подготавливаем ответ
-//            InputStreamResource resource = new InputStreamResource(fileStream);
-//
-//            return ResponseEntity.ok()
-//               //     .contentType(MediaType.parseMediaType(stat.contentType()))
-//                    .header(HttpHeaders.CONTENT_DISPOSITION)
-//                       //     "attachment; filename=\"" + stat.userMetadata().get("original-filename") + "\"")
-//               //     .contentLength(stat.size())
-//                    .body((Resource) resource);
-//
-//        } catch (ErrorResponseException e) {
-//            if (e.errorResponse().code().equals("NoSuchKey")) {
-//                return ResponseEntity.notFound().build();
-//            }
-//            return ResponseEntity.internalServerError().build();
-//        } catch (Exception e) {
-//            return ResponseEntity.internalServerError().build();
-//        }
-//    }
 
 }

@@ -9,9 +9,11 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PicturesInfo {
+public class RequestDTO {
 
-    BaseFileInfo baseMeta;
-    int width;
-    int height;
+    private String fileUuid;
+
+    private String messageUuid;
+    private Long chatId;
+    private Long userId;
 }

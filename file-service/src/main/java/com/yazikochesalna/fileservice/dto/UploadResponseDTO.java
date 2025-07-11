@@ -9,9 +9,7 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AudioVideoInfo {
+public class UploadResponseDTO {
 
-    BaseFileInfo baseMeta;
-    double duration;
-    String codec;
+    private String storageFileName;
 }
