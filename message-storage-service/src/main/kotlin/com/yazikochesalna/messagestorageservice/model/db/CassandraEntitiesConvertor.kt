@@ -56,8 +56,8 @@ class CassandraEntitiesConvertor {
         }
     }
 
-    fun convertToMessageByChat(message: Message): MessageByChat {
-        return MessageByChat(
+    fun convertToMessageByChat(message: Message): MessageByChat =
+        MessageByChat(
             id = message.id,
             chatId = message.chatId,
             senderId = message.senderId,
@@ -65,5 +65,4 @@ class CassandraEntitiesConvertor {
             text = message.text,
             type = message.type
         )
-    }
 }

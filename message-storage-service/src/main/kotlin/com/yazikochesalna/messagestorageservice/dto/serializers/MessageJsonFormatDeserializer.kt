@@ -17,6 +17,7 @@ import com.yazikochesalna.messagestorageservice.service.ChatServiceClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -46,7 +47,7 @@ open class MessageJsonFormatDeserializer :  StdDeserializer<MessagesJsonFormatDT
 
             val type = getMessageType(node)
             val messageId = UUID.fromString(node["messageId"].asText())
-            val timestamp = convertToLDT(node["timestamp"].asDouble())
+            val timestamp = convertToLDT(node["timestamp"].asDouble().toBigDecimal())
             val payload = getPayLoad(mapper, type, node)
 
             MessagesJsonFormatDTO(messageId, type, timestamp, payload)
@@ -56,9 +57,9 @@ open class MessageJsonFormatDeserializer :  StdDeserializer<MessagesJsonFormatDT
         )
     }
 
-    private fun convertToLDT(instantStr: Double): LocalDateTime {
+    private fun convertToLDT(instantStr: BigDecimal): LocalDateTime {
         val seconds = instantStr.toLong()
-        val nanos = ((instantStr - seconds) * 1_000_000_000).toLong()
+        val nanos = instantStr.remainder(BigDecimal.ONE).multiply(BigDecimal("1000000000")).toLong()
         return Instant.ofEpochSecond(seconds, nanos)
             .atOffset(ZoneOffset.UTC)
             .toLocalDateTime()
@@ -68,24 +69,34 @@ open class MessageJsonFormatDeserializer :  StdDeserializer<MessagesJsonFormatDT
         val typeNode = node["type"]
             ?: throw ErrorInEnumException("Message type cannot be null")
         val typeStr = typeNode.asText()
-        return try {
+        return kotlin.runCatching {
             MessageType.fromType(typeStr)
-        } catch (e: Exception) {
+        }.getOrElse {
             throw ErrorInEnumException("Unknown message type: '$typeStr'")
         }
     }
 
     private fun getPayLoad(mapper: ObjectMapper, messageType: MessageType, node: JsonNode): PayLoadDTO {
         val payloadNode = node["payload"]
-        val payload: PayLoadDTO
-        if (messageType == MessageType.MESSAGE) {
-            payload = mapper.treeToValue<PayLoadMessageDTO>(payloadNode, PayLoadMessageDTO::class.java)
-        } else if (messageType == MessageType.NEW_MEMBER || messageType == MessageType.DROP_MEMBER) {
-            payload = mapper.treeToValue<PayLoadNoticeDTO>(payloadNode, PayLoadNoticeDTO::class.java)
-        } else {
-            throw ErrorKafkaDeserializatonException("type")
+        return when (messageType){
+            MessageType.MESSAGE ->{
+                mapper.treeToValue<PayLoadMessageDTO>(payloadNode, PayLoadMessageDTO::class.java)
+            }
+            MessageType.NEW_MEMBER,
+                MessageType.DROP_MEMBER ->{
+                mapper.treeToValue<PayLoadNoticeDTO>(payloadNode, PayLoadNoticeDTO::class.java)
+                }
+            else -> throw ErrorKafkaDeserializatonException("type")
         }
-        return payload
+//        val payload: PayLoadDTO
+//        if (messageType == MessageType.MESSAGE) {
+//            payload = mapper.treeToValue<PayLoadMessageDTO>(payloadNode, PayLoadMessageDTO::class.java)
+//        } else if (messageType == MessageType.NEW_MEMBER || messageType == MessageType.DROP_MEMBER) {
+//            payload = mapper.treeToValue<PayLoadNoticeDTO>(payloadNode, PayLoadNoticeDTO::class.java)
+//        } else {
+//            throw ErrorKafkaDeserializatonException("type")
+//        }
+//        return payload
     }
 
 }

@@ -55,7 +55,15 @@ open class KafkaConfig(
     }
 
     @Bean
-    open fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, MessagesJsonFormatDTO> {
+    open fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, MessagesJsonFormatDTO> =
+        ConcurrentKafkaListenerContainerFactory<String, MessagesJsonFormatDTO>().apply {
+            consumerFactory = consumerFactory()
+            containerProperties.ackMode = kafkaProperties.listener.ackMode
+            containerProperties.groupId = kafkaProperties.consumer.groupId
+            isBatchListener = true
+            setConcurrency(1)
+        }
+        /*{
         val factory = ConcurrentKafkaListenerContainerFactory<String, MessagesJsonFormatDTO>()
         factory.consumerFactory = consumerFactory()
         factory.containerProperties.ackMode = kafkaProperties.listener.ackMode
@@ -64,7 +72,7 @@ open class KafkaConfig(
         factory.setConcurrency(1)
         //factory.setCommonErrorHandler(CommonErrorHandler::class)
         return factory
-    }
+    }*/
 
     @Bean
     open fun errorHandler(): CommonErrorHandler {

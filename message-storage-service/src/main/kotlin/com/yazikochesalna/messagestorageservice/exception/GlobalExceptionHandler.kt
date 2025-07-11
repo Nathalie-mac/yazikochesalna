@@ -20,9 +20,8 @@ class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException::class)
     fun handleException(ex: RuntimeException,  request: WebRequest): ResponseEntity<ExceptionDTO> {
 
-        log.error("""Error: ${ex.javaClass.simpleName}, Message: ${ex.message}, " +
-            path: ${request.getDescription(false)}
-            ${ex.stackTraceToString()}""".trimIndent())
+        log.error("Error: ${ex.javaClass.simpleName}, Message: ${ex.message}\n" +
+            "Path: ${request.getDescription(false)}\nStackTrace:${ex.stackTraceToString()}")
 
         val details = mutableMapOf(
             "path" to request.getDescription(false),
@@ -40,14 +39,11 @@ class GlobalExceptionHandler {
         )
     }
 
-    private fun getStatus(exceptionClass: Class<out Throwable?>): HttpStatus {
-        val responseStatus = exceptionClass.getAnnotation(
+    private fun getStatus(exceptionClass: Class<out Throwable?>): HttpStatus =
+        exceptionClass.getAnnotation(
             ResponseStatus::class.java
-        )
-        if (responseStatus != null) {
-            return responseStatus.value
+        ).let { responseStatus ->
+            responseStatus?.value ?: HttpStatus.INTERNAL_SERVER_ERROR
         }
-        return HttpStatus.INTERNAL_SERVER_ERROR
-    }
 }
 

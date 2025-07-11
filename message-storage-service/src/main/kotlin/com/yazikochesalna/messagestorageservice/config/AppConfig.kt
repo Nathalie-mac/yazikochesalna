@@ -37,9 +37,11 @@ open class AppConfig {
     }
 
     @Bean
-    open fun cassandraMapping(): CassandraMappingContext {
-        val context = CassandraMappingContext()
-        context.setNamingStrategy(org.springframework.data.cassandra.core.mapping.NamingStrategy.SNAKE_CASE)
-        return context
+    open fun cassandraMapping(): CassandraMappingContext = CassandraMappingContext().apply {
+        setNamingStrategy(org.springframework.data.cassandra.core.mapping.NamingStrategy.SNAKE_CASE)
     }
+// {       val context = CassandraMappingContext()
+//        context.setNamingStrategy(org.springframework.data.cassandra.core.mapping.NamingStrategy.SNAKE_CASE)
+//        return context
+//    }
 }

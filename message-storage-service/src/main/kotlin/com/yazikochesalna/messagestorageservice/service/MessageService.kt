@@ -19,6 +19,8 @@ import org.springframework.web.server.ResponseStatusException
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.Duration
+private const val BLOCK_DURATION: Long = 20
+private const val BATCH_SIZE: Int = 20
 
 @Service
 class MessageService(
@@ -54,11 +56,11 @@ class MessageService(
         return cassandraMessages
             .map { message -> cassandraEntitiesConvertor.convertToMessagesJsonFormstDto(message)}
             .collectList()
-            .block(Duration.ofSeconds(20)) ?: emptyList()
+            .block(Duration.ofSeconds(BLOCK_DURATION)) ?: emptyList()
     }
 
     fun saveMessagesBatch(messages: List<MessagesJsonFormatDTO>): Mono<Void> {
-        if (messages.isEmpty() || messages.size > 20) {
+        if (messages.isEmpty() || messages.size > BATCH_SIZE) {
             return Mono.error(IllegalArgumentException("Invalid batch size"))
         }
         return saveMessagesToBothTables(
