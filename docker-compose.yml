@@ -52,7 +52,7 @@ services:
     volumes:
       - cassandra-messages-data:/var/lib/cassandra
       - cassandra-init-flag:/bitnami/cassandra/initialized
-      - ./message-storage-service/cassandra-init-scripts:/docker-entrypoint-initdb.d:Z
+      - ./message-storage-service/cassandra/cassandra-init-scripts:/docker-entrypoint-initdb.d:Z
      # - ./message-storage-service/cassandra-conf/cassandra.yaml:/opt/bitnami/cassandra/conf/cassandra.yaml
     environment:
       - CASSANDRA_USER=db_admin
