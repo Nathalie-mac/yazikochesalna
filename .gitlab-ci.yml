@@ -7,6 +7,7 @@ variables:
 stages:
   - build
   - package
+  - deploy
 
 .build-template: &build-template
   stage: build
@@ -37,76 +38,119 @@ stages:
     
 # --- Определяем job для каждого сервиса --- #
 
-build-authorization-service:
-  <<: *build-template
-  variables:
-    SERVICE_DIR: "authorization-service"
+#build-authorization-service:
+#  <<: *build-template
+#  variables:
+#    SERVICE_DIR: "authorization-service"
+#
+#build-chat-service:
+#  <<: *build-template
+#  variables:
+#    SERVICE_DIR: "chat-service"
+#
+#build-message-storage-service:
+#  <<: *build-template
+#  variables:
+#    SERVICE_DIR: "message-storage-service"
+#
+#build-messaging-service:
+#  <<: *build-template
+#  variables:
+#    SERVICE_DIR: "messaging-service"
+#
+#build-user-service:
+#  <<: *build-template
+#  variables:
+#    SERVICE_DIR: "user-service"
+#
+#
+## --- Определяем Docker сборку для каждого сервиса --- #
+#
+#docker-authorization-service:
+#  <<: *build-docker-template
+#  variables:
+#    SERVICE_DIR: "authorization-service"
+#    DOCKER_IMAGE_NAME: "authorization-service"
+#  dependencies:
+#    - build-authorization-service
+#
+#docker-chat-service:
+#  <<: *build-docker-template
+#  variables:
+#    SERVICE_DIR: "chat-service"
+#    DOCKER_IMAGE_NAME: "chat-service"
+#  dependencies:
+#    - build-chat-service
+#
+#docker-message-storage-service:
+#  <<: *build-docker-template
+#  variables:
+#    SERVICE_DIR: "message-storage-service"
+#    DOCKER_IMAGE_NAME: "message-storage-service"
+#  dependencies:
+#    - build-message-storage-service
+#
+#docker-messaging-service:
+#  <<: *build-docker-template
+#  variables:
+#    SERVICE_DIR: "messaging-service"
+#    DOCKER_IMAGE_NAME: "messaging-service"
+#  dependencies:
+#    - build-messaging-service
+#
+#docker-user-service:
+#  <<: *build-docker-template
+#  variables:
+#    SERVICE_DIR: "user-service"
+#    DOCKER_IMAGE_NAME: "user-service"
+#  dependencies:
+#    - build-user-service
+#
+#docker-cassandra:
+#  <<: *build-docker-template
+#  variables:
+#    SERVICE_DIR: "message-storage-service/cassandra"
+#    DOCKER_IMAGE_NAME: "cassandra"
+#
 
-build-chat-service:
-  <<: *build-template
-  variables:
-    SERVICE_DIR: "chat-service"
-
-build-message-storage-service:
-  <<: *build-template
-  variables:
-    SERVICE_DIR: "message-storage-service"
-
-build-messaging-service:
-  <<: *build-template
-  variables:
-    SERVICE_DIR: "messaging-service"
-
-build-user-service:
-  <<: *build-template
-  variables:
-    SERVICE_DIR: "user-service"
+### --- Деплой --- ###
 
 
-# --- Определяем Docker сборку для каждого сервиса --- #
+deploy-kustomize:
+  stage: deploy
+  image:
+    name: lachlanevenson/k8s-kubectl:latest
+    entrypoint: [""]
+  script:
+    # Проверка, что переменная установлена
+    - |
+      if [ -z "$KUBECONFIG_CONTENTS" ]; then
+        echo "Ошибка: переменная KUBECONFIG_CONTENTS не установлена"
+        exit 1
+      fi
 
-docker-authorization-service:
-  <<: *build-docker-template
-  variables:
-    SERVICE_DIR: "authorization-service"
-    DOCKER_IMAGE_NAME: "authorization-service"
-  dependencies:
-    - build-authorization-service
+    # Переход в директорию с kustomization.yaml
+    - cd k8s/overlays/dev
+    # Проверяем путь к файлу
+    - echo "Путь к encoded kubeconfig - $KUBECONFIG_CONTENTS"
 
-docker-chat-service:
-  <<: *build-docker-template
-  variables:
-    SERVICE_DIR: "chat-service"
-    DOCKER_IMAGE_NAME: "chat-service"
-  dependencies:
-    - build-chat-service
+    # Читаем содержимое и декодируем
+    - mkdir -p ~/.kube
+    - cat "$KUBECONFIG_CONTENTS" | base64 -d > ~/.kube/config
+    - chmod 600 ~/.kube/config
+    - export KUBECONFIG=~/.kube/config
 
-docker-message-storage-service:
-  <<: *build-docker-template
-  variables:
-    SERVICE_DIR: "message-storage-service"
-    DOCKER_IMAGE_NAME: "message-storage-service"
-  dependencies:
-    - build-message-storage-service
+    # Диагностические команды
+    - kubectl version --client
+    - kubectl config view
+    - kubectl config current-context
+    - kubectl config get-contexts
+    - kubectl version
+    
+    # Проверяем текущий контекст kubectl
+    - kubectl config current-context
 
-docker-messaging-service:
-  <<: *build-docker-template
-  variables:
-    SERVICE_DIR: "messaging-service"
-    DOCKER_IMAGE_NAME: "messaging-service"
-  dependencies:
-    - build-messaging-service
+    # Применяем манифесты с помощью kustomize
+    - kubectl -n messenger delete secret gitlab-regcred
+    - kubectl -n messenger apply -k .
 
-docker-user-service:
-  <<: *build-docker-template
-  variables:
-    SERVICE_DIR: "user-service"
-    DOCKER_IMAGE_NAME: "user-service"
-  dependencies:
-    - build-user-service
-
-docker-cassandra:
-  <<: *build-docker-template
-  variables:
-    SERVICE_DIR: "message-storage-service/cassandra"
-    DOCKER_IMAGE_NAME: "cassandra"
