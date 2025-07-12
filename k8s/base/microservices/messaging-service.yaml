@@ -28,6 +28,12 @@ spec:
           ports:
             - containerPort: 8082
           env:
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka-message-storage.messenger.svc.cluster.local:9092"
+            - name: REDIS_HOST
+              value: "redis.messenger.svc.cluster.local"
+            - name: REDIS_PORT
+              value: "6379"
             - name: JWT_SECRET_KEY
               value: "5d1a51090ece358e6afa19650833608a44732a9a6251cbd4c6e1cb0ca2eb6735d439efc354d1fccd73f461124023f4cea4020de8efaf57843e4c63d8296bc7f9"
             - name: JWT_ACCESS_TOKEN_EXPIRATION
