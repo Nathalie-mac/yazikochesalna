@@ -1,18 +1,14 @@
 package com.yazikochesalna.fileservice.controller;
 
-import com.yazikochesalna.fileservice.advice.FileNotAttachedException;
+import com.yazikochesalna.fileservice.advice.NotAttachedException;
 import com.yazikochesalna.fileservice.advice.MinioFileNotFoundCustomException;
-import com.yazikochesalna.fileservice.advice.MinioRuntimeCustomException;
-import com.yazikochesalna.fileservice.advice.MinioUploadCustomException;
 import com.yazikochesalna.fileservice.data.BaseFileInfo;
 import com.yazikochesalna.fileservice.dto.RequestDTO;
 import com.yazikochesalna.fileservice.dto.UploadResponseDTO;
 import com.yazikochesalna.fileservice.service.*;
 import io.minio.*;
-import io.minio.errors.MinioException;
-import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.InputStream;
-import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -51,50 +45,35 @@ public class MinioController {
 
 
     @PostMapping("/upload")
-//    @RolesAllowed("SERVICE")
-//    @Hidden
+    @Operation(summary = "Загрузить файл в хранилище",
+            description = "Принимает файл, chatID, messageID или файл, userID. Возвращает fileUUID")
     public ResponseEntity<UploadResponseDTO> uploadFile(
             @RequestParam("file") @NotNull MultipartFile file,
             @ModelAttribute RequestDTO metadata) {
 
         try {
             if (file.isEmpty()) {
-                throw new FileNotAttachedException("File is empty or not attached");
+                throw new NotAttachedException("File is empty or not attached");
             }
 
             UploadResponseDTO response = uploadMinioService.uploadFileWithMetadata(file, metadata);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException | IllegalStateException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
-        } catch (MinioException e) {
-            throw new MinioUploadCustomException("Failed to upload file to MinIO: " + e.getMessage());
-        } catch (Exception e) {
-            throw new MinioRuntimeCustomException("Internal server error during file upload: " + e.getMessage());
         }
     }
-//    @PostMapping("/upload")
-//    @RolesAllowed("SERVICE")
-//    @Hidden
-//    public ResponseEntity<UploadResponseDTO> uploadFile(
-//            @RequestParam("file") @NotNull MultipartFile file,
-//            @ModelAttribute RequestDTO metadata
-//    ) throws Exception {
-//
-//        String folderName = commonService.resolveFolderName(metadata);
-//        String fileId = String.valueOf(UUID.randomUUID());
-//        String objectName = folderName + fileId;
-//        Map<String, String> userMetadata = uploadMinioService.buildMetadata(file, metadata);
-//
-//        uploadMinioService.uploadFile(file, objectName, userMetadata);
-//
-//        return ResponseEntity.ok(new UploadResponseDTO(fileId));
-//    }
+
 
     @GetMapping("/metadata")
-//    @RolesAllowed("SERVICE")
-//    @Hidden
+    @Operation(summary = "Получить метаданные файла (разные для картинок, аудио/видео и других файлов)",
+            description = "Получает fileUUID и chatID или userID. Возвращает метаданные файла.")
     public ResponseEntity<BaseFileInfo> getFileMetadata(@ModelAttribute RequestDTO requestDTO)
             throws MinioFileNotFoundCustomException {
+
+        if (requestDTO.getFileUUID() == null){
+            throw new NotAttachedException("fileUUID not provided in metadata");
+        }
+
         String folder = commonService.resolveFolderName(requestDTO);
         StatObjectResponse stat = commonService.getFileStat(folder + requestDTO.getFileUUID());
 
@@ -105,10 +84,14 @@ public class MinioController {
 
 
     @GetMapping("/download")
-//    @RolesAllowed("SERVICE")
-//    @Hidden
+    @Operation(summary = "Скачать файл",
+            description = "Получает fileUUID и chatID или userID. Возвращает файл")
     public ResponseEntity<InputStreamResource> downloadFile(
             @Valid @ModelAttribute RequestDTO requestDTO) throws MinioFileNotFoundCustomException {
+
+        if (requestDTO.getFileUUID() == null){
+            throw new NotAttachedException("fileUUID not provided in metadata");
+        }
 
         String objectPath = commonService.resolveFolderName(requestDTO) + requestDTO.getFileUUID();
 

@@ -1,6 +1,6 @@
 package com.yazikochesalna.fileservice.service;
 
-import com.yazikochesalna.fileservice.advice.MinioRuntimeCustomException;
+import com.yazikochesalna.fileservice.advice.MinioServerCustomException;
 import com.yazikochesalna.fileservice.advice.MinioUploadCustomException;
 import com.yazikochesalna.fileservice.data.MetadataKeys;
 import com.yazikochesalna.fileservice.dto.RequestDTO;
@@ -37,16 +37,20 @@ public class UploadMinioService {
     private final CommonService commonService;
 
     public UploadResponseDTO uploadFileWithMetadata(MultipartFile file, RequestDTO metadata)
-            throws IOException, MinioException {
+    {
+        try {
+            String objectName = generateFolderName(metadata);
+            Map<String, String> userMetadata = buildMetadata(file, metadata);
 
-        String objectName = generateFolderName(metadata);
-        Map<String, String> userMetadata = buildMetadata(file, metadata);
+            uploadFile(file, objectName, userMetadata);
 
-        uploadFile(file, objectName, userMetadata);
-
-        return new UploadResponseDTO(extractFileIdFromObjectName(objectName));
+            return new UploadResponseDTO(extractFileIdFromObjectName(objectName));
+        } catch (IllegalArgumentException e) {
+            throw new MinioUploadCustomException("Invalid input parameters: " + e.getMessage());
+        } catch (IOException e) {
+            throw new MinioUploadCustomException("File processing error: " + e.getMessage());
+        }
     }
-
     public void uploadFile(MultipartFile file, String objectName, Map<String, String> userMetadata)
     {
         commonService.isCreatedBucket();
@@ -64,10 +68,10 @@ public class UploadMinioService {
         } catch (ErrorResponseException e) {
             throw new MinioUploadCustomException("Failed to upload file: " + e.getMessage());
         } catch (InsufficientDataException | InternalException e) {
-            throw new MinioRuntimeCustomException("MinIO internal error: " + e.getMessage());
+            throw new MinioServerCustomException("MinIO internal error: " + e.getMessage());
         } catch (InvalidResponseException | XmlParserException | ServerException |
                  InvalidKeyException | NoSuchAlgorithmException | IOException e) {
-            throw new MinioRuntimeCustomException("Error during file upload: " + e.getMessage());
+            throw new MinioServerCustomException("Error during file upload: " + e.getMessage());
         }
     }
 

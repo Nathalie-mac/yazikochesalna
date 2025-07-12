@@ -1,6 +1,6 @@
 package com.yazikochesalna.fileservice.service;
 
-import com.yazikochesalna.fileservice.advice.MinioRuntimeCustomException;
+import com.yazikochesalna.fileservice.advice.MinioServerCustomException;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.StatObjectResponse;
@@ -23,7 +23,7 @@ public class DownloadMinioService {
     private String BUCKET;
 
     public InputStream getFileStream(String objectPath)
-            throws MinioRuntimeCustomException {
+    {
         try {
             return minioClient.getObject(
                     GetObjectArgs.builder()
@@ -31,7 +31,7 @@ public class DownloadMinioService {
                             .object(objectPath)
                             .build());
         } catch (Exception e) {
-            throw new MinioRuntimeCustomException("Failed to get file stream: " + e.getMessage());
+            throw new MinioServerCustomException("Failed to get file stream: " + e.getMessage());
         }
     }
 

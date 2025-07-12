@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -36,5 +37,18 @@ public class GlobalExceptionHandler {
 
         return HttpStatus.INTERNAL_SERVER_ERROR;
     }
+
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<CustomErrorResponse> handleMissingPart(MissingServletRequestPartException ex, WebRequest request) {
+        Map<String, Object> details = new HashMap<>();
+        details.put("timestamp", LocalDateTime.now());
+        details.put("path", request.getDescription(false).replace("uri=", ""));
+
+        return new ResponseEntity<>(
+                new CustomErrorResponse(ex.getMessage(), details),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
 
 }

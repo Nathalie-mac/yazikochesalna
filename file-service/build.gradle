@@ -21,31 +21,6 @@ bootJar {
     mainClass = 'com.yazikochesalna.fileservice.FileServiceApplication'
 }
 
-//dependencies {
-//    //basic
-//    implementation 'org.springframework.boot:spring-boot-starter-web'
-//    compileOnly 'org.projectlombok:lombok'
-//    annotationProcessor 'org.projectlombok:lombok'
-//    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-//    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-//    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-//    implementation 'org.springframework.boot:spring-boot-starter'
-//
-//    implementation 'org.springframework.boot:spring-boot-starter-security'
-//    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
-//
-//    //db
-////    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-////    runtimeOnly 'org.postgresql:postgresql'
-////    implementation 'org.liquibase:liquibase-core'
-////    implementation'jakarta.validation:jakarta.validation-api'
-////    implementation 'org.springframework.boot:spring-boot-starter-validation'
-//
-//
-//
-//    implementation(project(":jwt-module"))
-//}
-
 dependencies {
     // Spring Boot starters
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -68,10 +43,8 @@ dependencies {
     //Minio
     implementation 'io.minio:minio:8.5.17'
 
-    implementation 'net.bramp.ffmpeg:ffmpeg:0.8.0'
-    // https://mvnrepository.com/artifact/org.apache.tika/tika-core
+    // Аудио/Видео
     implementation 'org.apache.tika:tika-core:3.2.1'
-    // https://mvnrepository.com/artifact/org.apache.tika/tika-parsers-standard-package
     implementation 'org.apache.tika:tika-parsers-standard-package:3.2.1'
 
     implementation(project(":jwt-module"))

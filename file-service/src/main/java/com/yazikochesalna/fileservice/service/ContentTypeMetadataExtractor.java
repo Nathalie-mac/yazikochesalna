@@ -51,7 +51,6 @@ public class ContentTypeMetadataExtractor {
         } catch (Exception e) {
             log.error("Metadata extraction failed", e);
         }
-
         return metadata;
     }
 
@@ -71,7 +70,6 @@ public class ContentTypeMetadataExtractor {
         } catch (Exception e) {
             log.error("Media metadata extraction failed", e);
         }
-
         return metadata;
     }
 
