@@ -4,12 +4,16 @@ import com.yazikochesalna.fileservice.advice.MinioFileNotFoundCustomException;
 import com.yazikochesalna.fileservice.advice.MinioRuntimeCustomException;
 import com.yazikochesalna.fileservice.dto.RequestDTO;
 import io.minio.*;
-import io.minio.errors.ErrorResponseException;
+import io.minio.errors.*;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 @Service
 @RequiredArgsConstructor
@@ -22,28 +26,35 @@ public class CommonService {
     private String BUCKET;
 
     @SneakyThrows
-    public void createBucket() {
-        boolean found = minioClient.bucketExists(BucketExistsArgs.builder()
-                .bucket(BUCKET)
-                .build());
-        if (!found) {
-            minioClient.makeBucket(MakeBucketArgs.builder()
+    public void isCreatedBucket() {
+        try {
+            boolean found = minioClient.bucketExists(BucketExistsArgs.builder()
                     .bucket(BUCKET)
                     .build());
+            if (!found) {
+                minioClient.makeBucket(MakeBucketArgs.builder()
+                        .bucket(BUCKET)
+                        .build());
+            }
+        } catch (Exception e) {
+            throw new MinioRuntimeCustomException("Failed to initialize MinIO bucket: " + e.getMessage());
         }
     }
 
     public String resolveFolderName(RequestDTO metadata) {
-        if (metadata.getChatId() != null) {
-            return "chatId" + String.valueOf(metadata.getChatId()) + "/";
-        } else if (metadata.getUserId() != null) {
-            return "userId" + String.valueOf(metadata.getUserId()) + "/";
+        if (metadata == null) {
+            throw new IllegalArgumentException("Metadata cannot be null");
         }
-        return "";
+        if (metadata.getChatID() != null) {
+            return "chatId" + String.valueOf(metadata.getChatID()) + "/";
+        } else if (metadata.getUserID() != null) {
+            return "userId" + String.valueOf(metadata.getUserID()) + "/";
+        }
+        throw new IllegalStateException("Neither chatID nor userID provided in metadata");
     }
 
     public StatObjectResponse getFileStat(String objectPath)
-            throws MinioFileNotFoundCustomException, MinioRuntimeCustomException {
+    {
         try {
             return minioClient.statObject(
                     StatObjectArgs.builder()

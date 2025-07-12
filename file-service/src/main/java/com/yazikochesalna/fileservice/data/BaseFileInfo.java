@@ -21,9 +21,9 @@ public class BaseFileInfo {
      private String contentType;
      private Long size;
      private LocalDateTime lastModified;
-     private String messageUuid;
-     private Long chatId;
-     private Long userId;
+     private String messageUUID;
+     private Long chatID;
+     private Long userID;
 
      private Map<String, Object> specificData;
 }

@@ -1,12 +1,9 @@
 package com.yazikochesalna.fileservice.service;
 
-import com.yazikochesalna.fileservice.advice.MinioFileNotFoundCustomException;
-import com.yazikochesalna.fileservice.advice.MinioRuntimeCustomException;
 import com.yazikochesalna.fileservice.data.BaseFileInfo;
+import com.yazikochesalna.fileservice.data.MetadataKeys;
 import io.minio.MinioClient;
-import io.minio.StatObjectArgs;
 import io.minio.StatObjectResponse;
-import io.minio.errors.ErrorResponseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,24 +24,6 @@ public class GetMetadataMinioService {
     @Value("${minio.bucket.name}")
     private String BUCKET;
 
-//    public StatObjectResponse getStatObject(String objectPath)
-//            throws MinioFileNotFoundCustomException, MinioRuntimeCustomException {
-//        try {
-//            return minioClient.statObject(
-//                    StatObjectArgs.builder()
-//                            .bucket(BUCKET)
-//                            .object(objectPath)
-//                            .build());
-//        } catch (ErrorResponseException e) {
-//            if (e.errorResponse().code().equals("NoSuchKey")) {
-//                throw new MinioFileNotFoundCustomException("File not found: " + objectPath);
-//            }
-//            throw new MinioRuntimeCustomException("Minio error: " + e.getMessage());
-//        } catch (Exception e) {
-//            throw new MinioRuntimeCustomException("Error accessing file metadata: " + e.getMessage());
-//        }
-//    }
-
     public BaseFileInfo buildFileInfo(String fileUuid, StatObjectResponse stat) {
         BaseFileInfo fileInfo = new BaseFileInfo();
         fileInfo.setStorageFileName(fileUuid);
@@ -62,21 +41,22 @@ public class GetMetadataMinioService {
     }
 
     private void processUserMetadata(BaseFileInfo fileInfo, Map<String, String> userMetadata) {
-        fileInfo.setOriginalFileName(userMetadata.get("original-filename"));
+        fileInfo.setOriginalFileName(userMetadata.get(MetadataKeys.ORIGINAL_FILENAME.getKey()));
 
-        Optional.ofNullable(userMetadata.get("message-uuid"))
-                .ifPresent(fileInfo::setMessageUuid);
+        Optional.ofNullable(userMetadata.get(MetadataKeys.MESSAGE_UUID.getKey()))
+                .ifPresent(fileInfo::setMessageUUID);
 
-        Optional.ofNullable(userMetadata.get("chat-id"))
+        Optional.ofNullable(userMetadata.get(MetadataKeys.CHAT_ID.getKey()))
                 .map(Long::parseLong)
-                .ifPresent(fileInfo::setChatId);
+                .ifPresent(fileInfo::setChatID);
 
-        Optional.ofNullable(userMetadata.get("user-id"))
+        Optional.ofNullable(userMetadata.get(MetadataKeys.USER_ID.getKey()))
                 .map(Long::parseLong)
-                .ifPresent(fileInfo::setUserId);
+                .ifPresent(fileInfo::setUserID);
 
         Map<String, Object> specificData = new HashMap<>(userMetadata);
-        Stream.of("original-filename", "message-uuid", "chat-id", "user-id")
+        Stream.of(MetadataKeys.values())
+                .map(MetadataKeys::getKey)
                 .forEach(specificData::remove);
 
         if (!specificData.isEmpty()) {

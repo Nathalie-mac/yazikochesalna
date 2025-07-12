@@ -1,17 +1,22 @@
 package com.yazikochesalna.fileservice.service;
 
+import com.yazikochesalna.fileservice.advice.MinioRuntimeCustomException;
+import com.yazikochesalna.fileservice.advice.MinioUploadCustomException;
+import com.yazikochesalna.fileservice.data.MetadataKeys;
 import com.yazikochesalna.fileservice.dto.RequestDTO;
+import com.yazikochesalna.fileservice.dto.UploadResponseDTO;
 import io.minio.*;
-import io.minio.errors.ErrorResponseException;
-import io.minio.errors.MinioException;
+import io.minio.errors.*;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -26,28 +31,44 @@ public class UploadMinioService {
     @Value("${minio.bucket.name}")
     private String BUCKET;
 
-    private static final String ORIGINAL_FILENAME_KEY = "original-filename";
-    private static final String CHAT_ID_KEY = "chat-id";
-    private static final String MESSAGE_UUID_KEY = "message-uuid";
-    private static final String USER_ID_KEY = "user-id";
+    private static final long MINIO_AUTO_PART_SIZE = -1;
 
     private final ContentTypeMetadataExtractor contentTypeMetadataExtractor;
     private final CommonService commonService;
 
+    public UploadResponseDTO uploadFileWithMetadata(MultipartFile file, RequestDTO metadata)
+            throws IOException, MinioException {
+
+        String objectName = generateFolderName(metadata);
+        Map<String, String> userMetadata = buildMetadata(file, metadata);
+
+        uploadFile(file, objectName, userMetadata);
+
+        return new UploadResponseDTO(extractFileIdFromObjectName(objectName));
+    }
+
     public void uploadFile(MultipartFile file, String objectName, Map<String, String> userMetadata)
-            throws IOException, MinioException, ErrorResponseException, Exception {
+    {
+        commonService.isCreatedBucket();
 
-        commonService.createBucket();
-
-        minioClient.putObject(
-                PutObjectArgs.builder()
-                        .bucket(BUCKET)
-                        .object(objectName)
-                        .stream(file.getInputStream(), file.getSize(), -1)
-                        .contentType(file.getContentType())
-                        .userMetadata(userMetadata)
-                        .build()
-        );
+        try (InputStream inputStream = file.getInputStream()) {
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(BUCKET)
+                            .object(objectName)
+                            .stream(inputStream, file.getSize(), MINIO_AUTO_PART_SIZE)
+                            .contentType(file.getContentType())
+                            .userMetadata(userMetadata)
+                            .build()
+            );
+        } catch (ErrorResponseException e) {
+            throw new MinioUploadCustomException("Failed to upload file: " + e.getMessage());
+        } catch (InsufficientDataException | InternalException e) {
+            throw new MinioRuntimeCustomException("MinIO internal error: " + e.getMessage());
+        } catch (InvalidResponseException | XmlParserException | ServerException |
+                 InvalidKeyException | NoSuchAlgorithmException | IOException e) {
+            throw new MinioRuntimeCustomException("Error during file upload: " + e.getMessage());
+        }
     }
 
     public Map<String, String> buildMetadata(MultipartFile file, RequestDTO metadata) throws IOException {
@@ -60,46 +81,25 @@ public class UploadMinioService {
     }
 
     private void addBasicMetadata(Map<String, String> metadata, MultipartFile file) {
-        metadata.put(ORIGINAL_FILENAME_KEY, file.getOriginalFilename());
+        metadata.put(MetadataKeys.ORIGINAL_FILENAME.getKey(), file.getOriginalFilename());
         metadata.putAll(contentTypeMetadataExtractor.extractMetadataByContentType(file));
     }
 
     private void addServiceMetadata(Map<String, String> metadata, RequestDTO dto) {
-        if (dto.getChatId() != null && dto.getMessageUuid() != null) {
-            metadata.put(CHAT_ID_KEY, String.valueOf(dto.getChatId()));
-            metadata.put(MESSAGE_UUID_KEY, dto.getMessageUuid());
-        } else if (dto.getUserId() != null) {
-            metadata.put(USER_ID_KEY, String.valueOf(dto.getUserId()));
+        if (dto.getChatID() != null && dto.getMessageUUID() != null) {
+            metadata.put(MetadataKeys.CHAT_ID.getKey(), String.valueOf(dto.getChatID()));
+            metadata.put(MetadataKeys.MESSAGE_UUID.getKey(), dto.getMessageUUID());
+        } else if (dto.getUserID() != null) {
+            metadata.put(MetadataKeys.USER_ID.getKey(), String.valueOf(dto.getUserID()));
         }
     }
-
-
-    ///
-//    @SneakyThrows
-//    public void createBucket() {
-//        boolean found = minioClient.bucketExists(BucketExistsArgs.builder()
-//                .bucket(BUCKET)
-//                .build());
-//        if (!found) {
-//            minioClient.makeBucket(MakeBucketArgs.builder()
-//                    .bucket(BUCKET)
-//                    .build());
-//        }
-//    }
 
     public String generateFolderName(RequestDTO metadata) {
         String folderName = commonService.resolveFolderName(metadata);
         return folderName + UUID.randomUUID();
     }
 
-    /// /
-//    public String resolveFolderName(RequestDTO metadata) {
-//        if (metadata.getChatId() != null) {
-//            return "chatId" + String.valueOf(metadata.getChatId()) + "/";
-//        } else if (metadata.getUserId() != null) {
-//            return "userId" + String.valueOf(metadata.getUserId()) + "/";
-//        }
-//        return "";
-//    }
-
+    private String extractFileIdFromObjectName(String objectName) {
+        return objectName.substring(objectName.lastIndexOf('/') + 1);
+    }
 }

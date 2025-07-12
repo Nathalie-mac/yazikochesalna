@@ -11,9 +11,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class RequestDTO {
 
-    private String fileUuid;
+    private String fileUUID;
 
-    private String messageUuid;
-    private Long chatId;
-    private Long userId;
+    private String messageUUID;
+    private Long chatID;
+    private Long userID;
 }

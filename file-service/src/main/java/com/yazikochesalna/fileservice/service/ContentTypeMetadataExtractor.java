@@ -16,6 +16,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -23,6 +24,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class ContentTypeMetadataExtractor {
+
+    private static final String DIGITS_ONLY_REGEX = "\\d+";
 
     public Map<String, String> extractMetadataByContentType(MultipartFile file) {
         Map<String, String> metadata = new HashMap<>();
@@ -84,12 +87,12 @@ public class ContentTypeMetadataExtractor {
     }
 
     private String getDuration(Metadata metadata) {
-        String[] durationKeys = {
+        var durationKeys = List.of(
                 "duration",
                 "xmpDM:duration",
                 "TimeLength",
                 "length"
-        };
+        );
 
         for (String key : durationKeys) {
             String duration = metadata.get(key);
@@ -102,11 +105,13 @@ public class ContentTypeMetadataExtractor {
 
     private String formatDuration(String rawDuration) {
         try {
-            // миллисекунды в секунды
-            if (rawDuration.matches("\\d+")) {
+            // Если длительность аудио/видео в мс (только из цифр, например, "1500" — 1500 мс),
+            // конвертируем в секунды с двумя знаками после запятой ("1.50").
+            if (rawDuration.matches(DIGITS_ONLY_REGEX)) {
                 long millis = Long.parseLong(rawDuration);
                 return String.format("%.2f", millis / 1000.0);
             }
+            // Иначе возвращаем как есть (например, "1.5s", "12:34").
             return rawDuration;
         } catch (NumberFormatException e) {
             return rawDuration;
