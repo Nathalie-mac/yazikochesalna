@@ -29,6 +29,7 @@ stages:
     - buildah login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
     - TAG_NAME=$(echo $CI_COMMIT_BRANCH | sed 's/\//./g')
     - IMAGE_PATH="$DOCKER_REGISTRY/$PROJECT_NAME/$DOCKER_IMAGE_NAME:$TAG_NAME"
+    - echo "Образ $IMAGE_PATH"
     - echo "Сборка образа с Buildah"
     - buildah bud -t "$IMAGE_PATH" .
     - echo "Пуш образа в registry"
