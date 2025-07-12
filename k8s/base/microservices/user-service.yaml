@@ -27,16 +27,14 @@ spec:
           env:
             - name: SERVER_PORT
               value: "8083"
-
-
             - name: SPRING_DATASOURCE_URL
-              value: "jdbc:postgresql://postgres-users.messenger.svc.cluster.local:5432/userdatabase"
+              value: "jdbc:postgresql://postgres-auth.messenger.svc.cluster.local:5432/authdatabase"
             - name: SPRING_DATASOURCE_HOST
-              value: "postgres-users.messenger.svc.cluster.local"
+              value: "postgres-auth.messenger.svc.cluster.local"
             - name: SPRING_DATASOURCE_PORT
               value: "5432"
             - name: SPRING_DATASOURCE_DATABASE
-              value: "userdatabase"
+              value: "authdatabase"
             - name: SPRING_DATASOURCE_USERNAME
               value: "user"
             - name: SPRING_DATASOURCE_PASSWORD
