@@ -45,17 +45,17 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                .cors(cors -> cors
-                        .configurationSource(request -> {
-                            CorsConfiguration config = new CorsConfiguration();
-                            config.setAllowedOrigins(List.of(
-                                    userServiceProperties.getUrl(),
-                                    frontendProperties.getUrl()));
-                            config.setAllowedMethods(List.of("GET", "POST"));
-                            config.setAllowedHeaders(List.of("*"));
-                            config.setAllowCredentials(true);
-                            return config;
-                        }))
+                    .cors(cors -> cors
+                            .configurationSource(request -> {
+                                CorsConfiguration config = new CorsConfiguration();
+                                config.setAllowedOrigins(List.of(
+                                        userServiceProperties.getUrl(),
+                                        frontendProperties.getUrl()));
+                                config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"));
+                                config.setAllowedHeaders(List.of("*"));
+                                config.setAllowCredentials(true);
+                                return config;
+                            }))
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 //401 for unauthorized requests (without this line 403 is returned)
                 .exceptionHandling(exceptions -> exceptions
