@@ -34,75 +34,75 @@ stages:
     - echo "Пуш образа в registry"
     - buildah push "$IMAGE_PATH"
     
-# --- Определяем job для каждого сервиса --- #
-
-build-authorization-service:
-  <<: *build-template
-  variables:
-    SERVICE_DIR: "authorization-service"
-
-build-chat-service:
-  <<: *build-template
-  variables:
-    SERVICE_DIR: "chat-service"
-
-build-message-storage-service:
-  <<: *build-template
-  variables:
-    SERVICE_DIR: "message-storage-service"
-
-build-messaging-service:
-  <<: *build-template
-  variables:
-    SERVICE_DIR: "messaging-service"
-
-build-user-service:
-  <<: *build-template
-  variables:
-    SERVICE_DIR: "user-service"
-
-
-# --- Определяем Docker сборку для каждого сервиса --- #
-
-docker-authorization-service:
-  <<: *build-docker-template
-  variables:
-    SERVICE_DIR: "authorization-service"
-    DOCKER_IMAGE_NAME: "authorization-service"
-  dependencies:
-    - build-authorization-service
-
-docker-chat-service:
-  <<: *build-docker-template
-  variables:
-    SERVICE_DIR: "chat-service"
-    DOCKER_IMAGE_NAME: "chat-service"
-  dependencies:
-    - build-chat-service
-
-docker-message-storage-service:
-  <<: *build-docker-template
-  variables:
-    SERVICE_DIR: "message-storage-service"
-    DOCKER_IMAGE_NAME: "message-storage-service"
-  dependencies:
-    - build-message-storage-service
-
-docker-messaging-service:
-  <<: *build-docker-template
-  variables:
-    SERVICE_DIR: "messaging-service"
-    DOCKER_IMAGE_NAME: "messaging-service"
-  dependencies:
-    - build-messaging-service
-
-docker-user-service:
-  <<: *build-docker-template
-  variables:
-    SERVICE_DIR: "user-service"
-    DOCKER_IMAGE_NAME: "user-service"
-  dependencies:
-    - build-user-service
+## --- Определяем job для каждого сервиса --- #
+#
+#build-authorization-service:
+#  <<: *build-template
+#  variables:
+#    SERVICE_DIR: "authorization-service"
+#
+#build-chat-service:
+#  <<: *build-template
+#  variables:
+#    SERVICE_DIR: "chat-service"
+#
+#build-message-storage-service:
+#  <<: *build-template
+#  variables:
+#    SERVICE_DIR: "message-storage-service"
+#
+#build-messaging-service:
+#  <<: *build-template
+#  variables:
+#    SERVICE_DIR: "messaging-service"
+#
+#build-user-service:
+#  <<: *build-template
+#  variables:
+#    SERVICE_DIR: "user-service"
+#
+#
+## --- Определяем Docker сборку для каждого сервиса --- #
+#
+#docker-authorization-service:
+#  <<: *build-docker-template
+#  variables:
+#    SERVICE_DIR: "authorization-service"
+#    DOCKER_IMAGE_NAME: "authorization-service"
+#  dependencies:
+#    - build-authorization-service
+#
+#docker-chat-service:
+#  <<: *build-docker-template
+#  variables:
+#    SERVICE_DIR: "chat-service"
+#    DOCKER_IMAGE_NAME: "chat-service"
+#  dependencies:
+#    - build-chat-service
+#
+#docker-message-storage-service:
+#  <<: *build-docker-template
+#  variables:
+#    SERVICE_DIR: "message-storage-service"
+#    DOCKER_IMAGE_NAME: "message-storage-service"
+#  dependencies:
+#    - build-message-storage-service
+#
+#docker-messaging-service:
+#  <<: *build-docker-template
+#  variables:
+#    SERVICE_DIR: "messaging-service"
+#    DOCKER_IMAGE_NAME: "messaging-service"
+#  dependencies:
+#    - build-messaging-service
+#
+#docker-user-service:
+#  <<: *build-docker-template
+#  variables:
+#    SERVICE_DIR: "user-service"
+#    DOCKER_IMAGE_NAME: "user-service"
+#  dependencies:
+#    - build-user-service
 
 docker-cassandra:
   <<: *build-docker-template
