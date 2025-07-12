@@ -6,7 +6,8 @@ enum class AttachmentType(val at: String) {
     REPLY("REPLY"),
     FORWARD("FORWARD"),
     PIN("PIN"),
-    ATTACHMENT("ATTACHMENT");
+    ATTACHMENT("ATTACHMENT"),
+    NEW_AVATAR("NEW_AVATAR");
 
     companion object {
 
