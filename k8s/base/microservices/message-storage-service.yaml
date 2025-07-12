@@ -21,7 +21,7 @@ spec:
           command: [ 'sh', '-c', 'until nc -z kafka-message-storage.messenger.svc.cluster.local 9092; do echo waiting for Kafka; sleep 5; done;' ]
         - name: wait-for-cassandra
           image: bitnami/cassandra:latest
-          command: ['sh', '-c', 'until cqlsh -u db_admin -p 1234 cassandra-messages.messenger.svc.cluster.local 9042 -e "SELECT keyspace_name FROM system_schema.keyspaces WHERE keyspace_name = ''storage_service_keyspace'';" | grep storage_service_keyspace; do echo "waiting for Cassandra keyspace storage_service_keyspace"; sleep 5; done;']
+          command: ['sh', '-c', 'until cqlsh -u db_admin -p 1234 cassandra-messages.messenger.svc.cluster.local 9042 -e "SELECT keyspace_name FROM system_schema.keyspaces WHERE keyspace_name = ''storage_service_keyspace''" | grep storage_service_keyspace; do echo "waiting for Cassandra keyspace storage_service_keyspace"; sleep 5; done;']
       containers:
         - name: message-storage-service
           image: registry.gitlab.com/liza.antipa/yazikochesalna/message-storage-service:main

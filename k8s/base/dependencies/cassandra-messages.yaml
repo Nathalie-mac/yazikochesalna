@@ -52,7 +52,7 @@ spec:
             failureThreshold: 10
           readinessProbe:
             exec:
-              command: [ "cqlsh", "-u", "db_admin", "-p", "1234", "cassandra-messages.messenger.svc.cluster.local", "9042", "-e", "DESCRIBE KEYSPACES" ]
+              command: [ "cqlsh", "-u", "db_admin", "-p", "1234", "localhost", "9042", "-e", "SELECT keyspace_name FROM system_schema.keyspaces WHERE keyspace_name = 'storage_service_keyspace'"]
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 5
