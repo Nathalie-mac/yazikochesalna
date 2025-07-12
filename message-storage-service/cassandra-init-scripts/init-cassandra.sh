@@ -3,7 +3,6 @@
 # Конфигурация
 CASSANDRA_CONTAINER="cassandra_db"
 WAIT_MINUTES=3
-RETRY_INTERVAL=15
 CASSANDRA_USER="cassandra"
 CASSANDRA_PASS="cassandra"
 ADMIN_USER="db_admin"
@@ -19,27 +18,9 @@ if [ ! -f "$INIT_FLAG" ]; then
 
 echo "=== Starting Cassandra initialization ==="
 
-echo "1. Pending for Cassandra (max $MAX_WAIT_MINUTES minutes)..."
-start_time=$(date +%s)
-end_time=$((start_time + MAX_WAIT_MINUTES * 60))
-success=0
-
-while [ $(date +%s) -lt $end_time ]; do
-    if cqlsh -u "$CASSANDRA_USER" -p "$CASSANDRA_PASS" -e "DESCRIBE KEYSPACES" >/dev/null 2>&1; then
-        success=1
-        break
-    fi
-    echo "Failed to acccess, next try in $RETRY_INTERVAL seconds..."
-    sleep $RETRY_INTERVAL
-done
-
-if [ $success -eq 0 ]; then
-    echo "Fatal error: Cassandra is not available during $MAX_WAIT_MINUTES minutes"
-    exit 1
-fi
-
-elapsed_time=$(( $(date +%s) - start_time ))
-echo "Cassandra available within  $elapsed_time seconds"
+# 1. Ожидание 3 минуты
+echo "1. Waiting ${WAIT_MINUTES} minutes before start..."
+sleep $((WAIT_MINUTES * 60))
 
 # 2. Подключение к Cassandra и выполнение команд
 echo "2. Creating keyspace and deleting default cassandra user..."
