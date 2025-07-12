@@ -104,3 +104,8 @@ docker-user-service:
   dependencies:
     - build-user-service
 
+docker-cassandra:
+  <<: *build-docker-template
+  variables:
+    SERVICE_DIR: "message-storage-service/cassandra"
+    DOCKER_IMAGE_NAME: "cassandra"
