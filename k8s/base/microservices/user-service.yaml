@@ -25,6 +25,23 @@ spec:
           ports:
             - containerPort: 8083
           env:
+            - name: SERVER_PORT
+              value: "8083"
+
+
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres-users.messenger.svc.cluster.local:5432/userdatabase"
+            - name: SPRING_DATASOURCE_HOST
+              value: "postgres-users.messenger.svc.cluster.local"
+            - name: SPRING_DATASOURCE_PORT
+              value: "5432"
+            - name: SPRING_DATASOURCE_DATABASE
+              value: "userdatabase"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "user"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "1234"
+
             - name: JWT_SECRET_KEY
               value: "5d1a51090ece358e6afa19650833608a44732a9a6251cbd4c6e1cb0ca2eb6735d439efc354d1fccd73f461124023f4cea4020de8efaf57843e4c63d8296bc7f9"
             - name: JWT_ACCESS_TOKEN_EXPIRATION
