@@ -15,9 +15,11 @@ spec:
       labels:
         app: cassandra-messages
     spec:
+      imagePullSecrets:
+        - name: gitlab-regcred
       containers:
         - name: cassandra-messages
-          image: bitnami/cassandra:latest
+          image: registry.gitlab.com/liza.antipa/yazikochesalna/cassandra:main
           ports:
             - containerPort: 9042
           env:
@@ -44,9 +46,10 @@ spec:
               mountPath: /bitnami/cassandra/initialized
           livenessProbe:
             exec:
-              command: ["cqlsh", "-u", "cassandra", "-p",  "cassandra", "cassandra-messages.messenger.svc.cluster.local", "9042", "-e", "DESCRIBE KEYSPACES"]
+              command: [ "cqlsh", "-u", "cassandra", "-p", "cassandra", "cassandra-messages.messenger.svc.cluster.local", "9042", "-e", "DESCRIBE KEYSPACES" ]
             initialDelaySeconds: 30
             periodSeconds: 10
+            failureThreshold: 5
       volumes:
         - name: cassandra-messages-data
           persistentVolumeClaim:
