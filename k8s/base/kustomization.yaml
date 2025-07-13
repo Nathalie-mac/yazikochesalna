@@ -1,7 +1,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: messenger
 resources:
+  - namespaces/namespace_messenger.yaml
   - dependencies/postgres-chat.yaml
   - dependencies/postgres-users.yaml
   - dependencies/postgres-auth.yaml
