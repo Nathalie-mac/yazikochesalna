@@ -21,11 +21,20 @@ spec:
             - containerPort: 5432
           env:
             - name: POSTGRES_DB
-              value: "chatdatabase"
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-chat-config
+                  key: POSTGRES_DB
             - name: POSTGRES_USER
-              value: "user"
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-chat-secrets
+                  key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
-              value: "1234"
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-chat-secrets
+                  key: POSTGRES_PASSWORD
           volumeMounts:
             - name: postgres-chat-data
               mountPath: /var/lib/postgresql/data

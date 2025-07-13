@@ -26,39 +26,90 @@ spec:
             - containerPort: 8085
           env:
             - name: SERVER_PORT
-              value: "8085"
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-config
+                  key: SERVER_PORT
             - name: SPRING_DATASOURCE_URL
-              value: "jdbc:postgresql://postgres-users.messenger.svc.cluster.local:5432/userdatabase"
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-config
+                  key: SPRING_DATASOURCE_URL
             - name: SPRING_DATASOURCE_HOST
-              value: "postgres-users.messenger.svc.cluster.local"
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-config
+                  key: SPRING_DATASOURCE_HOST
             - name: SPRING_DATASOURCE_PORT
-              value: "5432"
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-config
+                  key: SPRING_DATASOURCE_PORT
             - name: SPRING_DATASOURCE_DATABASE
-              value: "userdatabase"
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-service-config
+                  key: SPRING_DATASOURCE_DATABASE
             - name: SPRING_DATASOURCE_USERNAME
-              value: "user"
+              valueFrom:
+                secretKeyRef:
+                  name: auth-service-secrets
+                  key: SPRING_DATASOURCE_USERNAME
             - name: SPRING_DATASOURCE_PASSWORD
-              value: "1234"
+              valueFrom:
+                secretKeyRef:
+                  name: auth-service-secrets
+                  key: SPRING_DATASOURCE_PASSWORD
             - name: JWT_SECRET_KEY
-              value: "5d1a51090ece358e6afa19650833608a44732a9a6251cbd4c6e1cb0ca2eb6735d439efc354d1fccd73f461124023f4cea4020de8efaf57843e4c63d8296bc7f9"
+              valueFrom:
+                secretKeyRef:
+                  name: general-service-secrets
+                  key: JWT_SECRET_KEY
             - name: JWT_ACCESS_TOKEN_EXPIRATION
-              value: "36000000"
+              valueFrom:
+                configMapKeyRef:
+                  name: general-service-config
+                  key: JWT_ACCESS_TOKEN_EXPIRATION
             - name: JWT_REFRESH_TOKEN_EXPIRATION
-              value: "252000000"
+              valueFrom:
+                configMapKeyRef:
+                  name: general-service-config
+                  key: JWT_REFRESH_TOKEN_EXPIRATION
             - name: WEBCLIENT_TIMEOUT
-              value: "50000"
+              valueFrom:
+                configMapKeyRef:
+                  name: general-service-config
+                  key: WEBCLIENT_TIMEOUT
             - name: CHAT_SERVICE_URL
-              value: "http://chat-service.messenger.svc.cluster.local:8080"
+              valueFrom:
+                configMapKeyRef:
+                  name: general-service-config
+                  key: CHAT_SERVICE_URL
             - name: MESSAGE_STORAGE_SERVICE_URL
-              value: "http://message-storage-service.messenger.svc.cluster.local:8081"
+              valueFrom:
+                configMapKeyRef:
+                  name: general-service-config
+                  key: MESSAGE_STORAGE_SERVICE_URL
             - name: MESSAGING_SERVICE_URL
-              value: "http://messaging-service.messenger.svc.cluster.local:8082"
+              valueFrom:
+                configMapKeyRef:
+                  name: general-service-config
+                  key: MESSAGING_SERVICE_URL
             - name: USER_SERVICE_URL
-              value: "http://user-service.messenger.svc.cluster.local:8083"
+              valueFrom:
+                configMapKeyRef:
+                  name: general-service-config
+                  key: USER_SERVICE_URL
             - name: AUTHORIZATION_SERVICE_URL
-              value: "http://authorization-service.messenger.svc.cluster.local:8085"
+              valueFrom:
+                configMapKeyRef:
+                  name: general-service-config
+                  key: AUTHORIZATION_SERVICE_URL
             - name: FRONT_SERVER_URL
-              value: "http://front-server.messenger.svc.cluster.local:5173"
+              valueFrom:
+                configMapKeyRef:
+                  name: general-service-config
+                  key: FRONT_SERVER_URL
 ---
 apiVersion: v1
 kind: Service

@@ -24,21 +24,45 @@ spec:
             - containerPort: 9042
           env:
             - name: CASSANDRA_USER
-              value: "db_admin"
+              valueFrom:
+                secretKeyRef:
+                  name: cassandra-messages-secrets
+                  key: CASSANDRA_USER
             - name: CASSANDRA_PASSWORD
-              value: "1234"
+              valueFrom:
+                secretKeyRef:
+                  name: cassandra-messages-secrets
+                  key: CASSANDRA_PASSWORD
             - name: CASSANDRA_PASSWORD_SEEDER
-              value: "yes"
+              valueFrom:
+                configMapKeyRef:
+                  name: cassandra-messages-config
+                  key: CASSANDRA_PASSWORD_SEEDER
             - name: CASSANDRA_CLUSTER_NAME
-              value: "MyCluster"
+              valueFrom:
+                configMapKeyRef:
+                  name: cassandra-messages-config
+                  key: CASSANDRA_CLUSTER_NAME
             - name: CASSANDRA_DATACENTER
-              value: "datacenter1"
+              valueFrom:
+                configMapKeyRef:
+                  name: cassandra-messages-config
+                  key: CASSANDRA_DATACENTER
             - name: CASSANDRA_AUTHENTICATOR
-              value: "PasswordAuthenticator"
+              valueFrom:
+                configMapKeyRef:
+                  name: cassandra-messages-config
+                  key: CASSANDRA_AUTHENTICATOR
             - name: CASSANDRA_AUTHORIZER
-              value: "CassandraAuthorizer"
+              valueFrom:
+                configMapKeyRef:
+                  name: cassandra-messages-config
+                  key: CASSANDRA_AUTHORIZER
             - name: CASSANDRA_ENABLE_MATERIALIZED_VIEWS
-              value: "true"
+              valueFrom:
+                configMapKeyRef:
+                  name: cassandra-messages-config
+                  key: CASSANDRA_ENABLE_MATERIALIZED_VIEWS
           volumeMounts:
             - name: cassandra-messages-data
               mountPath: /var/lib/cassandra

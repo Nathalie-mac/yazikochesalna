@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cassandra-messages-config
+data:
+  CASSANDRA_PASSWORD_SEEDER: "yes"
+  CASSANDRA_CLUSTER_NAME: "MyCluster"
+  CASSANDRA_DATACENTER: "datacenter1"
+  CASSANDRA_AUTHENTICATOR: "PasswordAuthenticator"
+  CASSANDRA_AUTHORIZER: "CassandraAuthorizer"
+  CASSANDRA_ENABLE_MATERIALIZED_VIEWS: "true"

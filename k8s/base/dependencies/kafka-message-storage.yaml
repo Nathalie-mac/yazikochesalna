@@ -22,23 +22,50 @@ spec:
           - containerPort: 9093
         env:
           - name: KAFKA_PROCESS_ROLES
-            value: "broker,controller"
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-message-storage-config
+                key: KAFKA_PROCESS_ROLES
           - name: KAFKA_NODE_ID
-            value: "1"
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-message-storage-config
+                key: KAFKA_NODE_ID
           - name: KAFKA_CONTROLLER_QUORUM_VOTERS
-            value: "1@kafka-message-storage.messenger.svc.cluster.local:9093"
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-message-storage-config
+                key: KAFKA_CONTROLLER_QUORUM_VOTERS
           - name: KAFKA_LISTENERS
-            value: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-message-storage-config
+                key: KAFKA_LISTENERS
           - name: KAFKA_ADVERTISED_LISTENERS
-            value: "PLAINTEXT://kafka-message-storage.messenger.svc.cluster.local:9092"
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-message-storage-config
+                key: KAFKA_ADVERTISED_LISTENERS
           - name: KAFKA_INTER_BROKER_LISTENER_NAME
-            value: "PLAINTEXT"
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-message-storage-config
+                key: KAFKA_INTER_BROKER_LISTENER_NAME
           - name: KAFKA_CONTROLLER_LISTENER_NAMES
-            value: "CONTROLLER"
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-message-storage-config
+                key: KAFKA_CONTROLLER_LISTENER_NAMES
           - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
-            value: "1"
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-message-storage-config
+                key: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
           - name: CLUSTER_ID
-            value: "kafka-message-storage-cluster-1"
+            valueFrom:
+              configMapKeyRef:
+                name: kafka-message-storage-config
+                key: CLUSTER_ID
         volumeMounts:
           - name: kafka-message-storage
             mountPath: /data
