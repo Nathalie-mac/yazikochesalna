@@ -70,13 +70,13 @@ spec:
               mountPath: /bitnami/cassandra/initialized
           livenessProbe:
             exec:
-              command: [ "cqlsh", "-u", "db_admin", "-p", "1234", "localhost", "9042", "-e", "DESCRIBE KEYSPACES" ]
+              command: ["sh", "-c", "cqlsh -u \"$CASSANDRA_USER\" -p \"$CASSANDRA_PASSWORD\" localhost 9042 -e \"DESCRIBE KEYSPACES\""]
             initialDelaySeconds: 200
             periodSeconds: 10
             failureThreshold: 10
           readinessProbe:
             exec:
-              command: [ "cqlsh", "-u", "db_admin", "-p", "1234", "localhost", "9042", "-e", "SELECT keyspace_name FROM system_schema.keyspaces WHERE keyspace_name = 'storage_service_keyspace'"]
+              command: ["sh", "-c", "cqlsh -u \"$CASSANDRA_USER\" -p \"$CASSANDRA_PASSWORD\" localhost 9042 -e \"SELECT keyspace_name FROM system_schema.keyspaces WHERE keyspace_name = 'storage_service_keyspace'\""]
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 5
