@@ -15,6 +15,7 @@ resources:
   - secrets/dependencies/postgres-chat-secrets.yaml
   - secrets/dependencies/postgres-users-secrets.yaml
 
+  - configmaps/nginx-gateway-config.yaml
   - configmaps/microservices/general-service-config.yaml
   - configmaps/microservices/auth-service-config.yaml
   - configmaps/microservices/chat-service-config.yaml
