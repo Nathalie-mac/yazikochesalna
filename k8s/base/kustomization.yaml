@@ -6,7 +6,7 @@ resources:
   - dependencies/postgres-users.yaml
   - dependencies/postgres-auth.yaml
   - dependencies/cassandra-messages.yaml
-  - dependencies/redis.yaml
+  - dependencies/redis-websocket-tokens.yaml
   - dependencies/kafka-message-storage.yaml
   - microservices/auth-service.yaml
   - microservices/user-service.yaml

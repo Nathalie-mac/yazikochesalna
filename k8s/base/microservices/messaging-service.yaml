@@ -20,79 +20,20 @@ spec:
           command: [ 'sh', '-c', 'until nc -z kafka-message-storage.messenger.svc.cluster.local 9092; do echo waiting for Kafka; sleep 5; done;' ]
         - name: wait-for-redis
           image: redis:7.0-alpine
-          command: [ 'sh', '-c', 'until redis-cli -h redis.messenger.svc.cluster.local -p 6379 ping | grep -q PONG; do echo waiting for Redis; sleep 5; done;' ]
+          command: [ 'sh', '-c', 'until redis-cli -h redis-websocket-tokens.messenger.svc.cluster.local -p 6379 ping | grep -q PONG; do echo waiting for Redis; sleep 5; done;' ]
       containers:
         - name: messaging-service
           image: registry.gitlab.com/liza.antipa/yazikochesalna/messaging-service:main
           imagePullPolicy: Always
           ports:
             - containerPort: 8082
-          env:
-            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
-              valueFrom:
-                configMapKeyRef:
-                  name: messaging-service-config
-                  key: SPRING_KAFKA_BOOTSTRAP_SERVERS
-            - name: REDIS_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: messaging-service-config
-                  key: REDIS_HOST
-            - name: REDIS_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: messaging-service-config
-                  key: REDIS_PORT
-            - name: JWT_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: general-service-secrets
-                  key: JWT_SECRET_KEY
-            - name: JWT_ACCESS_TOKEN_EXPIRATION
-              valueFrom:
-                configMapKeyRef:
-                  name: general-service-config
-                  key: JWT_ACCESS_TOKEN_EXPIRATION
-            - name: JWT_REFRESH_TOKEN_EXPIRATION
-              valueFrom:
-                configMapKeyRef:
-                  name: general-service-config
-                  key: JWT_REFRESH_TOKEN_EXPIRATION
-            - name: WEBCLIENT_TIMEOUT
-              valueFrom:
-                configMapKeyRef:
-                  name: general-service-config
-                  key: WEBCLIENT_TIMEOUT
-            - name: CHAT_SERVICE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: general-service-config
-                  key: CHAT_SERVICE_URL
-            - name: MESSAGE_STORAGE_SERVICE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: general-service-config
-                  key: MESSAGE_STORAGE_SERVICE_URL
-            - name: MESSAGING_SERVICE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: general-service-config
-                  key: MESSAGING_SERVICE_URL
-            - name: USER_SERVICE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: general-service-config
-                  key: USER_SERVICE_URL
-            - name: AUTHORIZATION_SERVICE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: general-service-config
-                  key: AUTHORIZATION_SERVICE_URL
-            - name: FRONT_SERVER_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: general-service-config
-                  key: FRONT_SERVER_URL
+          envFrom:
+            - configMapRef:
+                name: messaging-service-config
+            - configMapRef:
+                name: general-service-config
+            - secretRef:
+                name: general-service-secrets
 ---
 apiVersion: v1
 kind: Service

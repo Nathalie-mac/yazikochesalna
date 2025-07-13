@@ -19,22 +19,11 @@ spec:
           image: postgres:latest
           ports:
             - containerPort: 5432
-          env:
-            - name: POSTGRES_DB
-              valueFrom:
-                configMapKeyRef:
-                  name: postgres-users-config
-                  key: POSTGRES_DB
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-users-secrets
-                  key: POSTGRES_USER
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-users-secrets
-                  key: POSTGRES_PASSWORD
+          envFrom:
+            - configMapRef:
+                name: postgres-users-config
+            - secretRef:
+                name: postgres-users-secrets
           volumeMounts:
             - name: postgres-user-data
               mountPath: /var/lib/postgresql/data

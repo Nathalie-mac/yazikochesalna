@@ -20,52 +20,9 @@ spec:
         ports:
           - containerPort: 9092
           - containerPort: 9093
-        env:
-          - name: KAFKA_PROCESS_ROLES
-            valueFrom:
-              configMapKeyRef:
-                name: kafka-message-storage-config
-                key: KAFKA_PROCESS_ROLES
-          - name: KAFKA_NODE_ID
-            valueFrom:
-              configMapKeyRef:
-                name: kafka-message-storage-config
-                key: KAFKA_NODE_ID
-          - name: KAFKA_CONTROLLER_QUORUM_VOTERS
-            valueFrom:
-              configMapKeyRef:
-                name: kafka-message-storage-config
-                key: KAFKA_CONTROLLER_QUORUM_VOTERS
-          - name: KAFKA_LISTENERS
-            valueFrom:
-              configMapKeyRef:
-                name: kafka-message-storage-config
-                key: KAFKA_LISTENERS
-          - name: KAFKA_ADVERTISED_LISTENERS
-            valueFrom:
-              configMapKeyRef:
-                name: kafka-message-storage-config
-                key: KAFKA_ADVERTISED_LISTENERS
-          - name: KAFKA_INTER_BROKER_LISTENER_NAME
-            valueFrom:
-              configMapKeyRef:
-                name: kafka-message-storage-config
-                key: KAFKA_INTER_BROKER_LISTENER_NAME
-          - name: KAFKA_CONTROLLER_LISTENER_NAMES
-            valueFrom:
-              configMapKeyRef:
-                name: kafka-message-storage-config
-                key: KAFKA_CONTROLLER_LISTENER_NAMES
-          - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
-            valueFrom:
-              configMapKeyRef:
-                name: kafka-message-storage-config
-                key: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
-          - name: CLUSTER_ID
-            valueFrom:
-              configMapKeyRef:
-                name: kafka-message-storage-config
-                key: CLUSTER_ID
+        envFrom:
+          - configMapRef:
+              name: kafka-message-storage-config
         volumeMounts:
           - name: kafka-message-storage
             mountPath: /data
@@ -74,7 +31,6 @@ spec:
             port: 9092
           initialDelaySeconds: 30
           periodSeconds: 10
-
       volumes:
         - name: kafka-message-storage
           persistentVolumeClaim:

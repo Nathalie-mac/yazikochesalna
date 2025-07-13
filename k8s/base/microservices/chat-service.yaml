@@ -24,92 +24,15 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
-          env:
-            - name: SERVER_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: chat-service-config
-                  key: SERVER_PORT
-            - name: SPRING_DATASOURCE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: chat-service-config
-                  key: SPRING_DATASOURCE_URL
-            - name: SPRING_DATASOURCE_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: chat-service-config
-                  key: SPRING_DATASOURCE_HOST
-            - name: SPRING_DATASOURCE_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: chat-service-config
-                  key: SPRING_DATASOURCE_PORT
-            - name: SPRING_DATASOURCE_DATABASE
-              valueFrom:
-                configMapKeyRef:
-                  name: chat-service-config
-                  key: SPRING_DATASOURCE_DATABASE
-            - name: SPRING_DATASOURCE_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: chat-service-secrets
-                  key: SPRING_DATASOURCE_USERNAME
-            - name: SPRING_DATASOURCE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: chat-service-secrets
-                  key: SPRING_DATASOURCE_PASSWORD
-            - name: JWT_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: general-service-secrets
-                  key: JWT_SECRET_KEY
-            - name: JWT_ACCESS_TOKEN_EXPIRATION
-              valueFrom:
-                configMapKeyRef:
-                  name: general-service-config
-                  key: JWT_ACCESS_TOKEN_EXPIRATION
-            - name: JWT_REFRESH_TOKEN_EXPIRATION
-              valueFrom:
-                configMapKeyRef:
-                  name: general-service-config
-                  key: JWT_REFRESH_TOKEN_EXPIRATION
-            - name: WEBCLIENT_TIMEOUT
-              valueFrom:
-                configMapKeyRef:
-                  name: general-service-config
-                  key: WEBCLIENT_TIMEOUT
-            - name: CHAT_SERVICE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: general-service-config
-                  key: CHAT_SERVICE_URL
-            - name: MESSAGE_STORAGE_SERVICE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: general-service-config
-                  key: MESSAGE_STORAGE_SERVICE_URL
-            - name: MESSAGING_SERVICE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: general-service-config
-                  key: MESSAGING_SERVICE_URL
-            - name: USER_SERVICE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: general-service-config
-                  key: USER_SERVICE_URL
-            - name: AUTHORIZATION_SERVICE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: general-service-config
-                  key: AUTHORIZATION_SERVICE_URL
-            - name: FRONT_SERVER_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: general-service-config
-                  key: FRONT_SERVER_URL
+          envFrom:
+            - configMapRef:
+                name: chat-service-config
+            - secretRef:
+                name: chat-service-secrets
+            - configMapRef:
+                name: general-service-config
+            - secretRef:
+                name: general-service-secrets
 ---
 apiVersion: v1
 kind: Service

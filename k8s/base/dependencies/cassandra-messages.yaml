@@ -22,47 +22,11 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 9042
-          env:
-            - name: CASSANDRA_USER
-              valueFrom:
-                secretKeyRef:
-                  name: cassandra-messages-secrets
-                  key: CASSANDRA_USER
-            - name: CASSANDRA_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: cassandra-messages-secrets
-                  key: CASSANDRA_PASSWORD
-            - name: CASSANDRA_PASSWORD_SEEDER
-              valueFrom:
-                configMapKeyRef:
-                  name: cassandra-messages-config
-                  key: CASSANDRA_PASSWORD_SEEDER
-            - name: CASSANDRA_CLUSTER_NAME
-              valueFrom:
-                configMapKeyRef:
-                  name: cassandra-messages-config
-                  key: CASSANDRA_CLUSTER_NAME
-            - name: CASSANDRA_DATACENTER
-              valueFrom:
-                configMapKeyRef:
-                  name: cassandra-messages-config
-                  key: CASSANDRA_DATACENTER
-            - name: CASSANDRA_AUTHENTICATOR
-              valueFrom:
-                configMapKeyRef:
-                  name: cassandra-messages-config
-                  key: CASSANDRA_AUTHENTICATOR
-            - name: CASSANDRA_AUTHORIZER
-              valueFrom:
-                configMapKeyRef:
-                  name: cassandra-messages-config
-                  key: CASSANDRA_AUTHORIZER
-            - name: CASSANDRA_ENABLE_MATERIALIZED_VIEWS
-              valueFrom:
-                configMapKeyRef:
-                  name: cassandra-messages-config
-                  key: CASSANDRA_ENABLE_MATERIALIZED_VIEWS
+          envFrom:
+            - configMapRef:
+                name: cassandra-messages-config
+            - secretRef:
+                name: cassandra-messages-secrets
           volumeMounts:
             - name: cassandra-messages-data
               mountPath: /var/lib/cassandra

@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: redis
+  name: redis-websocket-tokens
   labels:
-    app: redis
+    app: redis-websocket-tokens
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: redis
+      app: redis-websocket-tokens
   template:
     metadata:
       labels:
-        app: redis
+        app: redis-websocket-tokens
     spec:
       containers:
-        - name: redis
+        - name: redis-websocket-tokens
           image: redis:7.0-alpine
           ports:
             - containerPort: 6379
@@ -35,13 +35,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis
+  name: redis-websocket-tokens
 spec:
   ports:
     - port: 6379
       targetPort: 6379
   selector:
-    app: redis
+    app: redis-websocket-tokens
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
