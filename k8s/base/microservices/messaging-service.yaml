@@ -25,6 +25,7 @@ spec:
       containers:
         - name: messaging-service
           image: registry.gitlab.com/liza.antipa/yazikochesalna/messaging-service:main
+          imagePullPolicy: Always
           ports:
             - containerPort: 8082
           env:

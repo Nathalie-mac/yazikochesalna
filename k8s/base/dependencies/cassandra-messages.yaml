@@ -20,6 +20,7 @@ spec:
       containers:
         - name: cassandra-messages
           image: registry.gitlab.com/liza.antipa/yazikochesalna/cassandra:main
+          imagePullPolicy: Always
           ports:
             - containerPort: 9042
           env:

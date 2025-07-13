@@ -22,6 +22,7 @@ spec:
       containers:
         - name: chat-service
           image: registry.gitlab.com/liza.antipa/yazikochesalna/chat-service:main
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           env:
