@@ -11,4 +11,4 @@ data:
   MESSAGING_SERVICE_URL: "http://messaging-service.messenger.svc.cluster.local:8082"
   USER_SERVICE_URL: "http://user-service.messenger.svc.cluster.local:8083"
   AUTHORIZATION_SERVICE_URL: "http://authorization-service.messenger.svc.cluster.local:8085"
-  FRONT_SERVER_URL: "http://front-server.messenger.svc.cluster.local:5173"
+  FRONT_SERVER_URL: "http://localhost:5173,http://xn--80ajfmhmdz6cwbs0al.xn--p1ai:80,http://xn--80ajfmhmdz6cwbs0al.xn--p1ai:8080,http://xn--80ajfmhmdz6cwbs0al.xn--p1ai:443,http://xn--80ajfmhmdz6cwbs0al.xn--p1ai"
