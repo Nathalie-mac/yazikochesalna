@@ -29,17 +29,14 @@ spec:
         livenessProbe:
           tcpSocket:
             port: 9092
-          initialDelaySeconds: 70
+          initialDelaySeconds: 60
           periodSeconds: 10
-#        readinessProbe:
-#          exec:
-#            command:
-#              - /bin/sh
-#              - -c
-#              - kafka-topics --bootstrap-server localhost:9094 --list
-#          initialDelaySeconds: 60
-#          periodSeconds: 10
-#          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command: ["/bin/kafka-topics", "--bootstrap-server", "localhost:9094", "--list"]
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
       volumes:
         - name: kafka-message-storage
           persistentVolumeClaim:
@@ -54,9 +51,6 @@ spec:
     - name: plaintext
       port: 9092
       targetPort: 9092
-    - name: plaintext-local
-      port: 9094
-      targetPort: 9094
     - name: controller
       port: 9093
       targetPort: 9093
