@@ -19,4 +19,10 @@ object CassandraQueries {
         ORDER BY send_time ASC 
         LIMIT ?
     """
+
+    const val WITHOUT_CURSOR_SELECT = """
+        SELECT * FROM messages_by_chat
+        WHERE chat_id = ?
+        LIMIT ?
+    """
 }

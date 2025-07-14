@@ -45,7 +45,7 @@ class FrontController(
                     )]),
             ApiResponse(
                 responseCode = "400",
-                description = "Некорректные параметры: лимиты превышают 100 или null, или cursor = null!"
+                description = "Некорректные параметры: лимиты >100 или <0 или null, или некорректный формат курсора"
             ),
             ApiResponse(
                 responseCode = "404",
@@ -55,20 +55,21 @@ class FrontController(
     )
     fun getMessages(
         @PathVariable chatId: Long,
-        @RequestParam(required = false) limitUp: Int?,
-        @RequestParam(required = false) limitDown: Int?,
+        @RequestParam(required = true) limitUp: Int,
+        @RequestParam(required = true) limitDown: Int,
         @RequestParam(required = false) cursor: UUID?
     ): ResponseEntity<List<MessagesJsonFormatDTO>?> {
         //Тащим id пользователя
         var userId = (SecurityContextHolder.getContext().authentication as? JwtAuthenticationToken)?.userId
 
         // Валидация параметров limit & cursor
-        if (!isLimitCorrect(limitUp, limitDown)) {
+        if (isLimitIncorrect(limitUp, limitDown)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
-        if (cursor == null){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
-        }
+
+//        if (cursor == null){
+//            return ResponseEntity.status(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED).build()
+//        }
 
 
         //Получаем сообщения
@@ -93,7 +94,7 @@ class FrontController(
 
     }
 
-    private fun isLimitCorrect(limitUp: Int?, limitDown: Int?): Boolean =
-        !((limitUp != null && (limitUp < 0 || limitUp > MAX_LIMIT)) ||
-                (limitDown != null && (limitDown < 0 || limitDown > MAX_LIMIT)))
+    private fun isLimitIncorrect(limitUp: Int, limitDown: Int): Boolean =
+        (limitUp < 0 || limitUp > MAX_LIMIT) ||
+                (limitDown < 0 || limitDown > MAX_LIMIT)
 }

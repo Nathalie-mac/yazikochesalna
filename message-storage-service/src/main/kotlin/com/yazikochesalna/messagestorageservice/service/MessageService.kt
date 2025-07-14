@@ -38,16 +38,18 @@ class MessageService(
     private fun isChatMember(userId: Long, chatId: Long): Boolean =
         chatServiceClient.checkUserInChat(userId, chatId)
 
-    fun getMessagesAroundCursor(userId: Long, chatId: Long, cursor: UUID, limitUp: Int, limitDown: Int): List<MessagesJsonFormatDTO>{
+    fun getMessagesAroundCursor(userId: Long, chatId: Long, cursor: UUID?, limitUp: Int, limitDown: Int): List<MessagesJsonFormatDTO>{
         if (!isChatMember(userId, chatId)) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND)
         }
        return getCassandraMessages(chatId, cursor, limitUp, limitDown)
     }
 
-    fun getCassandraMessages(chatId: Long, cursor: UUID, limitUp: Int, limitDown: Int): List<MessagesJsonFormatDTO>{
-        val cassandraMessages = messageRepository.findMessagesByCursor(chatId, cursor, limitUp, limitDown)
-
+    fun getCassandraMessages(chatId: Long, cursor: UUID?, limitUp: Int, limitDown: Int): List<MessagesJsonFormatDTO>{
+        val cassandraMessages: Flux<Message> = when (cursor) {
+            null -> messageRepository.findMessagesWithoutCursor(chatId, limitUp)
+            else -> messageRepository.findMessagesByCursor(chatId, cursor, limitUp, limitDown)
+        }
         return cassandraMessages
             .map { message -> cassandraEntitiesConvertor.convertToMessagesJsonFormatDto(message)}
             .collectList()

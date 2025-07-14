@@ -25,6 +25,7 @@ open class CustomMessageRepositoryImpl(
     private lateinit var cursorMessageSelectStmt: String
     private lateinit var beforeCursorSelectStmt: String
     private lateinit var afterCursorSelectStmt: String
+    private lateinit var withoutCursorSelectStmt: String
 
     @PostConstruct
     fun init() {
@@ -33,6 +34,8 @@ open class CustomMessageRepositoryImpl(
         afterCursorSelectStmt = CassandraQueries.AFTER_CURSOR_SELECT.trimIndent()
 
         cursorMessageSelectStmt = CassandraQueries.CURSOR_MESSAGE_SELECT.trimIndent()
+
+        withoutCursorSelectStmt = CassandraQueries.WITHOUT_CURSOR_SELECT.trimIndent()
     }
 
     override fun findMessagesByCursor(
@@ -75,9 +78,8 @@ open class CustomMessageRepositoryImpl(
                 afterMessagesFlux
             ).map { tuple ->
                 val finalList = mutableListOf<Message>()
-                val beforeMessages = tuple.t1.filterNotNull()
-                val afterMessages  = tuple.t2.filterNotNull()
-
+                val beforeMessages = tuple.t1
+                val afterMessages  = tuple.t2
 
                 finalList.addAll(beforeMessages.reversed())
                 finalList.add(cursorMessage)
@@ -87,6 +89,14 @@ open class CustomMessageRepositoryImpl(
             }.flatMapIterable { it }
         }
     }
+
+    override fun findMessagesWithoutCursor(chatId: Long, limitUp: Int): Flux<Message> =
+        reactiveCqlTemplate.query(
+            withoutCursorSelectStmt,
+            { rs, _ -> deserializeMessage(rs) },
+            chatId, limitUp
+        ).collectList()
+            .flatMapMany { messages -> Flux.fromIterable(messages.asReversed()) }
 
 
     private fun deserializeMessage(rs: Row): Message = kotlin.runCatching {
