@@ -53,11 +53,10 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/swagger-resources/**",
                                 "/v3/api-docs/**",
-                                "/test-user/**",
                                 "/error",
-                                "/ws"
+                                "/api/v1/ws"
                         ).permitAll()
-                        .anyRequest().permitAll()//authenticated()
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .exceptionHandling(exceptions -> exceptions
