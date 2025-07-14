@@ -66,7 +66,7 @@ public class ChatService {
             chat.addMember(new ChatUser(null, ownerId, null, chat));
         }
         chatRepository.save(chat);
-        chat.getMembers().forEach(member -> messagingServiceClient.sendMemberAddedNotification(chat.getId(),member.getId()));
+        chat.getMembers().forEach(member -> messagingServiceClient.sendMemberAddedNotification(member.getId(), chat.getId()));
         return new CreateChatResponse(chat.getId());
     }
 
@@ -177,7 +177,7 @@ public class ChatService {
         userService.validateUsers(List.of(userId, partnerId));
         try {
             chatRepository.save(chat);
-            chat.getMembers().forEach(member -> messagingServiceClient.sendMemberAddedNotification(chat.getId(),member.getId()));
+            chat.getMembers().forEach(member -> messagingServiceClient.sendMemberAddedNotification(member.getId(), chat.getId()));
         } catch (DataIntegrityViolationException e) {
             //Ожидаемое исключение. Чат мог быть добавлен параллельно в другом потоке/запросе
         }

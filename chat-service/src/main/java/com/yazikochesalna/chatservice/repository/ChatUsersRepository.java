@@ -16,6 +16,7 @@ public interface ChatUsersRepository extends JpaRepository<ChatUser, Long> {
 
     ChatUser getChatUserByChatIdAndUserId(long chatId, long userId);
 
+    @Query("SELECT cu FROM ChatUser cu WHERE cu.chat.id = :chatId")
     List<ChatUser> getChatUsersByChatId(long chatId);
 
     @Modifying
