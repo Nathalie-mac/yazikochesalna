@@ -31,15 +31,15 @@ spec:
             port: 9092
           initialDelaySeconds: 70
           periodSeconds: 10
-        readinessProbe:
-          exec:
-            command:
-              - /bin/sh
-              - -c
-              - kafka-topics --bootstrap-server localhost:9094 --list
-          initialDelaySeconds: 60
-          periodSeconds: 10
-          timeoutSeconds: 5
+#        readinessProbe:
+#          exec:
+#            command:
+#              - /bin/sh
+#              - -c
+#              - kafka-topics --bootstrap-server localhost:9094 --list
+#          initialDelaySeconds: 60
+#          periodSeconds: 10
+#          timeoutSeconds: 5
       volumes:
         - name: kafka-message-storage
           persistentVolumeClaim:
