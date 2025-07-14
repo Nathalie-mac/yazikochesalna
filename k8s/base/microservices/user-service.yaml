@@ -16,8 +16,29 @@ spec:
         - name: gitlab-regcred
       initContainers:
         - name: wait-for-postgres
-          image: busybox
-          command: [ "/bin/sh", "-c", "until nc -z postgres-users.messenger.svc.cluster.local 5432; do echo waiting for postgres-users; sleep 5; done; echo postgres-user is up;" ]
+          image: postgres:latest
+          env:
+            - name: PG_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: user-service-config
+                  key: SPRING_DATASOURCE_HOST
+            - name: PG_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: user-service-config
+                  key: SPRING_DATASOURCE_PORT
+            - name: PG_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: user-service-config
+                  key: SPRING_DATASOURCE_DATABASE
+            - name: PG_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: user-service-secrets
+                  key: SPRING_DATASOURCE_USERNAME
+          command: ["sh", "-c", "until pg_isready -h $PG_HOST -p $PG_PORT -U $PG_USERNAME -d postgres; do echo 'waiting for postgres-chat'; sleep 5; done; echo 'postgres-chat is up';"]
       containers:
         - name: user-service
           image: registry.gitlab.com/liza.antipa/yazikochesalna/user-service:main
