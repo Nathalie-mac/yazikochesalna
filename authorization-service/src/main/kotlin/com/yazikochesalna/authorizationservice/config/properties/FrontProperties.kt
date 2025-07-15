@@ -9,5 +9,5 @@ import org.springframework.stereotype.Component
 @ConfigurationProperties(prefix = "front.server")
 @Data
 class FrontProperties {
-    public lateinit var url: String
+    lateinit var origins: List<String>
 }

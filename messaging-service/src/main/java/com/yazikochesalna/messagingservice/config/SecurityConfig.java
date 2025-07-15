@@ -1,7 +1,6 @@
 package com.yazikochesalna.messagingservice.config;
 
 import com.yazikochesalna.common.filter.JwtFilter;
-import com.yazikochesalna.messagingservice.config.properties.ChatServiceProperties;
 import com.yazikochesalna.messagingservice.config.properties.FrontendProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -30,7 +29,6 @@ public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
     private final FrontendProperties frontendProperties;
-    private final ChatServiceProperties chatServiceProperties;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -39,9 +37,7 @@ public class SecurityConfig {
                 .cors(cors -> cors
                         .configurationSource(request -> {
                             CorsConfiguration config = new CorsConfiguration();
-                            config.setAllowedOrigins(List.of(
-                                    chatServiceProperties.getUrl(),
-                                    frontendProperties.getUrl()));
+                            config.setAllowedOrigins(frontendProperties.getOrigins());
                             config.setAllowedMethods(List.of("GET", "POST"));
                             config.setAllowedHeaders(List.of("*"));
                             config.setAllowCredentials(true);
