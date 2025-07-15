@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.naming.ServiceUnavailableException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
@@ -35,6 +36,28 @@ public class UploadMinioService {
 
     private final ContentTypeMetadataExtractor contentTypeMetadataExtractor;
     private final CommonService commonService;
+    private final UserClientService userClientService;
+
+    public UploadResponseDTO uploadProfilePicture(MultipartFile file, RequestDTO metadata)
+    {
+        try {
+            String objectName = generateFolderName(metadata);
+            Map<String, String> userMetadata = buildProfilePictureMetadata(file, metadata);
+
+            uploadFile(file, objectName, userMetadata);
+
+            String fileUUID = extractFileIdFromObjectName(objectName);
+            userClientService.updateFileUuid(metadata.getUserID(), fileUUID);
+
+            return new UploadResponseDTO(extractFileIdFromObjectName(objectName));
+        } catch (IllegalArgumentException e) {
+            throw new MinioUploadCustomException("Invalid input parameters: " + e.getMessage());
+        } catch (IOException e) {
+            throw new MinioUploadCustomException("File processing error: " + e.getMessage());
+        } catch (ServiceUnavailableException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public UploadResponseDTO uploadFileWithMetadata(MultipartFile file, RequestDTO metadata)
     {
@@ -51,6 +74,7 @@ public class UploadMinioService {
             throw new MinioUploadCustomException("File processing error: " + e.getMessage());
         }
     }
+
     public void uploadFile(MultipartFile file, String objectName, Map<String, String> userMetadata)
     {
         commonService.isCreatedBucket();
@@ -79,6 +103,15 @@ public class UploadMinioService {
         Map<String, String> userMetadata = new HashMap<>();
 
         addBasicMetadata(userMetadata, file);
+        addServiceMetadata(userMetadata, metadata);
+
+        return userMetadata;
+    }
+
+    private Map<String, String> buildProfilePictureMetadata(MultipartFile file, RequestDTO metadata) throws IOException {
+        Map<String, String> userMetadata = new HashMap<>();
+
+        userMetadata.put(MetadataKeys.ORIGINAL_FILENAME.getKey(), file.getOriginalFilename());
         addServiceMetadata(userMetadata, metadata);
 
         return userMetadata;

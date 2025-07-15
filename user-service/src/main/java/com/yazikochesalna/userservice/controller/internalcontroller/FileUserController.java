@@ -4,7 +4,9 @@ import com.yazikochesalna.userservice.advice.ValidationCustomException;
 import com.yazikochesalna.userservice.data.repository.UsersRepository;
 import com.yazikochesalna.userservice.dto.FileUpdateRequestDTO;
 import com.yazikochesalna.userservice.service.internalservice.FileUserService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +21,8 @@ public class FileUserController {
     private UsersRepository usersRepository;
 
     @PatchMapping("/update-file")
+    @RolesAllowed("SERVICE")
+    @Hidden
     public ResponseEntity<Void> updateFileUuid(
             @RequestBody FileUpdateRequestDTO requestDTO) {
 
