@@ -43,26 +43,6 @@ public class MinioController {
     private final DownloadMinioService downloadMinioService;
     private final CommonService commonService;
 
-
-    @PostMapping("/upload-profile-picture")
-    @Operation(summary = "Загрузить аватарку в хранилище",
-            description = "Принимает файл, userID. Возвращает fileUUID")
-    public ResponseEntity<UploadResponseDTO> uploadProfilePicture(
-            @RequestParam("file") @NotNull MultipartFile file,
-            @ModelAttribute RequestDTO metadata) {
-
-        try {
-            if (file.isEmpty()) {
-                throw new NotAttachedException("File is empty or not attached");
-            }
-
-            UploadResponseDTO response = uploadMinioService.uploadProfilePicture(file, metadata);
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
-        }
-    }
-
     @PostMapping("/upload")
     @Operation(summary = "Загрузить файл в хранилище",
             description = "Принимает файл, chatID, messageID или файл, userID. Возвращает fileUUID")

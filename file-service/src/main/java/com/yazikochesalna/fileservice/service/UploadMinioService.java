@@ -36,28 +36,6 @@ public class UploadMinioService {
 
     private final ContentTypeMetadataExtractor contentTypeMetadataExtractor;
     private final CommonService commonService;
-    private final UserClientService userClientService;
-
-    public UploadResponseDTO uploadProfilePicture(MultipartFile file, RequestDTO metadata)
-    {
-        try {
-            String objectName = generateFolderName(metadata);
-            Map<String, String> userMetadata = buildProfilePictureMetadata(file, metadata);
-
-            uploadFile(file, objectName, userMetadata);
-
-            String fileUUID = extractFileIdFromObjectName(objectName);
-            userClientService.updateFileUuid(metadata.getUserID(), fileUUID);
-
-            return new UploadResponseDTO(extractFileIdFromObjectName(objectName));
-        } catch (IllegalArgumentException e) {
-            throw new MinioUploadCustomException("Invalid input parameters: " + e.getMessage());
-        } catch (IOException e) {
-            throw new MinioUploadCustomException("File processing error: " + e.getMessage());
-        } catch (ServiceUnavailableException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public UploadResponseDTO uploadFileWithMetadata(MultipartFile file, RequestDTO metadata)
     {

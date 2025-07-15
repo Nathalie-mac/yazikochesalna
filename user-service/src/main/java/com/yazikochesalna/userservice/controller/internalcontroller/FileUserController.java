@@ -21,8 +21,6 @@ public class FileUserController {
     private UsersRepository usersRepository;
 
     @PatchMapping("/update-file")
-    @RolesAllowed("SERVICE")
-    @Hidden
     public ResponseEntity<Void> updateFileUuid(
             @RequestBody FileUpdateRequestDTO requestDTO) {
 
