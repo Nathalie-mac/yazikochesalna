@@ -153,4 +153,5 @@ deploy-kustomize:
     # Применяем манифесты с помощью kustomize
     - kubectl -n messenger delete secret gitlab-regcred
     - kubectl -n messenger apply -k .
-
+    # Принудительно обновляем образы
+    - kubectl get deployments -n messenger -o name | xargs -I {} kubectl rollout restart {} -n messenger
