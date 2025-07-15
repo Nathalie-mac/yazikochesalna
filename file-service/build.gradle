@@ -47,6 +47,8 @@ dependencies {
     implementation 'org.apache.tika:tika-core:3.2.1'
     implementation 'org.apache.tika:tika-parsers-standard-package:3.2.1'
 
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
     implementation(project(":jwt-module"))
 }
 

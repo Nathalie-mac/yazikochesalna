@@ -2,8 +2,7 @@ package com.yazikochesalna.userservice.controller.externalcontroller;
 
 import com.yazikochesalna.userservice.data.entity.Users;
 import com.yazikochesalna.userservice.dto.ExternalSearchDTO;
-import com.yazikochesalna.userservice.dto.SearchDTO;
-import com.yazikochesalna.userservice.service.UserSearchService;
+import com.yazikochesalna.userservice.service.externalservice.UserSearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;

@@ -1,4 +1,4 @@
-package com.yazikochesalna.userservice.service;
+package com.yazikochesalna.userservice.service.externalservice;
 
 import com.yazikochesalna.userservice.data.entity.Users;
 import com.yazikochesalna.userservice.data.repository.UsersRepository;

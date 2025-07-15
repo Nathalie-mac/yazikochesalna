@@ -1,4 +1,4 @@
-package com.yazikochesalna.userservice.service;
+package com.yazikochesalna.userservice.service.internalservice;
 
 import com.yazikochesalna.userservice.advice.UserAlreadyExistsCustomException;
 import com.yazikochesalna.userservice.advice.ValidationCustomException;
@@ -11,7 +11,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class InternalUserService {
+public class AuthUserService {
 
     private final UsersRepository usersRepository;
 
