@@ -11,9 +11,6 @@ kotlin {
 group = 'com.yazikochesalna'
 version = "0.0.1-SNAPSHOT"
 
-bootJar {
-    archiveFileName = 'authorization-service.jar'
-}
 
 configurations {
     compileOnly {
@@ -23,10 +20,6 @@ configurations {
 
 repositories {
     mavenCentral()
-}
-
-springBoot {
-    mainClass = 'com.yazikochesalna.authorizationservice.AuthorizationServiceApplicationKt'
 }
 
 dependencies {

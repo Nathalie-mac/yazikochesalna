@@ -19,11 +19,6 @@ repositories {
 
 bootJar{
     mainClass = 'com.yazikochesalna.userservice.UserServiceApplication'
-    archiveFileName = 'user-service.jar'
-}
-
-bootJar {
-    archiveFileName = 'user-service.jar'
 }
 
 dependencies {
