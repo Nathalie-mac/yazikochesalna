@@ -11,7 +11,7 @@ import java.util.List;
 public record CreateChatRequest(
         @NotNull @NotEmpty String title,
         @Nullable String description,
-        @Nullable List<Long> memberIds
+        @Nullable List<Long> membersIds
 ) {
 
 }

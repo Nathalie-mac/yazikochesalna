@@ -10,7 +10,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import java.time.Duration
-
+private const val MAPPING_STRING: String = "%s/api/v1/chats/check/%d/%d"
 
 @EnableConfigurationProperties(ChatServiceProperties::class)
 @Component
@@ -19,11 +19,11 @@ open class ChatServiceClient(private val webClient: WebClient,
     private val chatServiceProperties: ChatServiceProperties,
     ) {
     private val log: Logger = LoggerFactory.getLogger(ChatServiceClient::class.java)
-    private val mapping: String = "%s/api/v1/chats/check/%d/%d"
+
 
     fun checkUserInChat(userId: Long, chatId:Long): Boolean {
-        var url = String.format(mapping, chatServiceProperties.url, chatId, userId);
-        return try {
+        var url = String.format(MAPPING_STRING, chatServiceProperties.url, chatId, userId);
+        return kotlin.runCatching {
             webClient.get()
                 .uri(url)
                 .headers { headers ->
@@ -36,10 +36,12 @@ open class ChatServiceClient(private val webClient: WebClient,
                             //log.debug("Все гуд chatId = $chatId")
                             Mono.just(false)
                         }
+
                         response.statusCode() == HttpStatus.INTERNAL_SERVER_ERROR -> {
                             //log.error("Все бэд 500 chatId=$chatId, userId=$userId")
                             Mono.just(false)
                         }
+
                         else -> {
                             log.error("Unexpected HTTP code from ChatService: ${response.statusCode()}")
                             response.createError()
@@ -51,8 +53,7 @@ open class ChatServiceClient(private val webClient: WebClient,
                     Mono.just(false)
                 }
                 .block(Duration.ofSeconds(10)) ?: false
-        } catch (e: Exception) {
-            //log.error("Критическая ошибка в block()", e)
+        }.getOrElse { e ->
             log.error("Could not proccess answer from ChatService ${e.message}")
             false
         }

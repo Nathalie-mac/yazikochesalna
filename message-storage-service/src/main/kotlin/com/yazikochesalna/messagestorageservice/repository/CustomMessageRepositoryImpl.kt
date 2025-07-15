@@ -2,10 +2,7 @@ package com.yazikochesalna.messagestorageservice.repository
 
 import com.datastax.dse.driver.api.core.cql.reactive.ReactiveSession
 import com.datastax.oss.driver.api.core.cql.Row
-import com.datastax.oss.driver.api.core.metadata.schema.ClusteringOrder
-import com.datastax.oss.driver.api.querybuilder.QueryBuilder.literal
-import com.datastax.oss.driver.api.querybuilder.QueryBuilder.selectFrom
-import com.yazikochesalna.messagestorageservice.exception.NullCassandraFiledException
+import com.yazikochesalna.messagestorageservice.exception.customexceptions.NullCassandraFiledException
 import com.yazikochesalna.messagestorageservice.model.db.Message
 import com.yazikochesalna.messagestorageservice.model.enums.MessageType
 import jakarta.annotation.PostConstruct

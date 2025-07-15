@@ -30,7 +30,7 @@ public class UserProfileService {
 
         Users user = findUser(id);
         String login = authorizationClientService.getUserLogin(id);
-        PersonalProfileDTO profileDTO = new PersonalProfileDTO(user.getUsername(), login);
+        PersonalProfileDTO profileDTO = new PersonalProfileDTO(user.getUsername(), user.getId(), login);
         return profileDTO;
     }
 

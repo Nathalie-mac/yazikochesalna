@@ -11,6 +11,8 @@ public record ShortChatInfoResponse (
         UUID lastReadMessageId,
         @NotNull
         ChatType type,
+
+        Long ownerId,
         @NotNull
         List<Long> members
 )

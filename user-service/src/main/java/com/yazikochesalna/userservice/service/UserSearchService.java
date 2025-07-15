@@ -1,5 +1,6 @@
 package com.yazikochesalna.userservice.service;
 
+import com.yazikochesalna.userservice.data.entity.Users;
 import com.yazikochesalna.userservice.data.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +18,7 @@ public class UserSearchService {
     private static final int numberFoundUsers = 40;
 
     @Transactional(readOnly = true)
-    public List<Long> findUserIdsByUsernameStartsWith(String usernamePrefix) {
+    public List<Users> findUserIdsByUsernameStartsWith(String usernamePrefix) {
         // Используем Pageable для ограничения количества результатов (максимум 40)
         Pageable limit = Pageable.ofSize(numberFoundUsers);
         return usersRepository.findUserIdsByUsernameStartingWith(usernamePrefix, limit);

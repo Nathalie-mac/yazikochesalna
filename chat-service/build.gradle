@@ -28,6 +28,9 @@ repositories {
     mavenCentral()
 }
 
+springBoot {
+    mainClass = 'com.yazikochesalna.chatservice.ChatServiceApplication'
+}
 
 dependencies {
     //basic

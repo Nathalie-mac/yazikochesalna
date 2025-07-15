@@ -1,6 +1,6 @@
 package com.yazikochesalna.messagestorageservice.model.enums
 
-import com.yazikochesalna.messagestorageservice.exception.ErrorInMessageTypeException
+import com.yazikochesalna.messagestorageservice.exception.customexceptions.ErrorInEnumException
 
 enum class MessageType(val type: String) {
     MESSAGE("MESSAGE"),
@@ -11,10 +11,11 @@ enum class MessageType(val type: String) {
 
     companion object {
         fun fromType(type: String?): MessageType {
-            return type?.let { type ->
-                entries.firstOrNull { it.type == type }
-                    ?: throw ErrorInMessageTypeException("Unknown MessageType: $type")
-            } ?: throw ErrorInMessageTypeException("Message type cannot be null!")
+            if (type == null) {
+                throw ErrorInEnumException("Message type cannot be null!")
+            }
+            return entries.find { it.type == type }
+                ?:throw ErrorInEnumException("Unknown MessageType: $type")
         }
     }
 }

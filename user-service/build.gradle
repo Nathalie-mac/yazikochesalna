@@ -22,6 +22,10 @@ bootJar{
     archiveFileName = 'user-service.jar'
 }
 
+bootJar {
+    archiveFileName = 'user-service.jar'
+}
+
 dependencies {
     //basic
     implementation 'org.springframework.boot:spring-boot-starter-web'

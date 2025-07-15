@@ -55,11 +55,11 @@ public class ChatService {
         chat.setGroupChatDetails(details);
         details.setChat(chat);
 
-        if (request.memberIds() != null) {
-            userService.validateUsers(request.memberIds());
-            List<ChatUser> members = request.memberIds().stream().map(userId -> new ChatUser(null, userId, null, chat)).toList();
+        if (request.membersIds() != null) {
+            userService.validateUsers(request.membersIds());
+            List<ChatUser> members = request.membersIds().stream().map(userId -> new ChatUser(null, userId, null, chat)).toList();
             chat.setMembers(members);
-            if (!request.memberIds().contains(ownerId)) {
+            if (!request.membersIds().contains(ownerId)) {
                 chat.addMember(new ChatUser(null, ownerId, null, chat));
             }
         } else {
@@ -128,10 +128,12 @@ public class ChatService {
         if (user.isEmpty()) {
             return null;
         }
+        Long ownerId = chat.getGroupChatDetails() != null ? chat.getGroupChatDetails().getOwnerId() : null;
         final List<Long> members = chat.getMembers().stream().map(ChatUser::getUserId).toList();
         final ShortChatInfoResponse response = new ShortChatInfoResponse(
                 user.get().getLastReadMessageId(),
                 chat.getType(),
+                ownerId,
                 members
         );
         return response;
