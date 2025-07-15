@@ -60,4 +60,4 @@ user:
     url: ${USER_SERVICE_URL}
 front:
   server:
-    url: ${FRONT_SERVER_URL}
+    origins: ${FRONT_SERVER_URL}

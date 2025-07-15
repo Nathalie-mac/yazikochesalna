@@ -1,7 +1,6 @@
 package com.yazikochesalna.chatservice.config;
 
 import com.yazikochesalna.chatservice.config.properties.FrontProperties;
-import com.yazikochesalna.chatservice.config.properties.UserServiceProperties;
 import com.yazikochesalna.common.filter.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -29,7 +28,6 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
-    private final UserServiceProperties userServiceProperties;
     private final FrontProperties frontendProperties;
 
     @Bean
@@ -48,9 +46,9 @@ public class SecurityConfig {
                     .cors(cors -> cors
                             .configurationSource(request -> {
                                 CorsConfiguration config = new CorsConfiguration();
-                                config.setAllowedOrigins(List.of(
-                                        userServiceProperties.getUrl(),
-                                        frontendProperties.getUrl()));
+                                config.setAllowedOrigins(
+                                        frontendProperties.getOrigins()
+                                );
                                 config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"));
                                 config.setAllowedHeaders(List.of("*"));
                                 config.setAllowCredentials(true);

@@ -6,5 +6,5 @@ import org.springframework.stereotype.Component
 
 @ConfigurationProperties(prefix = "frontend")
 data class FrontProperties(
-    val url: String
+    val origins: List<String>
 )

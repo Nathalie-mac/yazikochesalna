@@ -38,9 +38,7 @@ open class SecurityConfig(private val jwtFilter: JwtFilter,
                 cors
                     .configurationSource { request: HttpServletRequest? ->
                         val config = CorsConfiguration()
-                        config.allowedOrigins = List.of<String>(
-                            frontProperties.url
-                        )
+                        config.allowedOrigins = frontProperties.origins
                         config.allowedMethods = listOf("GET", "POST")
                         config.allowedHeaders = listOf("*")
                         config.allowCredentials = true
@@ -54,8 +52,6 @@ open class SecurityConfig(private val jwtFilter: JwtFilter,
                     "/swagger-resources/**",
                     "/v3/api-docs/**",
                     "/error",
-                    "/debug/service-token",
-                    frontProperties.url
                 ).permitAll().anyRequest().authenticated()
             }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
