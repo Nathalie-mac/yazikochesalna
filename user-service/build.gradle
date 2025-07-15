@@ -21,6 +21,10 @@ bootJar{
     mainClass = 'com.yazikochesalna.userservice.UserServiceApplication'
 }
 
+bootJar {
+    archiveFileName = 'user-service.jar'
+}
+
 dependencies {
     //basic
     implementation 'org.springframework.boot:spring-boot-starter-web'

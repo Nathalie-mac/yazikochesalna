@@ -11,6 +11,13 @@ kotlin {
 group = 'com.yazikochesalna'
 version = "0.0.1-SNAPSHOT"
 
+springBoot {
+    mainClass = "com.yazikochesalna.messagestorageservice.MessageStorageServiceApplicationKt"
+}
+
+bootJar {
+    archiveFileName = 'message-storage-service.jar'
+}
 
 configurations {
     compileOnly {
