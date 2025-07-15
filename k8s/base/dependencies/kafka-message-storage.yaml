@@ -31,13 +31,7 @@ spec:
             port: 9092
           initialDelaySeconds: 30
           periodSeconds: 10
-          failureThreshold: 10
-#        readinessProbe:
-#          tcpSocket:
-#            port: 9092
-#          initialDelaySeconds: 30
-#          periodSeconds: 10
-#          timeoutSeconds: 5
+          failureThreshold: 5
       volumes:
         - name: kafka-message-storage
           persistentVolumeClaim:
