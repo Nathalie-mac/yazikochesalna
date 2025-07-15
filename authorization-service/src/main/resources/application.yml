@@ -17,6 +17,7 @@ spring:
   liquibase:
     change-log: /db/changelog/db.changelog-master.yml
     default-schema: public
+    enabled: true
 
   config:
     import: optional:file:.env[.properties]
