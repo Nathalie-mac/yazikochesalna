@@ -7,6 +7,7 @@ variables:
 stages:
   - build
   - package
+  - deploy
 
 .build-template: &build-template
   stage: build
@@ -36,7 +37,6 @@ stages:
     - buildah push "$IMAGE_PATH"
     
 # --- Определяем job для каждого сервиса --- #
-
 build-authorization-service:
   <<: *build-template
   variables:
@@ -110,3 +110,52 @@ docker-cassandra:
   variables:
     SERVICE_DIR: "message-storage-service/cassandra"
     DOCKER_IMAGE_NAME: "cassandra"
+
+
+### --- Деплой --- ###
+
+
+deploy-kustomize:
+  stage: deploy
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: always
+  image:
+    name: lachlanevenson/k8s-kubectl:latest
+    entrypoint: [""]
+  script:
+    # Проверка, что переменная установлена
+    - |
+      if [ -z "$KUBECONFIG_CONTENTS" ]; then
+        echo "Ошибка: переменная KUBECONFIG_CONTENTS не установлена"
+        exit 1
+      fi
+
+    # Переход в директорию с kustomization.yaml
+    - cd k8s/overlays/dev
+    # Проверяем путь к файлу
+    - echo "Путь к encoded kubeconfig - $KUBECONFIG_CONTENTS"
+
+    # Читаем содержимое и декодируем
+    - mkdir -p ~/.kube
+    - cat "$KUBECONFIG_CONTENTS" | base64 -d > ~/.kube/config
+    - chmod 600 ~/.kube/config
+    - export KUBECONFIG=~/.kube/config
+
+    # Диагностические команды
+    - kubectl version --client
+    - kubectl config view
+    - kubectl config current-context
+    - kubectl config get-contexts
+    - kubectl version
+    
+    # Проверяем текущий контекст kubectl
+    - kubectl config current-context
+
+    # Применяем манифесты с помощью kustomize
+    - kubectl -n messenger get secret gitlab-regcred && kubectl -n messenger delete secret gitlab-regcred
+    - kubectl -n messenger apply -k .
+    # Принудительно обновляем образы
+    - kubectl get deployments -n messenger -o name | xargs -I {} kubectl rollout restart {} -n messenger
+    # Принудительно обновляем манифесты ingress
+    - kubectl rollout restart deployment -n ingress-nginx ingress-nginx-controller
