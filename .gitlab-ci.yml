@@ -61,7 +61,11 @@ build-frontend:
     # Клонируем фронтенд
     - rm -rf frontend || true
     - git clone git@gitlab.com:$FRONTEND_PROJECT.git frontend
-
+    # Перемещаем нужную папку внутрь frontend
+    - mv messenger-front-repo/messenger-front frontend
+    # Убираем временные файлы
+    - rm -rf messenger-front-repo
+    
     # Устанавливаем зависимости и собираем проект
     - cd frontend
     - npm ci
