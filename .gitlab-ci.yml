@@ -195,13 +195,13 @@ docker-frontend:
 ### --- Деплой --- ###
 
 deploy-services-k8s:
-  <<: &k8s-deploy-template
+  <<: *k8s-deploy-template
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       when: always
     
 manual-deploy-services-k8s:
-  <<: &k8s-deploy-template
+  <<: *k8s-deploy-template
   when: manual
   stage: pre-build
 
