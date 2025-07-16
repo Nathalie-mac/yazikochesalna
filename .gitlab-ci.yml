@@ -135,10 +135,9 @@ deploy-kustomize:
 #    - package:service1
 
 drop-k8s:
-  image: bitnami/kubectl:latest
   stage: deploy
   when: manual
-   image:
+  image:
     name: lachlanevenson/k8s-kubectl:latest
     entrypoint: [""]
   allow_failure: true
