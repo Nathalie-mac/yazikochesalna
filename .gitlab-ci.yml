@@ -129,7 +129,7 @@ deploy-kustomize:
     - kubectl -n messenger get secret gitlab-regcred && kubectl -n messenger delete secret gitlab-regcred
     - kubectl -n messenger apply -k .
     # Принудительно обновляем образы
-    - kubectl get deployments -n messenger -o name | xargs -I {} kubectl rollout restart {} -n messenger
+#    - kubectl get deployments -n messenger -o name | xargs -I {} kubectl rollout restart {} -n messenger
     # Принудительно обновляем манифесты ingress
     - kubectl rollout restart deployment -n ingress-nginx ingress-nginx-controller
 #  needs:
