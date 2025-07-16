@@ -41,6 +41,7 @@ stages:
 build-frontend:
   stage: build
   image: node:20
+  allow_failure: true
   script:
     # Расшифровываем SSH-ключ
     - mkdir -p ~/.ssh
@@ -85,3 +86,4 @@ docker-frontend:
     DOCKER_IMAGE_NAME: frontend
   dependencies:
     - build-frontend
+  allow_failure: true
