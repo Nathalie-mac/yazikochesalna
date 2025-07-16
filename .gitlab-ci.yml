@@ -123,9 +123,6 @@ deploy-kustomize:
     - kubectl config current-context
     - kubectl config get-contexts
     - kubectl version
-    
-    # Проверяем текущий контекст kubectl
-    - kubectl config current-context
 
     # Применяем манифесты с помощью kustomize
     - kubectl -n messenger get secret gitlab-regcred && kubectl -n messenger delete secret gitlab-regcred
@@ -136,3 +133,40 @@ deploy-kustomize:
     - kubectl rollout restart deployment -n ingress-nginx ingress-nginx-controller
 #  needs:
 #    - package:service1
+
+drop-k8s:
+  image: bitnami/kubectl:latest
+  stage: deploy
+  when: manual
+   image:
+    name: lachlanevenson/k8s-kubectl:latest
+    entrypoint: [""]
+  allow_failure: true
+  script:
+    # Проверка, что переменная установлена
+    - |
+      if [ -z "$KUBECONFIG_CONTENTS" ]; then
+        echo "Ошибка: переменная KUBECONFIG_CONTENTS не установлена"
+        exit 1
+      fi
+
+    # Переход в директорию с kustomization.yaml
+    - cd k8s/overlays/dev
+    # Проверяем путь к файлу
+    - echo "Путь к encoded kubeconfig - $KUBECONFIG_CONTENTS"
+
+    # Читаем содержимое и декодируем
+    - mkdir -p ~/.kube
+    - cat "$KUBECONFIG_CONTENTS" | base64 -d > ~/.kube/config
+    - chmod 600 ~/.kube/config
+    - export KUBECONFIG=~/.kube/config
+
+    # Диагностические команды
+    - kubectl version --client
+    - kubectl config view
+    - kubectl config current-context
+    - kubectl config get-contexts
+    - kubectl version
+
+    # Удаляем конфигурацию
+    - kubectl -n messenger delete -k .
