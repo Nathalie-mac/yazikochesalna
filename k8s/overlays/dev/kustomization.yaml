@@ -16,7 +16,6 @@ resources:
   - secrets/dependencies/postgres-users-secrets.yaml
   - secrets/tls/tls-secret-generator.yaml
 
-  - configmaps/nginx-gateway-config.yaml
   - configmaps/microservices/general-service-config.yaml
   - configmaps/microservices/auth-service-config.yaml
   - configmaps/microservices/chat-service-config.yaml
