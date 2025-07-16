@@ -172,7 +172,7 @@ drop-k8s:
     # Удаляем конфигурацию
     - kubectl -n messenger delete -k .
     
-rollout-k8s:
+rollout-services-k8s:
   stage: pre-build
   when: manual
   image:
@@ -205,7 +205,43 @@ rollout-k8s:
     - kubectl config get-contexts
     - kubectl version
 
-    - kubectl get deployments -n my-namespace | \
+    - kubectl get deployments -n messnger | \
         awk 'NR>1 {print $1}' | \
         grep -v "cassandra\\|postgres" | \
-        xargs -r kubectl rollout restart deployment -n my-namespace
+        xargs -r kubectl rollout restart deployment -n messnger
+        
+        
+rollout-all-k8s:
+  stage: pre-build
+  when: manual
+  image:
+    name: lachlanevenson/k8s-kubectl:latest
+    entrypoint: [""]
+  allow_failure: true
+  script:
+    # Проверка, что переменная установлена
+    - |
+      if [ -z "$KUBECONFIG_CONTENTS" ]; then
+        echo "Ошибка: переменная KUBECONFIG_CONTENTS не установлена"
+        exit 1
+      fi
+
+    # Переход в директорию с kustomization.yaml
+    - cd k8s/overlays/dev
+    # Проверяем путь к файлу
+    - echo "Путь к encoded kubeconfig - $KUBECONFIG_CONTENTS"
+
+    # Читаем содержимое и декодируем
+    - mkdir -p ~/.kube
+    - cat "$KUBECONFIG_CONTENTS" | base64 -d > ~/.kube/config
+    - chmod 600 ~/.kube/config
+    - export KUBECONFIG=~/.kube/config
+
+    # Диагностические команды
+    - kubectl version --client
+    - kubectl config view
+    - kubectl config current-context
+    - kubectl config get-contexts
+    - kubectl version
+
+    - kubectl rollout restart deployments -n messnger
