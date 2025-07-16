@@ -1,4 +1,4 @@
-package com.yazikochesalna.messagestorageservice.dto
+package com.yazikochesalna.messagestorageservice.dto.payloads
 
 import lombok.NoArgsConstructor
 
@@ -6,5 +6,6 @@ import lombok.NoArgsConstructor
 class PayLoadMessageDTO(
     var senderId: Long,
     var chatId: Long,
-    var text: String
+    var text: String,
+    var attachments: List<MessageAttachmentDTO>?
 ): PayLoadDTO

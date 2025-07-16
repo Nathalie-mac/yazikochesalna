@@ -2,8 +2,11 @@ package com.yazikochesalna.messagestorageservice.service
 
 import com.yazikochesalna.messagestorageservice.dto.MessagesJsonFormatDTO
 import com.yazikochesalna.messagestorageservice.dto.NewestMessageDTO
-import com.yazikochesalna.messagestorageservice.model.db.CassandraEntitiesConvertor
+import com.yazikochesalna.messagestorageservice.model.db.Attachment
+import com.yazikochesalna.messagestorageservice.model.db.convertor.CassandraEntitiesConvertor
 import com.yazikochesalna.messagestorageservice.model.db.Message
+import com.yazikochesalna.messagestorageservice.model.db.MessageByChat
+import com.yazikochesalna.messagestorageservice.repository.AttachmentRepository
 import com.yazikochesalna.messagestorageservice.repository.MessageByChatRepository
 import com.yazikochesalna.messagestorageservice.repository.MessageRepository
 import org.springframework.http.HttpStatus
@@ -22,18 +25,9 @@ open class MessageService(
     private val chatServiceClient: ChatServiceClient,
     private val messageRepository: MessageRepository,
     private val messageByChatRepository: MessageByChatRepository,
-    private val cassandraEntitiesConvertor: CassandraEntitiesConvertor
-    //private val messagesJSONSerializer: MessagesJSONSerializer
+    private val attachmentRepository: AttachmentRepository,
+    private val cassandraEntitiesConvertor: CassandraEntitiesConvertor,
 ) {
-//    val objectMapper = ObjectMapper().apply {
-//        //registerModule(KotlinModule())
-//        registerModule(SimpleModule().addSerializer(Message::class.java, MessagesJSONSerializer()))
-//    }
-//    val serializer = MessagesJSONSerializer()
-//    val jsonGenerator = objectMapper.createGenerator(StringWriter())
-
-    //val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
-    //val cassandraEntitiesConvertor = CassandraEntitiesConvertor()
 
     private fun isChatMember(userId: Long, chatId: Long): Boolean =
         chatServiceClient.checkUserInChat(userId, chatId)
@@ -71,24 +65,27 @@ open class MessageService(
         if (messages.isEmpty() || messages.size > BATCH_SIZE) {
             return Mono.error(IllegalArgumentException("Invalid batch size"))
         }
-        return saveMessagesToBothTables(
-            Flux
-                .fromIterable(messages
-                    .map { message -> cassandraEntitiesConvertor.convertToMessage(message) })
-        )
-            .then()
+
+        val messagePairs = messages.map { cassandraEntitiesConvertor.convertToMessageWithAttachments(it) }
+        val messages = messagePairs.map { it.first }
+        val messagesByChat = messagePairs.map { cassandraEntitiesConvertor.convertToMessageByChat(it.first) }
+        val attachments = messagePairs.flatMap { it.second }
+
+        return saveMesagesToAllTables(messages, messagesByChat, attachments).then()
     }
 
-
-    private fun saveMessagesToBothTables(messages: Flux<Message>): Flux<Message> {
-        return messages.flatMap { message ->
-            val messageByChat = cassandraEntitiesConvertor.convertToMessageByChat(message)
-            Mono.zip(
-                messageRepository.save(message),
-                messageByChatRepository.save(messageByChat)
-            ).thenReturn(message)
-        }
+    private fun saveMesagesToAllTables(messages: List<Message>, messagesByChat: List<MessageByChat>, attachments: List<Attachment>): Mono<Void> {
+        return Mono.zip(
+            messageRepository.saveAll(messages).collectList(),
+            messageByChatRepository.saveAll(messagesByChat).collectList(),
+            if (attachments.isNotEmpty()) {
+                attachmentRepository.saveAll(attachments).collectList()
+            } else {
+                Mono.just(emptyList())
+            }
+        ).then()
     }
+
 
     fun getNewestMessagesByChat(chatList: List<Long>): List<NewestMessageDTO> {
         return chatList.map { chatId ->
@@ -99,6 +96,4 @@ open class MessageService(
             )
         }
     }
-
-
 }
