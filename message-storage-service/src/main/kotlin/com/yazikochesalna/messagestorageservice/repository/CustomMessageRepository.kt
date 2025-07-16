@@ -8,6 +8,4 @@ interface CustomMessageRepository {
     fun findMessagesByCursor(chatId: Long, cursor: UUID, limitUp: Int, limitDown: Int): Flux<Message>
 
     fun findMessagesWithoutCursor(chatId: Long, limitUp: Int): Flux<Message>
-
-    //fun saveMessagesBatch(messages: List<Message>): Flux<Message>
 }

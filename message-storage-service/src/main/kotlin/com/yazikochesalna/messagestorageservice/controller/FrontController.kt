@@ -3,12 +3,14 @@ package com.yazikochesalna.messagestorageservice.controller
 import com.yazikochesalna.common.authentication.JwtAuthenticationToken
 import com.yazikochesalna.messagestorageservice.dto.MessagesJsonFormatDTO
 import com.yazikochesalna.messagestorageservice.service.MessageService
+import io.swagger.v3.oas.annotations.Hidden
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.annotation.security.RolesAllowed
 import lombok.RequiredArgsConstructor
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -19,11 +21,11 @@ import java.util.*
 
 const val MAX_LIMIT: Int = 100
 
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/messages")
 @SecurityRequirement(name = "bearerAuth")
-class FrontController(
+open class FrontController(
     private val messageService: MessageService
 ) {
     //private val maxLimit: Int = 100
@@ -93,6 +95,38 @@ class FrontController(
 
 
     }
+    @GetMapping("/newest", "/newest/")
+    @RolesAllowed("SERVICE")
+    @Operation(
+        summary = "Получение самого нового сообщения для каждого чата из списка",
+        description = "Внутренний метод для сервиса чатов"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Информация о сообщениях получена",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = MessagesJsonFormatDTO::class)
+                    )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Некорректные параметры: пустой список"
+            ),
+        ]
+    )
+    @Hidden
+    fun getNewestMessagesForChats(@RequestBody(required = true) chatList: List<Long>): ResponseEntity<Any> {
+        if (!chatList.isEmpty()) {
+            val messages = messageService.getNewestMessagesByChat(chatList)
+            return ResponseEntity.ok(messages)
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+    }
+
 
     private fun isLimitIncorrect(limitUp: Int, limitDown: Int): Boolean =
         (limitUp < 0 || limitUp > MAX_LIMIT) ||
