@@ -14,7 +14,7 @@ spec:
 # StatefulSet
 apiVersion: apps/v1
 kind: StatefulSet
-meta
+meta:
   name: postgres-chat
 spec:
   serviceName: postgres-chat
