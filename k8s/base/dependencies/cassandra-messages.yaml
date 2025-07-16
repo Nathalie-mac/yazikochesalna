@@ -17,6 +17,7 @@ spec:
     spec:
       imagePullSecrets:
         - name: gitlab-regcred
+      terminationGracePeriodSeconds: 60
       containers:
         - name: cassandra-messages
           image: registry.gitlab.com/liza.antipa/yazikochesalna/cassandra:main
@@ -24,7 +25,6 @@ spec:
             preStop:
               exec:
                 command: [ "sh", "-c", "nodetool drain && nodetool stopdaemon" ]
-          terminationGracePeriodSeconds: 60
           imagePullPolicy: Always
           ports:
             - containerPort: 9042
