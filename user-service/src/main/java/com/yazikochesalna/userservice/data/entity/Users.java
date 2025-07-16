@@ -1,5 +1,6 @@
 package com.yazikochesalna.userservice.data.entity;
 
+import com.yazikochesalna.userservice.component.UserEntityListener;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
@@ -15,6 +16,7 @@ import java.util.UUID;
 
 
 @Entity
+@EntityListeners(UserEntityListener.class)
 @Table(name = "users")
 @Data
 @EqualsAndHashCode
