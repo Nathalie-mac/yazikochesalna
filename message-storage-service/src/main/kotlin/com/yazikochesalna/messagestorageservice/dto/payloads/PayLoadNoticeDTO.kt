@@ -3,7 +3,7 @@ package com.yazikochesalna.messagestorageservice.dto.payloads
 import lombok.NoArgsConstructor
 
 @NoArgsConstructor
-class PayLoadNoticeDTO(
+data class PayLoadNoticeDTO(
     var memberId: Long,
-    var chatId: Long
+    override var chatId: Long
 ) : PayLoadDTO
