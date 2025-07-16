@@ -41,7 +41,7 @@ spec:
           command: ["sh", "-c", "until pg_isready -h $PG_HOST -p $PG_PORT -U $PG_USERNAME -d postgres; do echo 'waiting for postgres-chat'; sleep 5; done; echo 'postgres-chat is up';"]
       containers:
         - name: auth-service
-          image: registry.gitlab.com/liza.antipa/yazikochesalna/authorization-service:main
+          image: registry.gitlab.com/liza.antipa/yazikochesalna/authorization-service:deploy.frontend
           imagePullPolicy: Always
           ports:
             - containerPort: 8085

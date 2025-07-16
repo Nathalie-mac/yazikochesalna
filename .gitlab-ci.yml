@@ -37,6 +37,11 @@ stages:
     - buildah push "$IMAGE_PATH"
     
 # --- Определяем job для каждого сервиса --- #
+build-authorization-service:
+  <<: *build-template
+  variables:
+    SERVICE_DIR: "authorization-service"
+
 
 build-frontend:
   stage: build
@@ -84,9 +89,21 @@ docker-frontend:
     DOCKER_IMAGE_NAME: frontend
   dependencies:
     - build-frontend
+  rules:   
+    - if: true
+      when: on_success 
   allow_failure: true
   
 
+
+docker-authorization-service:
+  <<: *build-docker-template
+  variables:
+    SERVICE_DIR: "authorization-service"
+    DOCKER_IMAGE_NAME: "authorization-service"
+  dependencies:
+    - build-authorization-service
+    
 ### --- Деплой --- ###
 
 
@@ -95,6 +112,7 @@ deploy-kustomize:
   image:
     name: lachlanevenson/k8s-kubectl:latest
     entrypoint: [""]
+  allow_failure: true
   script:
     # Проверка, что переменная установлена
     - |
@@ -131,3 +149,5 @@ deploy-kustomize:
     - kubectl get deployments -n messenger -o name | xargs -I {} kubectl rollout restart {} -n messenger
     # Принудительно обновляем манифесты ingress
     - kubectl rollout restart deployment -n ingress-nginx ingress-nginx-controller
+#  needs:
+#    - package:service1
