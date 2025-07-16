@@ -1,7 +1,7 @@
 # Headless Service — обязателен для StatefulSet
 apiVersion: v1
 kind: Service
-meta:
+metadata:
   name: postgres-users
 spec:
   clusterIP: None
@@ -14,7 +14,7 @@ spec:
 # StatefulSet
 apiVersion: apps/v1
 kind: StatefulSet
-meta:
+metadata:
   name: postgres-users
 spec:
   serviceName: postgres-users
@@ -60,7 +60,7 @@ spec:
             timeoutSeconds: 5
             failureThreshold: 6
   volumeClaimTemplates:
-    - meta
+    - metadata:
         name: postgres-user-data
       spec:
         accessModes: ["ReadWriteOnce"]
@@ -71,7 +71,7 @@ spec:
 # Обычный Service для внешнего доступа
 apiVersion: v1
 kind: Service
-meta:
+metadata:
   name: postgres-users-lb
 spec:
   ports:

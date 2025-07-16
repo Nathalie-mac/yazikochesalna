@@ -1,7 +1,7 @@
 # Headless Service — обязателен для StatefulSet
 apiVersion: v1
 kind: Service
-meta:
+metadata:
   name: postgres-chat
 spec:
   clusterIP: None
@@ -14,7 +14,7 @@ spec:
 # StatefulSet
 apiVersion: apps/v1
 kind: StatefulSet
-meta:
+metadata:
   name: postgres-chat
 spec:
   serviceName: postgres-chat
@@ -60,7 +60,7 @@ spec:
             timeoutSeconds: 5
             failureThreshold: 6
   volumeClaimTemplates:
-    - meta
+    - metadata:
         name: postgres-chat-data
       spec:
         accessModes: ["ReadWriteOnce"]
@@ -71,7 +71,7 @@ spec:
 # LoadBalancer/ClusterIP Service — для внешнего доступа
 apiVersion: v1
 kind: Service
-meta:
+metadata:
   name: postgres-chat-lb
 spec:
   ports:
