@@ -1,7 +1,11 @@
 package com.yazikochesalna.messagingservice.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yazikochesalna.messagingservice.dto.kafka.*;
+import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
+import com.yazikochesalna.messagingservice.dto.kafka.MessageType;
+import com.yazikochesalna.messagingservice.dto.kafka.PayloadMessageDTO;
+import com.yazikochesalna.messagingservice.dto.kafka.PayloadNotificationDTO;
+import com.yazikochesalna.messagingservice.dto.request.AwaitingResponseMessageDTO;
 import com.yazikochesalna.messagingservice.dto.response.ResponseDTO;
 import com.yazikochesalna.messagingservice.dto.response.ResponseResultType;
 import lombok.RequiredArgsConstructor;
