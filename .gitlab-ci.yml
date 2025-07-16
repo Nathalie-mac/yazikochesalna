@@ -205,10 +205,10 @@ rollout-services-k8s:
     - kubectl config get-contexts
     - kubectl version
 
-    - kubectl get deployments -n messnger | \
+    - kubectl get deployments -n messenger | \
         awk 'NR>1 {print $1}' | \
         grep -v "cassandra\\|postgres" | \
-        xargs -r kubectl rollout restart deployment -n messnger
+        xargs -r kubectl rollout restart deployment -n messenger
         
         
 rollout-all-k8s:
@@ -244,4 +244,4 @@ rollout-all-k8s:
     - kubectl config get-contexts
     - kubectl version
 
-    - kubectl rollout restart deployments -n messnger
+    - kubectl rollout restart deployments -n messenger
