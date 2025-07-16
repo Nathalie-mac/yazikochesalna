@@ -37,10 +37,6 @@ stages:
     - buildah push "$IMAGE_PATH"
     
 # --- Определяем job для каждого сервиса --- #
-build-authorization-service:
-  <<: *build-template
-  variables:
-    SERVICE_DIR: "authorization-service"
 
 
 build-frontend:
@@ -89,17 +85,12 @@ docker-frontend:
     DOCKER_IMAGE_NAME: frontend
   dependencies:
     - build-frontend
+  rules:   
+    - if: true
+      when: on_success 
   allow_failure: true
   
 
-
-docker-authorization-service:
-  <<: *build-docker-template
-  variables:
-    SERVICE_DIR: "authorization-service"
-    DOCKER_IMAGE_NAME: "authorization-service"
-  dependencies:
-    - build-authorization-service
     
 ### --- Деплой --- ###
 
