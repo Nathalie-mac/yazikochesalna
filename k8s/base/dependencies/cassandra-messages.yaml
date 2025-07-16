@@ -17,9 +17,14 @@ spec:
     spec:
       imagePullSecrets:
         - name: gitlab-regcred
+      terminationGracePeriodSeconds: 60
       containers:
         - name: cassandra-messages
           image: registry.gitlab.com/liza.antipa/yazikochesalna/cassandra:main
+          lifecycle:
+            preStop:
+              exec:
+                command: [ "sh", "-c", "nodetool drain && nodetool stopdaemon" ]
           imagePullPolicy: Always
           ports:
             - containerPort: 9042
@@ -43,7 +48,7 @@ spec:
           readinessProbe:
             exec:
               command: ["sh", "-c", "cqlsh -u \"$CASSANDRA_USER\" -p \"$CASSANDRA_PASSWORD\" localhost 9042 -e \"SELECT keyspace_name FROM system_schema.keyspaces WHERE keyspace_name = 'storage_service_keyspace'\""]
-            initialDelaySeconds: 31
+            initialDelaySeconds: 310
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 5

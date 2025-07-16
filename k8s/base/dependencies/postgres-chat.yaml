@@ -14,9 +14,15 @@ spec:
       labels:
         app: postgres-chat
     spec:
+      terminationGracePeriodSeconds: 70
       containers:
         - name: postgres-chat
           image: postgres:latest
+          lifecycle:
+            preStop:
+              exec:
+                # Остановка PostgreSQL перед завершением контейнера
+                command: [ "sh", "-c", "pg_ctl stop -D /var/lib/postgresql/data -w -t 60 -m fast" ]
           ports:
             - containerPort: 5432
           envFrom:

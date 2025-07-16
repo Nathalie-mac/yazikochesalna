@@ -55,7 +55,9 @@ springdoc:
       type: http
       scheme: bearer
       bearerFormat: JWT
-
+logging:
+  level:
+    root: DEBUG
 user:
   service:
     url: ${USER_SERVICE_URL}
