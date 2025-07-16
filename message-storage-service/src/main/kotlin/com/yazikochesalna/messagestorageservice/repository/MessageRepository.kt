@@ -11,5 +11,9 @@ import java.util.UUID
 @Repository
 interface MessageRepository : ReactiveCassandraRepository<Message?, UUID?>, CustomMessageRepository {
 
-    fun saveAll(messages: List<Message>): Flux<Message>
+    //пишем сообщения
+    fun saveAll(messages: Flux<Message>): Flux<Message>
+
+    //достаем сообщения
+    //fun findMessagesByCursor(userId: Long, chatId: Long, cursor: UUID, limitUp: Int, limitDown: Int): Flux<Message>
 }
