@@ -14,24 +14,24 @@ import java.util.*
 @Table("messages")
 data class Message(
     @PrimaryKey
-    var id: UUID,
+    override val id: UUID,
 
     @Column("type")
     @Enumerated(value = EnumType.STRING)
-    var type: MessageType,
+    override val type: MessageType,
 
     @Column("sender_id")
-    var senderId: Long,
+    override val senderId: Long,
 
     @Column("chat_id")
-    var chatId: Long,
+    override val chatId: Long,
 
     @Column
-    var text: String?,
+    override val text: String?,
 
     @Column("send_time")
-    val sendTime: LocalDateTime,
+    override val sendTime: LocalDateTime,
 
     @Column("marked_to_delete")
-    var markedToDelete: Boolean = false
-)
+    override val markedToDelete: Boolean = false
+): BaseMessage

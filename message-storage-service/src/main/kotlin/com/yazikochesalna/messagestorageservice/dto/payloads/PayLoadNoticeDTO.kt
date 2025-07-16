@@ -1,4 +1,4 @@
-package com.yazikochesalna.messagestorageservice.dto
+package com.yazikochesalna.messagestorageservice.dto.payloads
 
 import lombok.NoArgsConstructor
 
