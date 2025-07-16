@@ -64,7 +64,7 @@ build-frontend:
     
     - cd frontend
     # Перемещаем нужную папку внутрь frontend
-    - mv messenger-front .
+    - mv messenger-front/* .
     # Убираем временные файлы
     - rm -rf messenger-front
     # Устанавливаем зависимости и собираем проект
