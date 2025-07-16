@@ -199,6 +199,7 @@ deploy-services-k8s:
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       when: always
+  stage: deploy
     
 manual-deploy-services-k8s:
   <<: *k8s-deploy-template
