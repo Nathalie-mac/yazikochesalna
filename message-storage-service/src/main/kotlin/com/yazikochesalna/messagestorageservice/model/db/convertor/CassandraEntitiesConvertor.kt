@@ -2,10 +2,7 @@ package com.yazikochesalna.messagestorageservice.model.db.convertor
 
 import com.datastax.oss.driver.api.core.cql.Row
 import com.yazikochesalna.messagestorageservice.dto.MessagesJsonFormatDTO
-import com.yazikochesalna.messagestorageservice.dto.payloads.PayLoadMessageDTO
-import com.yazikochesalna.messagestorageservice.dto.payloads.PayLoadNewChatAvatarDTO
-import com.yazikochesalna.messagestorageservice.dto.payloads.PayLoadNoticeDTO
-import com.yazikochesalna.messagestorageservice.dto.payloads.PayLoadPinDTO
+import com.yazikochesalna.messagestorageservice.dto.payloads.*
 import com.yazikochesalna.messagestorageservice.exception.customexceptions.NullCassandraFiledException
 import com.yazikochesalna.messagestorageservice.model.db.Attachment
 import com.yazikochesalna.messagestorageservice.model.db.BaseMessage
@@ -20,7 +17,7 @@ import java.time.LocalDateTime
 @Component
 class CassandraEntitiesConvertor {
     //пиупиупиу
-    fun convertToMessagesJsonFormatDto(message: BaseMessage): MessagesJsonFormatDTO {
+    fun convertToMessagesJsonFormatDto(message: BaseMessage, attachments: List<Attachment>): MessagesJsonFormatDTO {
         return MessagesJsonFormatDTO(
             messageId = message.id,
             type = message.type,
@@ -30,14 +27,27 @@ class CassandraEntitiesConvertor {
                     senderId = message.senderId,
                     chatId = message.chatId,
                     text = message.text?: "",
-                    attachments = emptyList()
+                    attachments = attachments.map { MessageAttachmentDTO(
+                        type = it.type,
+                        id = it.id,
+                    ) }
                 )
                 MessageType.NEW_MEMBER,
                 MessageType.DROP_MEMBER -> PayLoadNoticeDTO(
                     memberId = message.senderId,
                     chatId = message.chatId,
                 )
-                else -> throw IllegalArgumentException("Not supported message type ${message.type}")
+                MessageType.PIN -> PayLoadPinDTO(
+                    pinMessageId = attachments.get(0).id,
+                    chatId = message.chatId,
+                    memberId = message.senderId,
+
+                )
+                MessageType.NEW_CHAT_AVATAR -> PayLoadNewChatAvatarDTO(
+                    avatarId = attachments.get(0).id,
+                    chatId = message.chatId,
+                    memberId = message.senderId,
+                )
             }
         )
     }

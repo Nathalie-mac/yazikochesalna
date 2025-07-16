@@ -1,9 +1,11 @@
 package com.yazikochesalna.messagestorageservice.dto.payloads
 
+import lombok.NoArgsConstructor
 import java.util.UUID
 
+@NoArgsConstructor
 data class PayLoadNewChatAvatarDTO(
     var avatarId: UUID,
     var memberId: Long,
-    var chatId: Long
+    override var chatId: Long
 ): PayLoadDTO

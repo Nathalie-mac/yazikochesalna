@@ -22,7 +22,7 @@ class MessagesJsonFormatDTO(
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     var timestamp: LocalDateTime,
-    var payload: PayLoadDTO?
+    var payload: PayLoadDTO
 ) {
 //    fun <T : PayLoadDTO?> getPaLoad(): T {
 //        return payload as T

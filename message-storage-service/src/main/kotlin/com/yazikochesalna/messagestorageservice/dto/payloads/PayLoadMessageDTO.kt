@@ -3,9 +3,9 @@ package com.yazikochesalna.messagestorageservice.dto.payloads
 import lombok.NoArgsConstructor
 
 @NoArgsConstructor
-class PayLoadMessageDTO(
+data class PayLoadMessageDTO(
     var senderId: Long,
-    var chatId: Long,
+    override var chatId: Long,
     var text: String,
     var attachments: List<MessageAttachmentDTO>?
 ): PayLoadDTO

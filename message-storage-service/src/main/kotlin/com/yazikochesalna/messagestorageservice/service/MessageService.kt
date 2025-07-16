@@ -3,6 +3,7 @@ package com.yazikochesalna.messagestorageservice.service
 import com.yazikochesalna.messagestorageservice.dto.MessagesJsonFormatDTO
 import com.yazikochesalna.messagestorageservice.dto.NewestMessageDTO
 import com.yazikochesalna.messagestorageservice.model.db.Attachment
+import com.yazikochesalna.messagestorageservice.model.db.BaseMessage
 import com.yazikochesalna.messagestorageservice.model.db.convertor.CassandraEntitiesConvertor
 import com.yazikochesalna.messagestorageservice.model.db.Message
 import com.yazikochesalna.messagestorageservice.model.db.MessageByChat
@@ -51,14 +52,14 @@ open class MessageService(
         limitUp: Int,
         limitDown: Int
     ): List<MessagesJsonFormatDTO> {
-        val cassandraMessages: Flux<Message> = when (cursor) {
+        val cassandraMessages = when (cursor) {
             null -> messageRepository.findMessagesWithoutCursor(chatId, limitUp)
             else -> messageRepository.findMessagesByCursor(chatId, cursor, limitUp, limitDown)
-        }
-        return cassandraMessages
-            .map { message -> cassandraEntitiesConvertor.convertToMessagesJsonFormatDto(message) }
-            .collectList()
+        }.collectList()
             .block(Duration.ofSeconds(BLOCK_DURATION)) ?: emptyList()
+        return mapMessagesWithAttachments(cassandraMessages) {
+            message, attachment -> cassandraEntitiesConvertor.convertToMessagesJsonFormatDto(message, attachment)
+        }
     }
 
     fun saveMessagesBatch(messages: List<MessagesJsonFormatDTO>): Mono<Void> {
@@ -67,11 +68,11 @@ open class MessageService(
         }
 
         val messagePairs = messages.map { cassandraEntitiesConvertor.convertToMessageWithAttachments(it) }
-        val messages = messagePairs.map { it.first }
+        val simpleMessages = messagePairs.map { it.first }
         val messagesByChat = messagePairs.map { cassandraEntitiesConvertor.convertToMessageByChat(it.first) }
         val attachments = messagePairs.flatMap { it.second }
 
-        return saveMesagesToAllTables(messages, messagesByChat, attachments).then()
+        return saveMesagesToAllTables(simpleMessages, messagesByChat, attachments).then()
     }
 
     private fun saveMesagesToAllTables(messages: List<Message>, messagesByChat: List<MessageByChat>, attachments: List<Attachment>): Mono<Void> {
@@ -88,12 +89,45 @@ open class MessageService(
 
 
     fun getNewestMessagesByChat(chatList: List<Long>): List<NewestMessageDTO> {
+        val lastMessages = chatList.mapNotNull { chatId ->
+            messageByChatRepository.findFirstByChatId(chatId).block()
+        }
+        val messagesWithAttachments = mapMessagesWithAttachments(lastMessages) { message, attachments ->
+            cassandraEntitiesConvertor.convertToMessagesJsonFormatDto(message, attachments)
+        }
+
+        // Собираем результат
         return chatList.map { chatId ->
-            val lastMessage = messageByChatRepository.findFirstByChatId(chatId).block()
             NewestMessageDTO(
                 chatId = chatId,
-                lastMessage = lastMessage?.let { cassandraEntitiesConvertor.convertToMessagesJsonFormatDto(it) }
+                lastMessage = messagesWithAttachments.find { it.payload.chatId  == chatId }
             )
+        }
+    //        return chatList.map { chatId ->
+//            val lastMessage = messageByChatRepository.findFirstByChatId(chatId).block()
+//            NewestMessageDTO(
+//                chatId = chatId,
+//                lastMessage = lastMessage?.let { cassandraEntitiesConvertor.convertToMessagesJsonFormatDto(it) }
+//            )
+//        }
+    }
+
+
+    private fun mapMessagesWithAttachments(
+        messages: List<BaseMessage>,
+        converter: (BaseMessage, List<Attachment>) -> MessagesJsonFormatDTO
+    ): List<MessagesJsonFormatDTO> {
+        if (messages.isEmpty()) return emptyList()
+
+        val messageIds = messages.map { it.id }
+        val attachmentsMap = attachmentRepository.findByMessageIdIn(messageIds)
+            .collectMultimap { it.messageId }
+            .block(Duration.ofSeconds(BLOCK_DURATION))
+            ?.mapValues { it.value.toList() }
+            ?: emptyMap()
+
+        return messages.map { message ->
+            converter(message, attachmentsMap[message.id] ?: emptyList())
         }
     }
 }
