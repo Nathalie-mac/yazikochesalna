@@ -68,4 +68,34 @@ spec:
             exec:
               command: ["sh", "-c", "cqlsh -u \"$CASSANDRA_USER\" -p \"$CASSANDRA_PASSWORD\" localhost 9042 -e \"SELECT keyspace_name FROM system_schema.keyspaces WHERE keyspace_name = 'storage_service_keyspace'\""]
             initialDelaySeconds: 310
-            period
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+  volumeClaimTemplates:
+    - metadata:
+        name: cassandra-messages-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+    - metadata:
+        name: cassandra-init-flag
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 100Mi
+---
+# Обычный Service для внешнего доступа
+apiVersion: v1
+kind: Service
+metadata:
+  name: cassandra-messages-lb
+  namespace: messenger
+spec:
+  ports:
+    - port: 9042
+      targetPort: 9042
+  selector:
+    app: cassandra-messages
