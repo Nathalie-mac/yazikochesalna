@@ -1,10 +1,23 @@
-apiVersion: apps/v1
-kind: Deployment
+# Headless Service — обязателен для StatefulSet
+apiVersion: v1
+kind: Service
 metadata:
   name: postgres-chat
-  labels:
-    app: postgres-chat
 spec:
+  clusterIP: None
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: postgres-chat
+---
+# StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-chat
+spec:
+  serviceName: postgres-chat
   replicas: 1
   selector:
     matchLabels:
@@ -21,8 +34,7 @@ spec:
           lifecycle:
             preStop:
               exec:
-                # Остановка PostgreSQL перед завершением контейнера
-                command: [ "sh", "-c", "pg_ctl stop -D /var/lib/postgresql/data -w -t 60 -m fast" ]
+                command: ["sh", "-c", "pg_ctl stop -D /var/lib/postgresql/data -w -t 60 -m fast"]
           ports:
             - containerPort: 5432
           envFrom:
@@ -35,41 +47,35 @@ spec:
               mountPath: /var/lib/postgresql/data
           livenessProbe:
             exec:
-              command: ["sh", "-c", 'pg_isready -U "$POSTGRES_USER" -d postgres ']
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d postgres"]
             initialDelaySeconds: 10
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 6
           readinessProbe:
             exec:
-              command: ["sh", "-c", 'pg_isready -U "$POSTGRES_USER" -d postgres']
+              command: ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d postgres"]
             initialDelaySeconds: 10
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 6
-      volumes:
-        - name: postgres-chat-data
-          persistentVolumeClaim:
-            claimName: postgres-chat-pvc
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-chat-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
 ---
+# LoadBalancer/ClusterIP Service — для внешнего доступа
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgres-chat
+  name: postgres-chat-lb
 spec:
   ports:
     - port: 5432
       targetPort: 5432
   selector:
     app: postgres-chat
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: postgres-chat-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi

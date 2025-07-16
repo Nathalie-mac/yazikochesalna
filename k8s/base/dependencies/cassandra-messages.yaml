@@ -1,11 +1,25 @@
-apiVersion: apps/v1
-kind: Deployment
+# Headless Service — обязателен для StatefulSet
+apiVersion: v1
+kind: Service
 metadata:
   name: cassandra-messages
   namespace: messenger
-  labels:
-    app: cassandra-messages
 spec:
+  clusterIP: None
+  ports:
+    - port: 9042
+      targetPort: 9042
+  selector:
+    app: cassandra-messages
+---
+# StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cassandra-messages
+  namespace: messenger
+spec:
+  serviceName: cassandra-messages
   replicas: 1
   selector:
     matchLabels:
@@ -21,11 +35,11 @@ spec:
       containers:
         - name: cassandra-messages
           image: registry.gitlab.com/liza.antipa/yazikochesalna/cassandra:main
+          imagePullPolicy: Always
           lifecycle:
             preStop:
               exec:
-                command: [ "sh", "-c", "nodetool drain && nodetool stopdaemon" ]
-          imagePullPolicy: Always
+                command: ["sh", "-c", "nodetool drain && nodetool stopdaemon"]
           ports:
             - containerPort: 9042
           envFrom:
@@ -33,6 +47,11 @@ spec:
                 name: cassandra-messages-config
             - secretRef:
                 name: cassandra-messages-secrets
+          env:
+            - name: MAX_HEAP_SIZE
+              value: "4G"
+            - name: HEAP_NEWSIZE
+              value: "1G"
           volumeMounts:
             - name: cassandra-messages-data
               mountPath: /var/lib/cassandra
@@ -52,18 +71,27 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 5
-      volumes:
-        - name: cassandra-messages-data
-          persistentVolumeClaim:
-            claimName: cassandra-messages-pvc
-        - name: cassandra-init-flag
-          persistentVolumeClaim:
-            claimName: cassandra-init-flag-pvc
+  volumeClaimTemplates:
+    - metadata:
+        name: cassandra-messages-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+    - metadata:
+        name: cassandra-init-flag
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 100Mi
 ---
+# Обычный Service для внешнего доступа
 apiVersion: v1
 kind: Service
 metadata:
-  name: cassandra-messages
+  name: cassandra-messages-lb
   namespace: messenger
 spec:
   ports:
@@ -71,27 +99,3 @@ spec:
       targetPort: 9042
   selector:
     app: cassandra-messages
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: cassandra-messages-pvc
-  namespace: messenger
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: cassandra-init-flag-pvc
-  namespace: messenger
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 100Mi

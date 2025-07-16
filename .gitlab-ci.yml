@@ -36,9 +36,65 @@ stages:
     - buildah bud -t "$IMAGE_PATH" .
     - echo "Пуш образа в registry"
     - buildah push "$IMAGE_PATH"
-    
-# --- Определяем job для каждого сервиса --- #
 
+.k8s-deploy-template: &k8s-deploy-template
+  image:
+    name: lachlanevenson/k8s-kubectl:latest
+    entrypoint: [""]
+  allow_failure: true
+  script:
+    # Проверка, что переменная установлена
+    - |
+      if [ -z "$KUBECONFIG_CONTENTS" ]; then
+        echo "Ошибка: переменная KUBECONFIG_CONTENTS не установлена"
+        exit 1
+      fi
+
+    # Переход в директорию с kustomization.yaml
+    - cd k8s/overlays/dev
+
+    # Создание kubeconfig
+    - mkdir -p ~/.kube
+    - cat "$KUBECONFIG_CONTENTS" | base64 -d > ~/.kube/config
+    - chmod 600 ~/.kube/config
+    - export KUBECONFIG=~/.kube/config
+
+    # Диагностические команды
+    - kubectl version --client
+    - kubectl config view
+    - kubectl config current-context
+    - kubectl config get-contexts
+    - kubectl version
+
+    # Применяем манифесты с помощью kustomize
+    - kubectl -n messenger get secret gitlab-regcred && kubectl -n messenger delete secret gitlab-regcred || true
+    - kubectl -n messenger apply -k .
+
+# --- Определяем job для каждого сервиса --- #
+build-authorization-service:
+  <<: *build-template
+  variables:
+    SERVICE_DIR: "authorization-service"
+
+build-chat-service:
+  <<: *build-template
+  variables:
+    SERVICE_DIR: "chat-service"
+
+build-message-storage-service:
+  <<: *build-template
+  variables:
+    SERVICE_DIR: "message-storage-service"
+
+build-messaging-service:
+  <<: *build-template
+  variables:
+    SERVICE_DIR: "messaging-service"
+
+build-user-service:
+  <<: *build-template
+  variables:
+    SERVICE_DIR: "user-service"
 
 build-frontend:
   stage: build
@@ -80,6 +136,52 @@ build-frontend:
 
 # --- Определяем Docker сборку для каждого сервиса --- #
 
+docker-authorization-service:
+  <<: *build-docker-template
+  variables:
+    SERVICE_DIR: "authorization-service"
+    DOCKER_IMAGE_NAME: "authorization-service"
+  dependencies:
+    - build-authorization-service
+
+docker-chat-service:
+  <<: *build-docker-template
+  variables:
+    SERVICE_DIR: "chat-service"
+    DOCKER_IMAGE_NAME: "chat-service"
+  dependencies:
+    - build-chat-service
+
+docker-message-storage-service:
+  <<: *build-docker-template
+  variables:
+    SERVICE_DIR: "message-storage-service"
+    DOCKER_IMAGE_NAME: "message-storage-service"
+  dependencies:
+    - build-message-storage-service
+
+docker-messaging-service:
+  <<: *build-docker-template
+  variables:
+    SERVICE_DIR: "messaging-service"
+    DOCKER_IMAGE_NAME: "messaging-service"
+  dependencies:
+    - build-messaging-service
+
+docker-user-service:
+  <<: *build-docker-template
+  variables:
+    SERVICE_DIR: "user-service"
+    DOCKER_IMAGE_NAME: "user-service"
+  dependencies:
+    - build-user-service
+
+docker-cassandra:
+  <<: *build-docker-template
+  variables:
+    SERVICE_DIR: "message-storage-service/cassandra"
+    DOCKER_IMAGE_NAME: "cassandra"
+
 docker-frontend:
   <<: *build-docker-template
   variables:
@@ -90,51 +192,20 @@ docker-frontend:
   allow_failure: true
   
 
-    
 ### --- Деплой --- ###
 
-
-deploy-kustomize:
+deploy-services-k8s:
+  <<: *k8s-deploy-template
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: always
   stage: deploy
-  image:
-    name: lachlanevenson/k8s-kubectl:latest
-    entrypoint: [""]
-  allow_failure: true
-  script:
-    # Проверка, что переменная установлена
-    - |
-      if [ -z "$KUBECONFIG_CONTENTS" ]; then
-        echo "Ошибка: переменная KUBECONFIG_CONTENTS не установлена"
-        exit 1
-      fi
+    
+manual-deploy-services-k8s:
+  <<: *k8s-deploy-template
+  when: manual
+  stage: pre-build
 
-    # Переход в директорию с kustomization.yaml
-    - cd k8s/overlays/dev
-    # Проверяем путь к файлу
-    - echo "Путь к encoded kubeconfig - $KUBECONFIG_CONTENTS"
-
-    # Читаем содержимое и декодируем
-    - mkdir -p ~/.kube
-    - cat "$KUBECONFIG_CONTENTS" | base64 -d > ~/.kube/config
-    - chmod 600 ~/.kube/config
-    - export KUBECONFIG=~/.kube/config
-
-    # Диагностические команды
-    - kubectl version --client
-    - kubectl config view
-    - kubectl config current-context
-    - kubectl config get-contexts
-    - kubectl version
-
-    # Применяем манифесты с помощью kustomize
-    - kubectl -n messenger get secret gitlab-regcred && kubectl -n messenger delete secret gitlab-regcred
-    - kubectl -n messenger apply -k .
-    # Принудительно обновляем образы
-#    - kubectl get deployments -n messenger -o name | xargs -I {} kubectl rollout restart {} -n messenger
-    # Принудительно обновляем манифесты ingress
-    - kubectl rollout restart deployment -n ingress-nginx ingress-nginx-controller
-#  needs:
-#    - package:service1
 
 drop-k8s:
   stage: pre-build
@@ -171,8 +242,8 @@ drop-k8s:
 
     # Удаляем конфигурацию
     - kubectl -n messenger delete -k .
-    
-rollout-k8s:
+
+rollout-deployments-k8s:
   stage: pre-build
   when: manual
   image:
@@ -205,7 +276,4 @@ rollout-k8s:
     - kubectl config get-contexts
     - kubectl version
 
-    - kubectl get deployments -n my-namespace | \
-        awk 'NR>1 {print $1}' | \
-        grep -v "cassandra\\|postgres" | \
-        xargs -r kubectl rollout restart deployment -n my-namespace
+    - kubectl rollout restart deployments -n messenger
