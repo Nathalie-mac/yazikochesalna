@@ -56,11 +56,13 @@ cqlsh -u "$ADMIN_USER" -p "$ADMIN_PASS" <<-CQL
   ) WITH CLUSTERING ORDER BY (send_time DESC);
 
   CREATE TABLE IF NOT EXISTS attachments (
-      id UUID,
+      id BIGINT,
       message_id UUID,
-      type TEXT,
-      PRIMARY KEY ((message_id), id)
+      attachment_type TEXT,
+      attachment TEXT,
+      PRIMARY KEY (id)
   );
+  CREATE INDEX IF NOT EXISTS attachments_message_idx ON attachments (message_id);
 CQL
 
 

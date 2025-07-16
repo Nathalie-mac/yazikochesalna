@@ -15,23 +15,22 @@ import java.util.*
 @Table("messages_by_chat")
 data class MessageByChat (
     @PrimaryKeyColumn(name = "chat_id", type = PrimaryKeyType.PARTITIONED)
-    override val chatId: Long,
+    var chatId: Long,
 
     @PrimaryKeyColumn(name = "send_time", type = PrimaryKeyType.CLUSTERED, ordinal = 1)
-    override val sendTime: LocalDateTime,
+    var sendTime: LocalDateTime,
 
     @PrimaryKeyColumn(name = "id", type = PrimaryKeyType.CLUSTERED, ordinal = 2)
-    override val id: UUID,
+    var id: UUID,
 
     @Column("text")
-    override val text: String?,
+    var text: String?,
 
     @Column("sender_id")
-    override val senderId: Long,
+    var senderId: Long,
 
     @Column("type")
     @Enumerated(value = EnumType.STRING)
-    override val type: MessageType,
+    var type: MessageType,
 
-    override val markedToDelete: Boolean = false
-):BaseMessage
+    var markedToDelete: Boolean = false)
