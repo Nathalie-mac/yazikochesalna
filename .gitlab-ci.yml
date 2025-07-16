@@ -92,9 +92,6 @@ docker-frontend:
 
 deploy-kustomize:
   stage: deploy
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      when: always
   image:
     name: lachlanevenson/k8s-kubectl:latest
     entrypoint: [""]
