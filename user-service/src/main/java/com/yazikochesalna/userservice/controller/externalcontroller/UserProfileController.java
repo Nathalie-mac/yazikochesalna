@@ -3,7 +3,7 @@ package com.yazikochesalna.userservice.controller.externalcontroller;
 import com.yazikochesalna.common.authentication.JwtAuthenticationToken;
 import com.yazikochesalna.userservice.dto.PersonalProfileDTO;
 import com.yazikochesalna.userservice.dto.UserProfileDTO;
-import com.yazikochesalna.userservice.service.UserProfileService;
+import com.yazikochesalna.userservice.service.externalservice.UserProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;

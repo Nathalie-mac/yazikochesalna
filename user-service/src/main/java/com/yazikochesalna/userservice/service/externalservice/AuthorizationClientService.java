@@ -1,4 +1,4 @@
-package com.yazikochesalna.userservice.service;
+package com.yazikochesalna.userservice.service.externalservice;
 
 import com.yazikochesalna.common.service.JwtService;
 import com.yazikochesalna.userservice.dto.LoginResponseDTO;

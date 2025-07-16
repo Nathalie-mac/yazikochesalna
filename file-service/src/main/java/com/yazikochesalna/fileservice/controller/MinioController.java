@@ -43,7 +43,6 @@ public class MinioController {
     private final DownloadMinioService downloadMinioService;
     private final CommonService commonService;
 
-
     @PostMapping("/upload")
     @Operation(summary = "Загрузить файл в хранилище",
             description = "Принимает файл, chatID, messageID или файл, userID. Возвращает fileUUID")

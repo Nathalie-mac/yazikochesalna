@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.naming.ServiceUnavailableException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
@@ -51,6 +52,7 @@ public class UploadMinioService {
             throw new MinioUploadCustomException("File processing error: " + e.getMessage());
         }
     }
+
     public void uploadFile(MultipartFile file, String objectName, Map<String, String> userMetadata)
     {
         commonService.isCreatedBucket();
@@ -79,6 +81,15 @@ public class UploadMinioService {
         Map<String, String> userMetadata = new HashMap<>();
 
         addBasicMetadata(userMetadata, file);
+        addServiceMetadata(userMetadata, metadata);
+
+        return userMetadata;
+    }
+
+    private Map<String, String> buildProfilePictureMetadata(MultipartFile file, RequestDTO metadata) throws IOException {
+        Map<String, String> userMetadata = new HashMap<>();
+
+        userMetadata.put(MetadataKeys.ORIGINAL_FILENAME.getKey(), file.getOriginalFilename());
         addServiceMetadata(userMetadata, metadata);
 
         return userMetadata;
