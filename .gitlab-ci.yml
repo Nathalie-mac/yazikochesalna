@@ -69,8 +69,8 @@ build-frontend:
     - rm -rf messenger-front
     
     # Отключаем строгую проверку неиспользуемых переменных
-    - sed -i 's/"noUnusedLocals": true/"noUnusedLocals": false/' tsconfig.json
-    - sed -i 's/"noUnusedParameters": true/"noUnusedParameters": false/' tsconfig.json
+    - "sed -i 's/\"noUnusedLocals\": true/\"noUnusedLocals\": false/' tsconfig.json"
+    - "sed -i 's/\"noUnusedParameters\": true/\"noUnusedParameters\": false/' tsconfig.json"
     # Устанавливаем зависимости и собираем проект
     - npm ci
     - npm run build
