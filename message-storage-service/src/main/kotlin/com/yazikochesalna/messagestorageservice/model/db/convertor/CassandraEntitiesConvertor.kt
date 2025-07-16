@@ -16,7 +16,7 @@ import java.time.LocalDateTime
 
 @Component
 class CassandraEntitiesConvertor {
-    //пиупиупиу
+
     fun convertToMessagesJsonFormatDto(message: BaseMessage, attachments: List<Attachment>): MessagesJsonFormatDTO {
         return MessagesJsonFormatDTO(
             messageId = message.id,
@@ -51,29 +51,6 @@ class CassandraEntitiesConvertor {
             }
         )
     }
-
-//    //пиупиупиу
-//    fun convertToMessagesJsonFormatDto(messageByChat: MessageByChat): MessagesJsonFormatDTO {
-//        return MessagesJsonFormatDTO(
-//            messageId = messageByChat.id,
-//            type = messageByChat.type,
-//            timestamp = messageByChat.sendTime,
-//            payload = when (messageByChat.type){
-//                MessageType.MESSAGE -> PayLoadMessageDTO(
-//                    senderId = messageByChat.senderId,
-//                    chatId = messageByChat.chatId,
-//                    text = messageByChat.text?: "",
-//                    attachments = emptyList()
-//                )
-//                MessageType.NEW_MEMBER,
-//                MessageType.DROP_MEMBER -> PayLoadNoticeDTO(
-//                    memberId = messageByChat.senderId,
-//                    chatId = messageByChat.chatId,
-//                )
-//                else -> throw IllegalArgumentException("Not supported message type ${messageByChat.type}")
-//            }
-//        )
-//    }
 
     fun convertToMessageWithAttachments(messagesJsonFormatDTO: MessagesJsonFormatDTO): Pair<Message, List<Attachment>> = when (messagesJsonFormatDTO.type) {
             MessageType.MESSAGE -> {
