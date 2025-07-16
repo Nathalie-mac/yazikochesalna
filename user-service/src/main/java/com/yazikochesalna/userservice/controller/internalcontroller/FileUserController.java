@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class FileUserController {
 
     private final FileUserService fileUserService;
-    private UsersRepository usersRepository;
+    private final UsersRepository usersRepository;
 
     @PatchMapping("/update-file")
     public ResponseEntity<Void> updateFileUuid(
