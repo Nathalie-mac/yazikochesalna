@@ -85,9 +85,6 @@ docker-frontend:
     DOCKER_IMAGE_NAME: frontend
   dependencies:
     - build-frontend
-  rules:   
-    - if: true
-      when: on_success 
   allow_failure: true
   
 
