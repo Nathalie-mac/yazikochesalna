@@ -1,7 +1,6 @@
-package com.yazikochesalna.userservice.service.internalservice;
+package com.yazikochesalna.userservice.service.externalservice;
 
 import com.yazikochesalna.userservice.advice.ResourceNotFoundCustomException;
-import com.yazikochesalna.userservice.advice.ValidationCustomException;
 import com.yazikochesalna.userservice.data.entity.Users;
 import com.yazikochesalna.userservice.data.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;

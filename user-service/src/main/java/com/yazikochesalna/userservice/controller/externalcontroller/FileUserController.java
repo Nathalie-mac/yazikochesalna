@@ -1,12 +1,10 @@
-package com.yazikochesalna.userservice.controller.internalcontroller;
+package com.yazikochesalna.userservice.controller.externalcontroller;
 
 import com.yazikochesalna.userservice.advice.ValidationCustomException;
 import com.yazikochesalna.userservice.data.repository.UsersRepository;
 import com.yazikochesalna.userservice.dto.FileUpdateRequestDTO;
-import com.yazikochesalna.userservice.service.internalservice.FileUserService;
-import io.swagger.v3.oas.annotations.Hidden;
+import com.yazikochesalna.userservice.service.externalservice.FileUserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
