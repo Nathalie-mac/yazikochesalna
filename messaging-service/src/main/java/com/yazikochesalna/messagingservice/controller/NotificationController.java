@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 @SecurityRequirement(name = "bearerAuth")
 public class NotificationController {
     private final WebSocketMessageService webSocketMessageService;
-    //хорошо бы поменять  маппинг
-    @PostMapping("/")
+
+    @PostMapping("/update-members")
     @RolesAllowed("SERVICE")
     @Operation(summary = "Отправка уведомления об изменении состава участников ",
             description = "Внтуренний метод для отправки уведомлений о добавлении или удалении нового пользователя. Доступен только для сервисов.")
