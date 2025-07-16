@@ -23,7 +23,6 @@ spec:
               exec:
                 # Остановка PostgreSQL перед завершением контейнера
                 command: [ "sh", "-c", "pg_ctl stop -D /var/lib/postgresql/data -w -t 60 -m fast" ]
-          terminationGracePeriodSeconds: 70
           ports:
             - containerPort: 5432
           envFrom:
