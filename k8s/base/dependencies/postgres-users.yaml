@@ -1,7 +1,7 @@
 # Headless Service — обязателен для StatefulSet
 apiVersion: v1
 kind: Service
-meta
+meta:
   name: postgres-users
 spec:
   clusterIP: None
@@ -14,7 +14,7 @@ spec:
 # StatefulSet
 apiVersion: apps/v1
 kind: StatefulSet
-meta
+meta:
   name: postgres-users
 spec:
   serviceName: postgres-users
@@ -71,7 +71,7 @@ spec:
 # Обычный Service для внешнего доступа
 apiVersion: v1
 kind: Service
-meta
+meta:
   name: postgres-users-lb
 spec:
   ports:

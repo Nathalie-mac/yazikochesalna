@@ -71,7 +71,7 @@ spec:
 # LoadBalancer/ClusterIP Service — для внешнего доступа
 apiVersion: v1
 kind: Service
-meta
+meta:
   name: postgres-chat-lb
 spec:
   ports:

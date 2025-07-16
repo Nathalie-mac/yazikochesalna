@@ -4,5 +4,5 @@ metadata:
   name: message-storage-service-config
 data:
   SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka-message-storage.messenger.svc.cluster.local:9092"
-  SPRING_CASSANDRA_CONTACT_POINTS: "cassandra-messages.messenger.svc.cluster.local"
+  SPRING_CASSANDRA_CONTACT_POINTS: "cassandra-messages-lb.messenger.svc.cluster.local"
   SPRING_CASSANDRA_PORT: "9042"

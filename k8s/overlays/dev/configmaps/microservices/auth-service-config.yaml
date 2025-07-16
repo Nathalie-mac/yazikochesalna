@@ -4,8 +4,8 @@ metadata:
   name: auth-service-config
 data:
   SERVER_PORT: "8085"
-  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-auth.messenger.svc.cluster.local:5432/authdatabase"
-  SPRING_DATASOURCE_HOST: "postgres-auth.messenger.svc.cluster.local"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-auth-lb.messenger.svc.cluster.local:5432/authdatabase"
+  SPRING_DATASOURCE_HOST: "postgres-auth-lb.messenger.svc.cluster.local"
   SPRING_DATASOURCE_PORT: "5432"
   SPRING_DATASOURCE_DATABASE: "authdatabase"
 
