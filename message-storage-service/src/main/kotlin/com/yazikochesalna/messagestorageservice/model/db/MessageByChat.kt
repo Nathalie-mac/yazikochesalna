@@ -1,5 +1,6 @@
 package com.yazikochesalna.messagestorageservice.model.db
 
+import com.datastax.oss.driver.api.mapper.annotations.Entity
 import com.yazikochesalna.messagestorageservice.model.enums.MessageType
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -9,6 +10,7 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
 import java.time.LocalDateTime
 import java.util.*
+
 
 @Table("messages_by_chat")
 data class MessageByChat (
