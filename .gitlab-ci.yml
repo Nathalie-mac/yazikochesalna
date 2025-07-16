@@ -5,6 +5,7 @@ variables:
   PROJECT_NAME: liza.antipa/yazikochesalna
 
 stages:
+  - pre-build
   - build
   - package
   - deploy
@@ -135,7 +136,7 @@ deploy-kustomize:
 #    - package:service1
 
 drop-k8s:
-  stage: deploy
+  stage: pre-build
   when: manual
   image:
     name: lachlanevenson/k8s-kubectl:latest
