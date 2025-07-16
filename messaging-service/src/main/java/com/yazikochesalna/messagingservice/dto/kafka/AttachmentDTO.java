@@ -13,7 +13,8 @@ import java.util.UUID;
 @Accessors(chain = true)
 public class AttachmentDTO {
 
-    private AttachmentType type;
     @NotNull(message = "id не может быть null")
     private UUID id;
+    private AttachmentType type;
+
 }

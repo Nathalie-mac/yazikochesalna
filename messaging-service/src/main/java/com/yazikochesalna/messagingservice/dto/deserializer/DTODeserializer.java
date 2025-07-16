@@ -7,10 +7,19 @@ import com.yazikochesalna.messagingservice.exception.InvalidMessageFormatCustomE
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 public class DTODeserializer {
     private static final Long NANOSECONDS_IN_SECOND = 1_000_000_000L;
+
+    private static final Map<MessageType, Class<? extends PayloadDTO>> MESSAGE_TYPE_TO_DTO = Map.of(
+            MessageType.MESSAGE, PayloadMessageDTO.class,
+            MessageType.NEW_MEMBER, PayloadNotificationChangeMembersDTO.class,
+            MessageType.DROP_MEMBER, PayloadNotificationChangeMembersDTO.class,
+            MessageType.PIN, PayloadNotificationPinDTO.class,
+            MessageType.NEW_CHAT_AVATAR, PayloadNotificationNewChatAvatarDTO.class
+    );
 
     public static Instant getTime(JsonNode node) {
         JsonNode timestampNode = node.get("timestamp");
@@ -27,19 +36,14 @@ public class DTODeserializer {
 
     public static PayloadDTO getPayload(ObjectMapper mapper, MessageType type, JsonNode node) throws IOException {
         JsonNode payloadNode = node.get("payload");
-        PayloadDTO payload;
-        if (type == MessageType.MESSAGE) {
-            payload = mapper.treeToValue(payloadNode, PayloadMessageDTO.class);
-        } else if (type == MessageType.NEW_MEMBER || type == MessageType.DROP_MEMBER) {
-            payload = mapper.treeToValue(payloadNode, PayloadNotificationChangeMembersDTO.class);
-        } else if (type == MessageType.PIN) {
-            payload = mapper.treeToValue(payloadNode, PayloadNotificationPinDTO.class);
-        } else if (type == MessageType.NEW_CHAT_AVATAR) {
-            payload = mapper.treeToValue(payloadNode, PayloadNotificationNewChatAvatarDTO.class);
-        } else {
+
+        Class<? extends PayloadDTO> dtoClass = MESSAGE_TYPE_TO_DTO.get(type);
+
+        if (dtoClass == null) {
             throw new InvalidMessageFormatCustomException();
         }
-        return payload;
+
+        return mapper.treeToValue(payloadNode, dtoClass);
     }
 
 

@@ -3,13 +3,15 @@ package com.yazikochesalna.messagingservice.dto.kafka;
 import com.yazikochesalna.messagingservice.dto.validator.ValidAttachmentLimits;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -17,9 +19,6 @@ import java.util.List;
 @Accessors(chain = true)
 public class PayloadMessageDTO extends PayloadDTO {
     private Long senderId;
-
-    @NotNull(message = "chatId не может быть null")
-    private Long chatId;
     @NotBlank(message = "Текст сообщения не может быть пустым")
     private String text;
     @Valid

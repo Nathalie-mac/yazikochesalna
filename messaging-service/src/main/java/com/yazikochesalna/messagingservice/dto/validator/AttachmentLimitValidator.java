@@ -22,10 +22,6 @@ public class AttachmentLimitValidator implements ConstraintValidator<ValidAttach
                 .filter(attachment -> attachment.getType() == AttachmentType.FILE)
                 .count();
 
-        long replyCount = attachments.stream()
-                .filter(attachment -> attachment.getType() == AttachmentType.REPLY)
-                .count();
-
         if (fileCount > 10) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(
@@ -33,6 +29,11 @@ public class AttachmentLimitValidator implements ConstraintValidator<ValidAttach
                     .addConstraintViolation();
             return false;
         }
+
+        long replyCount = attachments.stream()
+                .filter(attachment -> attachment.getType() == AttachmentType.REPLY)
+                .count();
+
 
         if (replyCount > 1) {
             context.disableDefaultConstraintViolation();
