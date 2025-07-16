@@ -56,6 +56,7 @@ build-frontend:
       EOT
 
     # Клонируем фронтенд
+    - rm -rf frontend || true
     - git clone git@gitlab.com:$FRONTEND_PROJECT.git frontend
 
     # Устанавливаем зависимости и собираем проект
