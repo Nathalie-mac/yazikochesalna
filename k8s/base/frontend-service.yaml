@@ -16,7 +16,7 @@ spec:
         - name: gitlab-regcred
       containers:
         - name: frontend-service
-          image: registry.gitlab.com/liza.antipa/yazikochesalna/frontend:deploy.frontend
+          image: registry.gitlab.com/liza.antipa/yazikochesalna/frontend:main
           imagePullPolicy: Always
           ports:
             - containerPort: 80
