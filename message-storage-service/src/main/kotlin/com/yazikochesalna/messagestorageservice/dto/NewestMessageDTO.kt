@@ -7,5 +7,5 @@ import lombok.Data
 @Data
 data class NewestMessageDTO(
     var chatId: Long,
-    var messagesJsonFormatDTO: MessagesJsonFormatDTO?
+    var lastMessage: MessagesJsonFormatDTO?
 )

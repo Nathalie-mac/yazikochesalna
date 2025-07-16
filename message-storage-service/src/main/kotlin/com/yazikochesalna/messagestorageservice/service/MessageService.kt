@@ -95,7 +95,7 @@ open class MessageService(
             val lastMessage = messageByChatRepository.findFirstByChatId(chatId).block()
             NewestMessageDTO(
                 chatId = chatId,
-                messagesJsonFormatDTO = lastMessage?.let { cassandraEntitiesConvertor.convertToMessagesJsonFormatDto(it) }
+                lastMessage = lastMessage?.let { cassandraEntitiesConvertor.convertToMessagesJsonFormatDto(it) }
             )
         }
     }
