@@ -1,6 +1,7 @@
 package com.yazikochesalna.authorizationservice
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration
 import org.springframework.boot.runApplication
 
 @SpringBootApplication(scanBasePackages = [
@@ -8,7 +9,8 @@ import org.springframework.boot.runApplication
     "com.yazikochesalna.common",
     "org.springframework.security.crypto.password",
     "org.springframework.security.authentication",
-]
+],
+    exclude = { ErrorMvcAutoConfiguration.class}
 )
 open class AuthorizationServiceApplication
 
