@@ -1,7 +1,6 @@
 package com.yazikochesalna.messagingservice.handler;
 
 import com.yazikochesalna.messagingservice.processor.TextMessageProcessor;
-import com.yazikochesalna.messagingservice.service.WebSocketMessageService;
 import com.yazikochesalna.messagingservice.service.WebSocketSessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

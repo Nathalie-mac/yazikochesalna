@@ -2,7 +2,7 @@ package com.yazikochesalna.messagingservice.processor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yazikochesalna.messagingservice.dto.kafka.AwaitingResponseMessageDTO;
+import com.yazikochesalna.messagingservice.dto.request.AwaitingResponseMessageDTO;
 import com.yazikochesalna.messagingservice.dto.response.ResponseResultType;
 import com.yazikochesalna.messagingservice.dto.validator.MessageDTOValidator;
 import com.yazikochesalna.messagingservice.exception.InvalidMessageFormatCustomException;

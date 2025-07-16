@@ -1,7 +1,9 @@
-package com.yazikochesalna.messagingservice.dto.kafka;
+package com.yazikochesalna.messagingservice.dto.request;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.yazikochesalna.messagingservice.dto.deserializer.AwaitingResponseMessageDTODeserializer;
+import com.yazikochesalna.messagingservice.dto.kafka.MessageType;
+import com.yazikochesalna.messagingservice.dto.kafka.PayloadDTO;
 import jakarta.validation.Valid;
 import lombok.Builder;
 import lombok.Data;

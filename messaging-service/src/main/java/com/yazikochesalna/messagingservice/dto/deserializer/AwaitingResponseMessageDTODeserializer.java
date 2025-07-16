@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.yazikochesalna.messagingservice.dto.kafka.AwaitingResponseMessageDTO;
 import com.yazikochesalna.messagingservice.dto.kafka.MessageType;
 import com.yazikochesalna.messagingservice.dto.kafka.PayloadDTO;
+import com.yazikochesalna.messagingservice.dto.request.AwaitingResponseMessageDTO;
 
 import java.io.IOException;
 
