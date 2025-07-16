@@ -2,10 +2,7 @@ package com.yazikochesalna.messagingservice.dto.deserializer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yazikochesalna.messagingservice.dto.kafka.MessageType;
-import com.yazikochesalna.messagingservice.dto.kafka.PayloadDTO;
-import com.yazikochesalna.messagingservice.dto.kafka.PayloadMessageDTO;
-import com.yazikochesalna.messagingservice.dto.kafka.PayloadNotificationDTO;
+import com.yazikochesalna.messagingservice.dto.kafka.*;
 import com.yazikochesalna.messagingservice.exception.InvalidMessageFormatCustomException;
 
 import java.io.IOException;
@@ -34,7 +31,11 @@ public class DTODeserializer {
         if (type == MessageType.MESSAGE) {
             payload = mapper.treeToValue(payloadNode, PayloadMessageDTO.class);
         } else if (type == MessageType.NEW_MEMBER || type == MessageType.DROP_MEMBER) {
-            payload = mapper.treeToValue(payloadNode, PayloadNotificationDTO.class);
+            payload = mapper.treeToValue(payloadNode, PayloadNotificationChangeMembersDTO.class);
+        } else if (type == MessageType.PIN) {
+            payload = mapper.treeToValue(payloadNode, PayloadNotificationPinDTO.class);
+        } else if (type == MessageType.NEW_CHAT_AVATAR) {
+            payload = mapper.treeToValue(payloadNode, PayloadNotificationNewChatAvatarDTO.class);
         } else {
             throw new InvalidMessageFormatCustomException();
         }
