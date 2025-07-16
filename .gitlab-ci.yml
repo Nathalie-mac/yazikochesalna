@@ -56,12 +56,9 @@ build-frontend:
         UserKnownHostsFile=/dev/null
       EOT
 
-    # Для дебага: покажет, что мы собираемся клонировать
-    - echo "Cloning from git@gitlab.com:$FRONTEND_PROJECT.git"
-    
     # Клонируем фронтенд
     - rm -rf frontend || true
-    - git clone git@gitlab.com:$FRONTEND_PROJECT.git frontend
+    - git clone git@gitlab.com:$FRONTEND_PROJECT.git frontend  -b Develop-volodya
     
     - cd frontend
     # Перемещаем нужную папку внутрь frontend
