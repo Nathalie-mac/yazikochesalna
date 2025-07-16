@@ -5,7 +5,7 @@ metadata:
   namespace: messenger
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
     nginx.ingress.kubernetes.io/websocket-services: messaging-service
@@ -17,45 +17,56 @@ spec:
     secretName: messenger-tls
   rules:
   - host: xn--80ajfmhmdz6cwbs0al.xn--p1ai
-  - http:
+    http:
       paths:
-      - path: /api/v1/auth/(.*)
-        pathType: ImplementationSpecific   # ← было Prefix
+      # Auth Service
+      - path: /api/v1/auth
+        pathType: Prefix
         backend:
           service:
             name: auth-service
             port:
               number: 8085
-      - path: /api/v1/chats(.*)
-        pathType: ImplementationSpecific   # ← было Prefix
+
+      # Chat Service
+      - path: /api/v1/chats
+        pathType: Prefix
         backend:
           service:
             name: chat-service
             port:
               number: 8080
-      - path: /api/v1/messages(.*)
-        pathType: ImplementationSpecific   # ← было Prefix
+
+      # Message Storage Service
+      - path: /api/v1/messages
+        pathType: Prefix
         backend:
           service:
             name: message-storage-service
             port:
               number: 8081
+
+      # WebSocket endpoint (Exact)
       - path: /api/v1/ws
-        pathType: Exact                  # Exact оставляем, регулярка не нужна
+        pathType: Exact
         backend:
           service:
             name: messaging-service
             port:
               number: 8082
-      - path: /api/v1/ws/(.*)
-        pathType: ImplementationSpecific # ← было Prefix
+
+      # WebSocket fallback or subpaths
+      - path: /api/v1/ws/
+        pathType: Prefix
         backend:
           service:
             name: messaging-service
             port:
               number: 8082
-      - path: /api/v1/users(.*)
-        pathType: ImplementationSpecific # ← было Prefix
+
+      # User Service
+      - path: /api/v1/users
+        pathType: Prefix
         backend:
           service:
             name: user-service
