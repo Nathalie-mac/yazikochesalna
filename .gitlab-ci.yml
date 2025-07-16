@@ -37,125 +37,41 @@ stages:
     - buildah push "$IMAGE_PATH"
     
 # --- Определяем job для каждого сервиса --- #
-build-authorization-service:
-  <<: *build-template
-  variables:
-    SERVICE_DIR: "authorization-service"
 
-build-chat-service:
-  <<: *build-template
-  variables:
-    SERVICE_DIR: "chat-service"
+build-frontend:
+  stage: build
+  image: node:20
+  script:
+    # Расшифровываем SSH-ключ
+    - echo "$GitlabPrivateKey" | base64 --decode > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - mkdir -p ~/.ssh
+    - |
+      cat <<EOT > ~/.ssh/config
+      Host gitlab.com
+        IdentityAgent none
+        StrictHostKeyChecking no
+        UserKnownHostsFile=/dev/null
+      EOT
 
-build-message-storage-service:
-  <<: *build-template
-  variables:
-    SERVICE_DIR: "message-storage-service"
+    # Клонируем фронтенд
+    - git clone git@gitlab.com:$FRONTEND_PROJECT.git frontend
 
-build-messaging-service:
-  <<: *build-template
-  variables:
-    SERVICE_DIR: "messaging-service"
+    # Устанавливаем зависимости и собираем проект
+    - cd frontend
+    - npm ci
+    - npm run build
 
-build-user-service:
-  <<: *build-template
-  variables:
-    SERVICE_DIR: "user-service"
-
+  artifacts:
+    paths:
+      - frontend/dist/
 
 # --- Определяем Docker сборку для каждого сервиса --- #
 
-docker-authorization-service:
+docker-frontend:
   <<: *build-docker-template
   variables:
-    SERVICE_DIR: "authorization-service"
-    DOCKER_IMAGE_NAME: "authorization-service"
+    SERVICE_DIR: frontend
+    DOCKER_IMAGE_NAME: frontend
   dependencies:
-    - build-authorization-service
-
-docker-chat-service:
-  <<: *build-docker-template
-  variables:
-    SERVICE_DIR: "chat-service"
-    DOCKER_IMAGE_NAME: "chat-service"
-  dependencies:
-    - build-chat-service
-
-docker-message-storage-service:
-  <<: *build-docker-template
-  variables:
-    SERVICE_DIR: "message-storage-service"
-    DOCKER_IMAGE_NAME: "message-storage-service"
-  dependencies:
-    - build-message-storage-service
-
-docker-messaging-service:
-  <<: *build-docker-template
-  variables:
-    SERVICE_DIR: "messaging-service"
-    DOCKER_IMAGE_NAME: "messaging-service"
-  dependencies:
-    - build-messaging-service
-
-docker-user-service:
-  <<: *build-docker-template
-  variables:
-    SERVICE_DIR: "user-service"
-    DOCKER_IMAGE_NAME: "user-service"
-  dependencies:
-    - build-user-service
-
-docker-cassandra:
-  <<: *build-docker-template
-  variables:
-    SERVICE_DIR: "message-storage-service/cassandra"
-    DOCKER_IMAGE_NAME: "cassandra"
-
-
-### --- Деплой --- ###
-
-
-deploy-kustomize:
-  stage: deploy
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      when: always
-  image:
-    name: lachlanevenson/k8s-kubectl:latest
-    entrypoint: [""]
-  script:
-    # Проверка, что переменная установлена
-    - |
-      if [ -z "$KUBECONFIG_CONTENTS" ]; then
-        echo "Ошибка: переменная KUBECONFIG_CONTENTS не установлена"
-        exit 1
-      fi
-
-    # Переход в директорию с kustomization.yaml
-    - cd k8s/overlays/dev
-    # Проверяем путь к файлу
-    - echo "Путь к encoded kubeconfig - $KUBECONFIG_CONTENTS"
-
-    # Читаем содержимое и декодируем
-    - mkdir -p ~/.kube
-    - cat "$KUBECONFIG_CONTENTS" | base64 -d > ~/.kube/config
-    - chmod 600 ~/.kube/config
-    - export KUBECONFIG=~/.kube/config
-
-    # Диагностические команды
-    - kubectl version --client
-    - kubectl config view
-    - kubectl config current-context
-    - kubectl config get-contexts
-    - kubectl version
-    
-    # Проверяем текущий контекст kubectl
-    - kubectl config current-context
-
-    # Применяем манифесты с помощью kustomize
-    - kubectl -n messenger get secret gitlab-regcred && kubectl -n messenger delete secret gitlab-regcred
-    - kubectl -n messenger apply -k .
-    # Принудительно обновляем образы
-    - kubectl get deployments -n messenger -o name | xargs -I {} kubectl rollout restart {} -n messenger
-    # Принудительно обновляем манифесты ingress
-    - kubectl rollout restart deployment -n ingress-nginx ingress-nginx-controller
+    - build-frontend
