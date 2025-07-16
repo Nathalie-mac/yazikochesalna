@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: general-service-config
+data:
+  JWT_ACCESS_TOKEN_EXPIRATION: "36000000"
+  JWT_REFRESH_TOKEN_EXPIRATION: "252000000"
+  WEBCLIENT_TIMEOUT: "50000"
+  CHAT_SERVICE_URL: "http://chat-service.messenger.svc.cluster.local:8080"
+  MESSAGE_STORAGE_SERVICE_URL: "http://message-storage-service.messenger.svc.cluster.local:8081"
+  MESSAGING_SERVICE_URL: "http://messaging-service.messenger.svc.cluster.local:8082"
+  USER_SERVICE_URL: "http://user-service.messenger.svc.cluster.local:8083"
+  AUTHORIZATION_SERVICE_URL: "http://authorization-service.messenger.svc.cluster.local:8085"
+  FRONT_SERVER_URL: "http://localhost:5173,http://xn--80ajfmhmdz6cwbs0al.xn--p1ai:80,http://xn--80ajfmhmdz6cwbs0al.xn--p1ai:8080,http://xn--80ajfmhmdz6cwbs0al.xn--p1ai:443,http://xn--80ajfmhmdz6cwbs0al.xn--p1ai"

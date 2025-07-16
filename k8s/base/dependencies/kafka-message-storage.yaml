@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-message-storage
+  labels:
+    app: kafka-message-storage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-message-storage
+  template:
+    metadata:
+      labels:
+        app: kafka-message-storage
+    spec:
+      containers:
+      - name: kafka-message-storage
+        image: confluentinc/cp-kafka:latest
+        ports:
+          - containerPort: 9092
+          - containerPort: 9093
+        envFrom:
+          - configMapRef:
+              name: kafka-message-storage-config
+        volumeMounts:
+          - name: kafka-message-storage
+            mountPath: /data
+        livenessProbe:
+          tcpSocket:
+            port: 9092
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 5
+      volumes:
+        - name: kafka-message-storage
+          persistentVolumeClaim:
+            claimName: kafka-message-storage-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-message-storage
+spec:
+  ports:
+    - name: plaintext
+      port: 9092
+      targetPort: 9092
+    - name: controller
+      port: 9093
+      targetPort: 9093
+  selector:
+    app: kafka-message-storage
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kafka-message-storage-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

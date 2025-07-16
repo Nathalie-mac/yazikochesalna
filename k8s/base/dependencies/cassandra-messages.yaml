@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cassandra-messages
+  namespace: messenger
+  labels:
+    app: cassandra-messages
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cassandra-messages
+  template:
+    metadata:
+      labels:
+        app: cassandra-messages
+    spec:
+      imagePullSecrets:
+        - name: gitlab-regcred
+      containers:
+        - name: cassandra-messages
+          image: registry.gitlab.com/liza.antipa/yazikochesalna/cassandra:main
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9042
+          envFrom:
+            - configMapRef:
+                name: cassandra-messages-config
+            - secretRef:
+                name: cassandra-messages-secrets
+          volumeMounts:
+            - name: cassandra-messages-data
+              mountPath: /var/lib/cassandra
+            - name: cassandra-init-flag
+              mountPath: /bitnami/cassandra/initialized
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "cqlsh -u \"$CASSANDRA_USER\" -p \"$CASSANDRA_PASSWORD\" localhost 9042 -e \"DESCRIBE KEYSPACES\""]
+            initialDelaySeconds: 320
+            periodSeconds: 20
+            failureThreshold: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "cqlsh -u \"$CASSANDRA_USER\" -p \"$CASSANDRA_PASSWORD\" localhost 9042 -e \"SELECT keyspace_name FROM system_schema.keyspaces WHERE keyspace_name = 'storage_service_keyspace'\""]
+            initialDelaySeconds: 31
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+      volumes:
+        - name: cassandra-messages-data
+          persistentVolumeClaim:
+            claimName: cassandra-messages-pvc
+        - name: cassandra-init-flag
+          persistentVolumeClaim:
+            claimName: cassandra-init-flag-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cassandra-messages
+  namespace: messenger
+spec:
+  ports:
+    - port: 9042
+      targetPort: 9042
+  selector:
+    app: cassandra-messages
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cassandra-messages-pvc
+  namespace: messenger
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cassandra-init-flag-pvc
+  namespace: messenger
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi

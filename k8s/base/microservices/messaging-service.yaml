@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: messaging-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: messaging-service
+  template:
+    metadata:
+      labels:
+        app: messaging-service
+    spec:
+      imagePullSecrets:
+        - name: gitlab-regcred
+      initContainers:
+        - name: wait-for-kafka
+          image: busybox
+          command: [ 'sh', '-c', 'until nc -z kafka-message-storage.messenger.svc.cluster.local 9092; do echo waiting for Kafka; sleep 5; done;' ]
+        - name: wait-for-redis
+          image: redis:7.0-alpine
+          command: [ 'sh', '-c', 'until redis-cli -h redis-websocket-tokens.messenger.svc.cluster.local -p 6379 ping | grep -q PONG; do echo waiting for Redis; sleep 5; done;' ]
+      containers:
+        - name: messaging-service
+          image: registry.gitlab.com/liza.antipa/yazikochesalna/messaging-service:main
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8082
+          envFrom:
+            - configMapRef:
+                name: messaging-service-config
+            - configMapRef:
+                name: general-service-config
+            - secretRef:
+                name: general-service-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: messaging-service
+spec:
+  ports:
+    - port: 8082
+      targetPort: 8082
+  selector:
+    app: messaging-service

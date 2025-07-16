@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: message-storage-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: message-storage-service
+  template:
+    metadata:
+      labels:
+        app: message-storage-service
+    spec:
+      imagePullSecrets:
+        - name: gitlab-regcred
+      initContainers:
+        - name: wait-for-kafka
+          image: busybox
+          command: [ 'sh', '-c', 'until nc -z kafka-message-storage.messenger.svc.cluster.local 9092; do echo waiting for Kafka; sleep 5; done;' ]
+        - name: wait-for-cassandra
+          image: bitnami/cassandra:latest
+          env:
+            - name: CASSANDRA_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: message-storage-service-secrets
+                  key: SPRING_CASSANDRA_USERNAME
+            - name: CASSANDRA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: message-storage-service-secrets
+                  key: SPRING_CASSANDRA_PASSWORD
+          command: ['sh', '-c', 'until cqlsh -u "$CASSANDRA_USERNAME" -p "$CASSANDRA_PASSWORD" cassandra-messages.messenger.svc.cluster.local 9042 -e "SELECT keyspace_name FROM system_schema.keyspaces WHERE keyspace_name = ''storage_service_keyspace''" | grep storage_service_keyspace; do echo "waiting for Cassandra keyspace storage_service_keyspace"; sleep 5; done;']
+      containers:
+        - name: message-storage-service
+          image: registry.gitlab.com/liza.antipa/yazikochesalna/message-storage-service:main
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+          envFrom:
+            - configMapRef:
+                name: message-storage-service-config
+            - secretRef:
+                name: message-storage-service-secrets
+            - configMapRef:
+                name: general-service-config
+            - secretRef:
+                name: general-service-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: message-storage-service
+spec:
+  ports:
+    - port: 8081
+      targetPort: 8081
+  selector:
+    app: message-storage-service
