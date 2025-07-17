@@ -10,40 +10,38 @@ import org.springframework.stereotype.Component
 import java.nio.ByteBuffer
 import java.time.Instant
 import java.time.LocalDateTime
-import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 @Component
 class DateTimeCodec : TypeCodec<LocalDateTime> {
 
-    override fun getJavaType(): GenericType<LocalDateTime> {
-        return GenericType.LOCAL_DATE_TIME
-    }
+    override fun getJavaType(): GenericType<LocalDateTime> =
+        GenericType.LOCAL_DATE_TIME
 
-    override fun getCqlType(): DataType {
-        return DataTypes.TIMESTAMP
-    }
+    override fun getCqlType(): DataType =
+        DataTypes.TIMESTAMP
 
-    override fun accepts(javaClass: Class<*>): Boolean {
-        return javaClass == LocalDateTime::class.java
-    }
 
-    override fun accepts(cqlType: DataType): Boolean {
-        return cqlType.asCql(false, true) == "timestamp"
-    }
+    override fun accepts(javaClass: Class<*>): Boolean =
+        javaClass == LocalDateTime::class.java
 
-    override fun decode(bytes: ByteBuffer?, protocolVersion: ProtocolVersion): LocalDateTime? {
-        return bytes?.let {
+
+    override fun accepts(cqlType: DataType): Boolean =
+        cqlType.asCql(false, true) == "timestamp"
+
+
+    override fun decode(bytes: ByteBuffer?, protocolVersion: ProtocolVersion): LocalDateTime? =
+        bytes?.let {
             val instant = TypeCodecs.TIMESTAMP.decode(bytes, protocolVersion)
             instant?.atOffset(ZoneOffset.UTC)?.toLocalDateTime()
         }
-    }
 
-    override fun format(p0: LocalDateTime?): String {
+
+    override fun format(p0: LocalDateTime?): String =
         //if (p0 == null) return "NULL"
-        return p0?.atOffset(ZoneOffset.UTC)?.format(DateTimeFormatter.ISO_INSTANT)?: "NULL"
-    }
+        p0?.atOffset(ZoneOffset.UTC)?.format(DateTimeFormatter.ISO_INSTANT) ?: "NULL"
+
 
     override fun parse(p0: String?): LocalDateTime? {
         if (p0 == null) return null

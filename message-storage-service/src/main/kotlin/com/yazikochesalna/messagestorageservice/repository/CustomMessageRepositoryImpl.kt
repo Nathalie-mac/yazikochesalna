@@ -4,6 +4,7 @@ import com.datastax.dse.driver.api.core.cql.reactive.ReactiveSession
 import com.datastax.oss.driver.api.core.cql.Row
 import com.yazikochesalna.messagestorageservice.exception.customexceptions.NullCassandraFiledException
 import com.yazikochesalna.messagestorageservice.model.db.Message
+import com.yazikochesalna.messagestorageservice.model.db.convertor.CassandraEntitiesConvertor
 import com.yazikochesalna.messagestorageservice.model.enums.MessageType
 import jakarta.annotation.PostConstruct
 import org.springframework.beans.factory.annotation.Qualifier
@@ -19,7 +20,8 @@ import java.util.*
 @Repository
 open class CustomMessageRepositoryImpl(
     private val reactiveCqlTemplate: ReactiveCqlTemplate,
-    @Qualifier("session") private val reactiveSession: ReactiveSession
+    @Qualifier("session") private val reactiveSession: ReactiveSession,
+    private val convertor: CassandraEntitiesConvertor
 ) : CustomMessageRepository {
 
     private lateinit var cursorMessageSelectStmt: String
@@ -46,7 +48,7 @@ open class CustomMessageRepositoryImpl(
     ): Flux<Message> {
         val cursorMessageMono = reactiveCqlTemplate.query(
             cursorMessageSelectStmt,
-            { rs, _ -> deserializeMessage(rs) },
+            { rs, _ -> convertor.deserializeMessage(rs) },
             cursor).single()
 
         return cursorMessageMono.flatMapMany { cursorMessage ->
@@ -56,7 +58,7 @@ open class CustomMessageRepositoryImpl(
             val beforeMessagesFlux = if (limitUp > 0) {
                 reactiveCqlTemplate.query(
                     beforeCursorSelectStmt,
-                    { rs, _ -> deserializeMessage(rs) },
+                    { rs, _ -> convertor.deserializeMessage(rs) },
                     chatId, cursorTime, limitUp
                 ).collectList()
             } else {
@@ -66,7 +68,7 @@ open class CustomMessageRepositoryImpl(
             val afterMessagesFlux = if (limitDown > 0) {
                 reactiveCqlTemplate.query(
                     afterCursorSelectStmt,
-                    { rs, _ -> deserializeMessage(rs) },
+                    { rs, _ -> convertor.deserializeMessage(rs) },
                     chatId, cursorTime, limitDown
                 ).collectList()
             } else {
@@ -93,26 +95,8 @@ open class CustomMessageRepositoryImpl(
     override fun findMessagesWithoutCursor(chatId: Long, limitUp: Int): Flux<Message> =
         reactiveCqlTemplate.query(
             withoutCursorSelectStmt,
-            { rs, _ -> deserializeMessage(rs) },
+            { rs, _ -> convertor.deserializeMessage(rs) },
             chatId, limitUp
         ).collectList()
             .flatMapMany { messages -> Flux.fromIterable(messages.asReversed()) }
-
-
-    private fun deserializeMessage(rs: Row): Message = kotlin.runCatching {
-        Message(
-            id = rs.getUuid("id") ?: throw NullCassandraFiledException("id"),
-            type = MessageType.fromType(rs.getString("type")) ?: throw NullCassandraFiledException("type"),
-            senderId = rs.getLong("sender_id"),
-            chatId = rs.getLong("chat_id"),
-            text = rs.getString("text"),
-            sendTime = rs.get("send_time", LocalDateTime::class.java) ?: throw NullCassandraFiledException("send_time"),
-            markedToDelete = rs.getBoolean("marked_to_delete")
-        )
-    }.getOrElse { e ->
-        when (e) {
-            is NullCassandraFiledException -> throw e
-            else -> throw IllegalStateException("Deserialization in table Message failed", e)
-        }
-    }
 }

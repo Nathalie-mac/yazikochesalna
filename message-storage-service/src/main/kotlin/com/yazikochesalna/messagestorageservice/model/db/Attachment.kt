@@ -3,25 +3,20 @@ package com.yazikochesalna.messagestorageservice.model.db
 import com.yazikochesalna.messagestorageservice.model.enums.AttachmentType
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
-import org.springframework.data.cassandra.core.mapping.Column
-import org.springframework.data.cassandra.core.mapping.Indexed
-import org.springframework.data.cassandra.core.mapping.PrimaryKey
-import org.springframework.data.cassandra.core.mapping.Table
+import org.springframework.data.cassandra.core.cql.PrimaryKeyType
+import org.springframework.data.cassandra.core.mapping.*
 import java.util.*
 
 @Table("attachments")
 data class Attachment(
-    @PrimaryKey
-    var id: Long,
+    @PrimaryKeyColumn(name = "id", type = PrimaryKeyType.CLUSTERED, ordinal = 1)
+    var id: UUID,
 
-    @Column("message_id")
-    @Indexed
-    var message_id: UUID,
+    @PrimaryKeyColumn(name = "message_id", type = PrimaryKeyType.PARTITIONED)
+    var messageId: UUID,
 
-    @Column("attachment_type")
+    @Column("type")
     @Enumerated(value = EnumType.STRING)
-    var attachmentType: AttachmentType,
+    var type: AttachmentType,
 
-    @Column("attachment")
-    var attachment: String
 )

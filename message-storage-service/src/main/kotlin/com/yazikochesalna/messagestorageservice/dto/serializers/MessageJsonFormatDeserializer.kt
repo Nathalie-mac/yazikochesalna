@@ -1,17 +1,16 @@
 package com.yazikochesalna.messagestorageservice.dto.serializers
 
 import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
+import com.fasterxml.jackson.module.kotlin.kotlinModule
+import com.fasterxml.jackson.module.kotlin.treeToValue
 import com.yazikochesalna.messagestorageservice.dto.MessagesJsonFormatDTO
-import com.yazikochesalna.messagestorageservice.dto.PayLoadDTO
-import com.yazikochesalna.messagestorageservice.dto.PayLoadMessageDTO
-import com.yazikochesalna.messagestorageservice.dto.PayLoadNoticeDTO
+import com.yazikochesalna.messagestorageservice.dto.payloads.*
 import com.yazikochesalna.messagestorageservice.exception.customexceptions.ErrorInEnumException
-import com.yazikochesalna.messagestorageservice.exception.customexceptions.ErrorKafkaDeserializatonException
+import com.yazikochesalna.messagestorageservice.exception.customexceptions.ErrorInPayLoadException
 import com.yazikochesalna.messagestorageservice.model.enums.MessageType
 import com.yazikochesalna.messagestorageservice.service.ChatServiceClient
 import org.slf4j.Logger
@@ -24,7 +23,7 @@ import java.time.ZoneOffset
 import java.util.*
 
 @Component
-open class MessageJsonFormatDeserializer :  StdDeserializer<MessagesJsonFormatDTO> {
+open class MessageJsonFormatDeserializer : StdDeserializer<MessagesJsonFormatDTO> {
 
     private val log: Logger = LoggerFactory.getLogger(ChatServiceClient::class.java)
 
@@ -32,18 +31,10 @@ open class MessageJsonFormatDeserializer :  StdDeserializer<MessagesJsonFormatDT
 
     constructor(vc: Class<MessagesJsonFormatDTO>) : super(vc)
 
-    override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): MessagesJsonFormatDTO {
-//        val mapper = jp.codec as ObjectMapper
-//        val node: JsonNode = mapper.readTree(jp)
-//
-//        val type = getMessageType(node)
-//        val messageId = UUID.fromString(node["messageId"].asText())
-//        val timestamp = convertToLDT(node["timestamp"].asDouble())
-//        val payload = getPayLoad(mapper, type, node)
-//        return MessagesJsonFormatDTO(messageId, type, timestamp, payload)
-        return runCatching {
+    override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): MessagesJsonFormatDTO =
+        runCatching {
             val mapper = jp.codec as ObjectMapper
-            val node : JsonNode = mapper.readTree(jp)
+            val node: JsonNode = mapper.readTree(jp)
 
             val type = getMessageType(node)
             val messageId = UUID.fromString(node["messageId"].asText())
@@ -53,9 +44,8 @@ open class MessageJsonFormatDeserializer :  StdDeserializer<MessagesJsonFormatDT
             MessagesJsonFormatDTO(messageId, type, timestamp, payload)
         }.fold(
             onSuccess = { it },
-            onFailure = { e ->throw e  }
+            onFailure = { e -> throw e }
         )
-    }
 
     private fun convertToLDT(instantStr: BigDecimal): LocalDateTime {
         val seconds = instantStr.toLong()
@@ -78,25 +68,44 @@ open class MessageJsonFormatDeserializer :  StdDeserializer<MessagesJsonFormatDT
 
     private fun getPayLoad(mapper: ObjectMapper, messageType: MessageType, node: JsonNode): PayLoadDTO {
         val payloadNode = node["payload"]
-        return when (messageType){
-            MessageType.MESSAGE ->{
-                mapper.treeToValue<PayLoadMessageDTO>(payloadNode, PayLoadMessageDTO::class.java)
-            }
-            MessageType.NEW_MEMBER,
-                MessageType.DROP_MEMBER ->{
-                mapper.treeToValue<PayLoadNoticeDTO>(payloadNode, PayLoadNoticeDTO::class.java)
-                }
-            else -> throw ErrorKafkaDeserializatonException("type")
+        return kotlin.runCatching {
+            val dtoClass = dtoClassMap[messageType]
+            mapper.treeToValue(payloadNode, dtoClass)
+        }.getOrElse {
+            throw ErrorInEnumException("Unknown message type: $messageType")
         }
-//        val payload: PayLoadDTO
-//        if (messageType == MessageType.MESSAGE) {
-//            payload = mapper.treeToValue<PayLoadMessageDTO>(payloadNode, PayLoadMessageDTO::class.java)
-//        } else if (messageType == MessageType.NEW_MEMBER || messageType == MessageType.DROP_MEMBER) {
-//            payload = mapper.treeToValue<PayLoadNoticeDTO>(payloadNode, PayLoadNoticeDTO::class.java)
-//        } else {
-//            throw ErrorKafkaDeserializatonException("type")
+//        val dtoClass = dtoClassMap[messageType] ?: throw ErrorInEnumException(messageType.name)
+//        return kotlin.runCatching {
+//            mapper.treeToValue(payloadNode, dtoClass)
+//        }.getOrElse {
+//            throw ErrorInEnumException(messageType.name)
 //        }
-//        return payload
+//        return when (messageType) {
+//            MessageType.MESSAGE -> {
+//                mapper.treeToValue<PayLoadMessageDTO>(payloadNode, PayLoadMessageDTO::class.java)
+//            }
+//
+//            MessageType.NEW_MEMBER,
+//            MessageType.DROP_MEMBER -> {
+//                mapper.treeToValue<PayLoadNoticeDTO>(payloadNode, PayLoadNoticeDTO::class.java)
+//            }
+//
+//            MessageType.PIN -> {
+//                mapper.treeToValue<PayLoadPinDTO>(payloadNode, PayLoadPinDTO::class.java)
+//            }
+//
+//            MessageType.NEW_CHAT_AVATAR -> {
+//                mapper.treeToValue<PayLoadNewChatAvatarDTO>(payloadNode, PayLoadNewChatAvatarDTO::class.java)
+//            }
+//        }
     }
+
+    private val dtoClassMap: Map<MessageType, Class<out PayLoadDTO>> = mapOf(
+        MessageType.MESSAGE to PayLoadMessageDTO::class.java,
+        MessageType.NEW_MEMBER to PayLoadNoticeDTO::class.java,
+        MessageType.DROP_MEMBER to PayLoadNoticeDTO::class.java,
+        MessageType.PIN to PayLoadPinDTO::class.java,
+        MessageType.NEW_CHAT_AVATAR to PayLoadNewChatAvatarDTO::class.java,
+    )
 
 }

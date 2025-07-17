@@ -69,12 +69,6 @@ open class FrontController(
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
 
-//        if (cursor == null){
-//            return ResponseEntity.status(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED).build()
-//        }
-
-
-        //Получаем сообщения
         return runCatching {
             val body = userId?.let {
                 messageService.getMessagesAroundCursor(

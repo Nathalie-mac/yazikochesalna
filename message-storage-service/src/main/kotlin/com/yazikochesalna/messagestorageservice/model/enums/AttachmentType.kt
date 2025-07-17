@@ -4,10 +4,10 @@ import com.yazikochesalna.messagestorageservice.exception.customexceptions.Error
 
 enum class AttachmentType(val at: String) {
     REPLY("REPLY"),
-    FORWARD("FORWARD"),
+    FILE("FILE"),
     PIN("PIN"),
-    ATTACHMENT("ATTACHMENT"),
-    NEW_AVATAR("NEW_AVATAR");
+    NEW_CHAT_AVATAR("NEW_CHAT_AVATAR");
+
 
     companion object {
 
