@@ -23,9 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class NotificationController {
     private final WebSocketMessageService webSocketMessageService;
 
-    @PostMapping("/")
+    @PostMapping("/update-members")
     @RolesAllowed("SERVICE")
-    @Operation(summary = "Отправка уведомления о изменении состава участников ",
+    @Operation(summary = "Отправка уведомления об изменении состава участников ",
             description = "Внтуренний метод для отправки уведомлений о добавлении или удалении нового пользователя. Доступен только для сервисов.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Уведомление принято в рассылку"),
@@ -33,6 +33,20 @@ public class NotificationController {
     })
     @Hidden
     public ResponseEntity<?> sendUpdateChatMembersNotification(@Valid @RequestBody MessageDTO messageDTO) {
+        webSocketMessageService.sendMessage(messageDTO);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/new-chat-avatar")
+    @RolesAllowed("SERVICE")
+    @Operation(summary = "Отправка уведомления о новой аватарки чата",
+            description = "Внтуренний метод для отправки уведомлений об установки новой аватарки чата. Доступен только для сервисов.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Уведомление принято в рассылку"),
+            @ApiResponse(responseCode = "400", description = "Некорректный формат запроса")
+    })
+    @Hidden
+    public ResponseEntity<?> sendNewChatAvatarNotification(@Valid @RequestBody MessageDTO messageDTO) {
         webSocketMessageService.sendMessage(messageDTO);
         return ResponseEntity.ok().build();
     }

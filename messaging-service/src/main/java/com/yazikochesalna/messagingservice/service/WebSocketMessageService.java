@@ -1,7 +1,11 @@
 package com.yazikochesalna.messagingservice.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yazikochesalna.messagingservice.dto.kafka.*;
+import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
+import com.yazikochesalna.messagingservice.dto.kafka.MessageType;
+import com.yazikochesalna.messagingservice.dto.kafka.PayloadMessageDTO;
+import com.yazikochesalna.messagingservice.dto.kafka.PayloadNotificationPinDTO;
+import com.yazikochesalna.messagingservice.dto.request.AwaitingResponseMessageDTO;
 import com.yazikochesalna.messagingservice.dto.response.ResponseDTO;
 import com.yazikochesalna.messagingservice.dto.response.ResponseResultType;
 import lombok.RequiredArgsConstructor;
@@ -34,14 +38,23 @@ public class WebSocketMessageService {
     public void sendMessage(WebSocketSession session, AwaitingResponseMessageDTO awaitingResponseMessageDTO) {
         var userId = webSocketSessionService.getUserId(session);
 
-        PayloadMessageDTO payload = awaitingResponseMessageDTO.<PayloadMessageDTO>getPayload();
-        if (!chatServiceClient.isUserInChat(userId, payload.getChatId())) {
+        Long chatId = awaitingResponseMessageDTO.getPayload().getChatId();
+        if (!chatServiceClient.isUserInChat(userId, chatId)) {
             sendErrorResponse(session, ResponseResultType.NOT_ALLOWED, awaitingResponseMessageDTO.getRequestId());
             return;
         }
-        payload.setSenderId(userId);
-        var message = awaitingResponseMessageDTO.setPayload(payload);
-        sendMessageToKafka(session, message);
+
+        if (awaitingResponseMessageDTO.getType() == MessageType.MESSAGE) {
+            PayloadMessageDTO payload = awaitingResponseMessageDTO.<PayloadMessageDTO>getPayload();
+            payload.setSenderId(userId);
+            awaitingResponseMessageDTO.setPayload(payload);
+        } else if (awaitingResponseMessageDTO.getType() == MessageType.PIN) {
+            PayloadNotificationPinDTO payload = awaitingResponseMessageDTO.<PayloadNotificationPinDTO>getPayload();
+            payload.setMemberId(userId);
+            awaitingResponseMessageDTO.setPayload(payload);
+        }
+
+        sendMessageToKafka(session, awaitingResponseMessageDTO);
 
     }
 
@@ -102,14 +115,7 @@ public class WebSocketMessageService {
     }
 
     public void broadcastMessageToParticipants(MessageDTO messageDTO) {
-        Long chatId;
-        if (messageDTO.getType() == MessageType.MESSAGE) {
-            PayloadMessageDTO payload = messageDTO.<PayloadMessageDTO>getPayload();
-            chatId = payload.getChatId();
-        } else {
-            PayloadNotificationDTO payload = messageDTO.<PayloadNotificationDTO>getPayload();
-            chatId = payload.getChatId();
-        }
+        Long chatId = messageDTO.getPayload().getChatId();
 
         sendMessageToActiveSessions(messageDTO, chatId);
 

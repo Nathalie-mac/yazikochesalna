@@ -30,6 +30,27 @@ class CassandraEntitiesConvertor {
         )
     }
 
+    fun convertToMessagesJsonFormatDto(messageByChat: MessageByChat): MessagesJsonFormatDTO {
+        return MessagesJsonFormatDTO(
+            messageId = messageByChat.id,
+            type = messageByChat.type,
+            timestamp = messageByChat.sendTime,
+            payload = when (messageByChat.type){
+                MessageType.MESSAGE -> PayLoadMessageDTO(
+                    senderId = messageByChat.senderId,
+                    chatId = messageByChat.chatId,
+                    text = messageByChat.text?: ""
+                )
+                MessageType.NEW_MEMBER,
+                MessageType.DROP_MEMBER -> PayLoadNoticeDTO(
+                    memberId = messageByChat.senderId,
+                    chatId = messageByChat.chatId,
+                )
+                else -> throw IllegalArgumentException("Not supported message type ${messageByChat.type}")
+            }
+        )
+    }
+
     fun convertToMessage(messagesJsonFormatDTO: MessagesJsonFormatDTO): Message {
         return when (messagesJsonFormatDTO.type) {
             MessageType.MESSAGE -> {

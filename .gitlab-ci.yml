@@ -5,6 +5,7 @@ variables:
   PROJECT_NAME: liza.antipa/yazikochesalna
 
 stages:
+  - pre-build
   - build
   - package
   - deploy
@@ -35,7 +36,40 @@ stages:
     - buildah bud -t "$IMAGE_PATH" .
     - echo "Пуш образа в registry"
     - buildah push "$IMAGE_PATH"
-    
+
+.k8s-deploy-template: &k8s-deploy-template
+  image:
+    name: lachlanevenson/k8s-kubectl:latest
+    entrypoint: [""]
+  allow_failure: true
+  script:
+    # Проверка, что переменная установлена
+    - |
+      if [ -z "$KUBECONFIG_CONTENTS" ]; then
+        echo "Ошибка: переменная KUBECONFIG_CONTENTS не установлена"
+        exit 1
+      fi
+
+    # Переход в директорию с kustomization.yaml
+    - cd k8s/overlays/dev
+
+    # Создание kubeconfig
+    - mkdir -p ~/.kube
+    - cat "$KUBECONFIG_CONTENTS" | base64 -d > ~/.kube/config
+    - chmod 600 ~/.kube/config
+    - export KUBECONFIG=~/.kube/config
+
+    # Диагностические команды
+    - kubectl version --client
+    - kubectl config view
+    - kubectl config current-context
+    - kubectl config get-contexts
+    - kubectl version
+
+    # Применяем манифесты с помощью kustomize
+    - kubectl -n messenger get secret gitlab-regcred && kubectl -n messenger delete secret gitlab-regcred || true
+    - kubectl -n messenger apply -k .
+
 # --- Определяем job для каждого сервиса --- #
 build-authorization-service:
   <<: *build-template
@@ -62,6 +96,43 @@ build-user-service:
   variables:
     SERVICE_DIR: "user-service"
 
+build-frontend:
+  stage: build
+  image: node:20
+  allow_failure: true
+  script:
+    # Расшифровываем SSH-ключ
+    - mkdir -p ~/.ssh
+    - echo "$FRONTEND_SSH" | base64 --decode > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - mkdir -p ~/.ssh
+    - |
+      cat <<EOT > ~/.ssh/config
+      Host gitlab.com
+        IdentityAgent none
+        StrictHostKeyChecking no
+        UserKnownHostsFile=/dev/null
+      EOT
+
+    # Клонируем фронтенд
+    - rm -rf frontend || true
+    - git clone git@gitlab.com:$FRONTEND_PROJECT.git frontend  -b Develop-volodya
+    
+    - cd frontend
+    # Перемещаем нужную папку внутрь frontend
+    - mv messenger-front/* .
+    # Убираем временные файлы
+    - rm -rf messenger-front
+    # Замена всех localhost:порт на ваш домен
+    - sed -i 's|http://localhost:808[01235]|https://xn--80ajfmhmdz6cwbs0al.xn--p1ai|g' $(find . -type f -name "*.ts" -o -name "*.js" -o -name "*.tsx" -o -name "*.jsx" -o -name "*.json")
+    - sed -i 's|ws://localhost:808[01235]|wss://xn--80ajfmhmdz6cwbs0al.xn--p1ai|g' $(find . -type f -name "*.ts" -o -name "*.js" -o -name "*.tsx" -o -name "*.jsx" -o -name "*.json")
+    # Устанавливаем зависимости и собираем проект
+    - npm ci
+    - npm run build
+
+  artifacts:
+    paths:
+      - frontend/dist/
 
 # --- Определяем Docker сборку для каждого сервиса --- #
 
@@ -111,18 +182,38 @@ docker-cassandra:
     SERVICE_DIR: "message-storage-service/cassandra"
     DOCKER_IMAGE_NAME: "cassandra"
 
+docker-frontend:
+  <<: *build-docker-template
+  variables:
+    SERVICE_DIR: frontend
+    DOCKER_IMAGE_NAME: frontend
+  dependencies:
+    - build-frontend
+  allow_failure: true
+  
 
 ### --- Деплой --- ###
 
-
-deploy-kustomize:
-  stage: deploy
+deploy-services-k8s:
+  <<: *k8s-deploy-template
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       when: always
+  stage: deploy
+    
+manual-deploy-services-k8s:
+  <<: *k8s-deploy-template
+  when: manual
+  stage: pre-build
+
+
+drop-k8s:
+  stage: pre-build
+  when: manual
   image:
     name: lachlanevenson/k8s-kubectl:latest
     entrypoint: [""]
+  allow_failure: true
   script:
     # Проверка, что переменная установлена
     - |
@@ -148,14 +239,41 @@ deploy-kustomize:
     - kubectl config current-context
     - kubectl config get-contexts
     - kubectl version
-    
-    # Проверяем текущий контекст kubectl
-    - kubectl config current-context
 
-    # Применяем манифесты с помощью kustomize
-    - kubectl -n messenger get secret gitlab-regcred && kubectl -n messenger delete secret gitlab-regcred
-    - kubectl -n messenger apply -k .
-    # Принудительно обновляем образы
-    - kubectl get deployments -n messenger -o name | xargs -I {} kubectl rollout restart {} -n messenger
-    # Принудительно обновляем манифесты ingress
-    - kubectl rollout restart deployment -n ingress-nginx ingress-nginx-controller
+    # Удаляем конфигурацию
+    - kubectl -n messenger delete -k .
+
+rollout-deployments-k8s:
+  stage: pre-build
+  when: manual
+  image:
+    name: lachlanevenson/k8s-kubectl:latest
+    entrypoint: [""]
+  allow_failure: true
+  script:
+    # Проверка, что переменная установлена
+    - |
+      if [ -z "$KUBECONFIG_CONTENTS" ]; then
+        echo "Ошибка: переменная KUBECONFIG_CONTENTS не установлена"
+        exit 1
+      fi
+
+    # Переход в директорию с kustomization.yaml
+    - cd k8s/overlays/dev
+    # Проверяем путь к файлу
+    - echo "Путь к encoded kubeconfig - $KUBECONFIG_CONTENTS"
+
+    # Читаем содержимое и декодируем
+    - mkdir -p ~/.kube
+    - cat "$KUBECONFIG_CONTENTS" | base64 -d > ~/.kube/config
+    - chmod 600 ~/.kube/config
+    - export KUBECONFIG=~/.kube/config
+
+    # Диагностические команды
+    - kubectl version --client
+    - kubectl config view
+    - kubectl config current-context
+    - kubectl config get-contexts
+    - kubectl version
+
+    - kubectl rollout restart deployments -n messenger
