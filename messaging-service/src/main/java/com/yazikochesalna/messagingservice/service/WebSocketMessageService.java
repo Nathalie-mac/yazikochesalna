@@ -1,11 +1,12 @@
 package com.yazikochesalna.messagingservice.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
-import com.yazikochesalna.messagingservice.dto.kafka.MessageType;
-import com.yazikochesalna.messagingservice.dto.kafka.PayloadMessageDTO;
-import com.yazikochesalna.messagingservice.dto.kafka.PayloadNotificationPinDTO;
-import com.yazikochesalna.messagingservice.dto.request.AwaitingResponseMessageDTO;
+import com.yazikochesalna.messagingservice.dto.events.AwaitingResponseEventDTO;
+import com.yazikochesalna.messagingservice.dto.events.EventDTO;
+import com.yazikochesalna.messagingservice.dto.events.payload.PayloadDTO;
+import com.yazikochesalna.messagingservice.dto.events.payload.chat.ChatPayloadDTO;
+import com.yazikochesalna.messagingservice.dto.events.payload.chat.impl.ChatMessagePayloadDTO;
+import com.yazikochesalna.messagingservice.dto.events.payload.chat.impl.ChatPinnedMessagePayloadDTO;
 import com.yazikochesalna.messagingservice.dto.response.ResponseDTO;
 import com.yazikochesalna.messagingservice.dto.response.ResponseResultType;
 import lombok.RequiredArgsConstructor;
@@ -34,46 +35,55 @@ public class WebSocketMessageService {
         return session.isOpen();
     }
 
+    private static void setUserIdInDTO(AwaitingResponseEventDTO awaitingResponseEventDTO, Long userId) {
+        awaitingResponseEventDTO.getPayload();
+        PayloadDTO payload = switch (awaitingResponseEventDTO.getType()) {
+            case MESSAGE -> awaitingResponseEventDTO.<ChatMessagePayloadDTO>getPayload().setSenderId(userId);
+            case PIN -> awaitingResponseEventDTO.<ChatPinnedMessagePayloadDTO>getPayload().setMemberId(userId);
+            default -> awaitingResponseEventDTO.getPayload();
+        };
+        awaitingResponseEventDTO.setPayload(payload);
+    }
 
-    public void sendMessage(WebSocketSession session, AwaitingResponseMessageDTO awaitingResponseMessageDTO) {
+    public void sendMessage(WebSocketSession session, AwaitingResponseEventDTO awaitingResponseEventDTO) {
         var userId = webSocketSessionService.getUserId(session);
 
-        Long chatId = awaitingResponseMessageDTO.getPayload().getChatId();
+        Long chatId = getChatId(awaitingResponseEventDTO);
         if (!chatServiceClient.isUserInChat(userId, chatId)) {
-            sendErrorResponse(session, ResponseResultType.NOT_ALLOWED, awaitingResponseMessageDTO.getRequestId());
+            sendErrorResponse(session, ResponseResultType.NOT_ALLOWED, awaitingResponseEventDTO.getRequestId());
             return;
         }
 
-        if (awaitingResponseMessageDTO.getType() == MessageType.MESSAGE) {
-            PayloadMessageDTO payload = awaitingResponseMessageDTO.<PayloadMessageDTO>getPayload();
-            payload.setSenderId(userId);
-            awaitingResponseMessageDTO.setPayload(payload);
-        } else if (awaitingResponseMessageDTO.getType() == MessageType.PIN) {
-            PayloadNotificationPinDTO payload = awaitingResponseMessageDTO.<PayloadNotificationPinDTO>getPayload();
-            payload.setMemberId(userId);
-            awaitingResponseMessageDTO.setPayload(payload);
-        }
+        setUserIdInDTO(awaitingResponseEventDTO, userId);
 
-        sendMessageToKafka(session, awaitingResponseMessageDTO);
+        sendMessageToKafka(session, awaitingResponseEventDTO);
 
     }
 
-    private void sendMessageToKafka(WebSocketSession session, AwaitingResponseMessageDTO awaitingResponseMessageDTO) {
-        BiConsumer<SendResult<String, MessageDTO>, Throwable> callback = (result, throwable) -> {
-            if (awaitingResponseMessageDTO.getRequestId() != null) {
+    private Long getChatId(EventDTO eventDTO) {
+        return switch (eventDTO.getType()) {
+            case MESSAGE, NEW_CHAT_AVATAR, NEW_MEMBER, DROP_MEMBER, PIN ->
+                    eventDTO.<ChatPayloadDTO>getPayload().getChatId();
+            default -> null;
+        };
+    }
+
+    private void sendMessageToKafka(WebSocketSession session, AwaitingResponseEventDTO awaitingResponseEventDTO) {
+        BiConsumer<SendResult<String, EventDTO>, Throwable> callback = (result, throwable) -> {
+            if (awaitingResponseEventDTO.getRequestId() != null) {
                 if (throwable == null) {
-                    sendOKResponse(session, awaitingResponseMessageDTO.getRequestId(), awaitingResponseMessageDTO.getMessageId());
+                    sendOKResponse(session, awaitingResponseEventDTO.getRequestId(), awaitingResponseEventDTO.getMessageId());
                 } else {
-                    sendErrorResponse(session, ResponseResultType.KAFKA_PROBLEM, awaitingResponseMessageDTO.getRequestId());
+                    sendErrorResponse(session, ResponseResultType.KAFKA_PROBLEM, awaitingResponseEventDTO.getRequestId());
                 }
             }
         };
 
-        kafkaProducerService.sendMessage(new MessageDTO(awaitingResponseMessageDTO), callback);
+        kafkaProducerService.sendMessage(awaitingResponseEventDTO, callback);
     }
 
-    public void sendMessage(MessageDTO messageDTO) {
-        kafkaProducerService.sendMessage(messageDTO);
+    public void sendMessage(EventDTO eventDTO) {
+        kafkaProducerService.sendMessage(eventDTO);
     }
 
     public void sendErrorResponse(WebSocketSession session, ResponseResultType responseResultType, Long requestId) {
@@ -114,14 +124,14 @@ public class WebSocketMessageService {
         }
     }
 
-    public void broadcastMessageToParticipants(MessageDTO messageDTO) {
-        Long chatId = messageDTO.getPayload().getChatId();
+    public void broadcastMessageToParticipants(EventDTO eventDTO) {
+        Long chatId = getChatId(eventDTO);
 
-        sendMessageToActiveSessions(messageDTO, chatId);
+        sendMessageToActiveSessions(eventDTO, chatId);
 
     }
 
-    private void sendMessageToActiveSessions(MessageDTO messageDTO, Long chatId) {
+    private void sendMessageToActiveSessions(EventDTO eventDTO, Long chatId) {
         List<Long> recipientUsers = chatServiceClient.getUsersByChatId(chatId);
 
         for (Long recipientId : recipientUsers) {
@@ -129,16 +139,16 @@ public class WebSocketMessageService {
                     webSocketSessionService.getUserSessions(recipientId);
             if (recipientSessions != null && !recipientSessions.isEmpty()) {
                 for (ConcurrentWebSocketSessionDecorator recipientSession : recipientSessions) {
-                    setMessageToWebSocketSession(recipientSession, messageDTO);
+                    setMessageToWebSocketSession(recipientSession, eventDTO);
                 }
             }
         }
     }
 
-    private void setMessageToWebSocketSession(ConcurrentWebSocketSessionDecorator session, MessageDTO messageDTO) {
+    private void setMessageToWebSocketSession(ConcurrentWebSocketSessionDecorator session, EventDTO eventDTO) {
         try {
             if (isOpenSession(session)) {
-                var jsonResponse = objectMapper.writeValueAsString(messageDTO);
+                var jsonResponse = objectMapper.writeValueAsString(eventDTO);
                 sendJsonToWebSocketSession(session, jsonResponse);
             }
         } catch (Exception ignored) {

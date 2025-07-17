@@ -1,6 +1,6 @@
 package com.yazikochesalna.messagingservice.service;
 
-import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
+import com.yazikochesalna.messagingservice.dto.events.EventDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
@@ -15,8 +15,8 @@ public class KafkaConsumerService {
     private final WebSocketMessageService webSocketMessageService;
 
     @KafkaListener(topics = TOPIC_NAME)
-    public void listenMessage(MessageDTO message, Acknowledgment ack) {
-        webSocketMessageService.broadcastMessageToParticipants(message);
+    public void listenMessage(EventDTO event, Acknowledgment ack) {
+        webSocketMessageService.broadcastMessageToParticipants(event);
         ack.acknowledge();
     }
 

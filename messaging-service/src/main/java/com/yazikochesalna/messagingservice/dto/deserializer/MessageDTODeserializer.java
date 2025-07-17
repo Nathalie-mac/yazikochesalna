@@ -5,16 +5,16 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
-import com.yazikochesalna.messagingservice.dto.kafka.MessageType;
-import com.yazikochesalna.messagingservice.dto.kafka.PayloadDTO;
+import com.yazikochesalna.messagingservice.dto.events.EventDTO;
+import com.yazikochesalna.messagingservice.dto.events.EventType;
+import com.yazikochesalna.messagingservice.dto.events.payload.PayloadDTO;
 
 import java.io.IOException;
 
-public class MessageDTODeserializer extends StdDeserializer<MessageDTO> {
+public class MessageDTODeserializer extends StdDeserializer<EventDTO> {
 
     public MessageDTODeserializer() {
-        this(MessageDTO.class);
+        this(EventDTO.class);
     }
 
     public MessageDTODeserializer(Class<?> vc) {
@@ -23,16 +23,16 @@ public class MessageDTODeserializer extends StdDeserializer<MessageDTO> {
 
 
     @Override
-    public MessageDTO deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    public EventDTO deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         ObjectMapper mapper = (ObjectMapper) jp.getCodec();
         JsonNode node = mapper.readTree(jp);
 
-        MessageType type = DTODeserializer.getMessageType(node);
+        EventType type = DTODeserializer.getMessageType(node);
 
         PayloadDTO payload = DTODeserializer.getPayload(mapper, type, node);
 
 
-        var messageDTO = MessageDTO.builder()
+        var messageDTO = EventDTO.builder()
                 .type(type)
                 .payload(payload)
                 .build();

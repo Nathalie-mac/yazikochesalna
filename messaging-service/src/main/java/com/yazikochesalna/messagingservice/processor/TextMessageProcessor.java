@@ -2,7 +2,7 @@ package com.yazikochesalna.messagingservice.processor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yazikochesalna.messagingservice.dto.request.AwaitingResponseMessageDTO;
+import com.yazikochesalna.messagingservice.dto.events.AwaitingResponseEventDTO;
 import com.yazikochesalna.messagingservice.dto.response.ResponseResultType;
 import com.yazikochesalna.messagingservice.dto.validator.MessageDTOValidator;
 import com.yazikochesalna.messagingservice.exception.InvalidMessageFormatCustomException;
@@ -22,7 +22,7 @@ public class TextMessageProcessor {
     public void processMessage(WebSocketSession session, TextMessage message) {
         try {
             String payload = message.getPayload();
-            var messageDTO = objectMapper.readValue(payload, AwaitingResponseMessageDTO.class);
+            var messageDTO = objectMapper.readValue(payload, AwaitingResponseEventDTO.class);
             messageDTOValidator.validate(messageDTO);
             webSocketMessageService.sendMessage(session, messageDTO);
         } catch (JsonProcessingException | InvalidMessageFormatCustomException e) {

@@ -1,4 +1,4 @@
-package com.yazikochesalna.messagingservice.dto.kafka;
+package com.yazikochesalna.messagingservice.dto.events;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

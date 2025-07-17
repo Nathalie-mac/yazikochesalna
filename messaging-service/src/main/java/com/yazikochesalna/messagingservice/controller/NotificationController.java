@@ -1,6 +1,6 @@
 package com.yazikochesalna.messagingservice.controller;
 
-import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
+import com.yazikochesalna.messagingservice.dto.events.EventDTO;
 import com.yazikochesalna.messagingservice.service.WebSocketMessageService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,8 +32,8 @@ public class NotificationController {
             @ApiResponse(responseCode = "400", description = "Некорректный формат запроса")
     })
     @Hidden
-    public ResponseEntity<?> sendUpdateChatMembersNotification(@Valid @RequestBody MessageDTO messageDTO) {
-        webSocketMessageService.sendMessage(messageDTO);
+    public ResponseEntity<?> sendUpdateChatMembersNotification(@Valid @RequestBody EventDTO eventDTO) {
+        webSocketMessageService.sendMessage(eventDTO);
         return ResponseEntity.ok().build();
     }
 
@@ -46,8 +46,8 @@ public class NotificationController {
             @ApiResponse(responseCode = "400", description = "Некорректный формат запроса")
     })
     @Hidden
-    public ResponseEntity<?> sendNewChatAvatarNotification(@Valid @RequestBody MessageDTO messageDTO) {
-        webSocketMessageService.sendMessage(messageDTO);
+    public ResponseEntity<?> sendNewChatAvatarNotification(@Valid @RequestBody EventDTO eventDTO) {
+        webSocketMessageService.sendMessage(eventDTO);
         return ResponseEntity.ok().build();
     }
 

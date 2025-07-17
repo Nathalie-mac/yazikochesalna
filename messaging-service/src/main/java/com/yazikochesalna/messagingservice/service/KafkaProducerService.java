@@ -1,6 +1,6 @@
 package com.yazikochesalna.messagingservice.service;
 
-import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
+import com.yazikochesalna.messagingservice.dto.events.EventDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
@@ -13,13 +13,13 @@ import java.util.function.BiConsumer;
 public class KafkaProducerService {
 
     private static final String TOPIC_NAME = "messages";
-    private final KafkaTemplate<String, MessageDTO> kafkaTemplate;
+    private final KafkaTemplate<String, EventDTO> kafkaTemplate;
 
-    public void sendMessage(MessageDTO message, BiConsumer<SendResult<String, MessageDTO>, Throwable> callback) {
-        kafkaTemplate.send(TOPIC_NAME, message).whenComplete(callback);
+    public void sendMessage(EventDTO event, BiConsumer<SendResult<String, EventDTO>, Throwable> callback) {
+        kafkaTemplate.send(TOPIC_NAME, event).whenComplete(callback);
     }
 
-    public void sendMessage(MessageDTO message) {
-        kafkaTemplate.send(TOPIC_NAME, message);
+    public void sendMessage(EventDTO event) {
+        kafkaTemplate.send(TOPIC_NAME, event);
     }
 }
