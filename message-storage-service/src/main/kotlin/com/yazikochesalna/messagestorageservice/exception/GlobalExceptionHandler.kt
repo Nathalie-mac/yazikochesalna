@@ -1,5 +1,6 @@
 package com.yazikochesalna.messagestorageservice.exception
 
+import com.yazikochesalna.messagestorageservice.exception.customexceptions.CoroutinesException
 import com.yazikochesalna.messagestorageservice.exception.customexceptions.ErrorKafkaDeserializatonException
 import com.yazikochesalna.messagestorageservice.exception.customexceptions.NullCassandraFiledException
 import com.yazikochesalna.messagestorageservice.service.ChatServiceClient
@@ -45,5 +46,31 @@ class GlobalExceptionHandler {
         ).let { responseStatus ->
             responseStatus?.value ?: HttpStatus.INTERNAL_SERVER_ERROR
         }
+
+
+    @ExceptionHandler(CoroutinesException::class)
+    fun handleMessagesProcessingException(
+        ex: CoroutinesException,
+        request: WebRequest
+    ): ResponseEntity<ExceptionDTO> {
+        log.error("Messages fetching via coroutines failed", ex)
+
+//        val details = mutableMapOf(
+//            "path" to request.getDescription(false),
+//            "timestamp" to LocalDateTime.now()
+//        ).apply {
+//            ex.chatId?.let { put("chatId", it.toString()) }
+//        }
+
+        return ResponseEntity(
+            ExceptionDTO(
+                problem = ex.message ?: "Messages fetching via coroutines failed"
+                //details = details
+            ),
+            getStatus(ex.javaClass)
+        )
+    }
+
+
 }
 

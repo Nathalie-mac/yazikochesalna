@@ -2,6 +2,7 @@ package com.yazikochesalna.messagestorageservice.service
 
 import com.yazikochesalna.messagestorageservice.dto.MessagesJsonFormatDTO
 import com.yazikochesalna.messagestorageservice.dto.NewestMessageDTO
+import com.yazikochesalna.messagestorageservice.exception.customexceptions.CoroutinesException
 import com.yazikochesalna.messagestorageservice.model.db.Attachment
 import com.yazikochesalna.messagestorageservice.model.db.BaseMessage
 import com.yazikochesalna.messagestorageservice.model.db.convertor.CassandraEntitiesConvertor
@@ -10,6 +11,9 @@ import com.yazikochesalna.messagestorageservice.model.db.MessageByChat
 import com.yazikochesalna.messagestorageservice.repository.AttachmentRepository
 import com.yazikochesalna.messagestorageservice.repository.MessageByChatRepository
 import com.yazikochesalna.messagestorageservice.repository.MessageRepository
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.runBlocking
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
@@ -57,9 +61,16 @@ open class MessageService(
             else -> messageRepository.findMessagesByCursor(chatId =chatId, cursor = cursor, limitUp = limitUp, limitDown = limitDown)
         }.collectList()
             .block(Duration.ofSeconds(BLOCK_DURATION)) ?: emptyList()
-        return mapMessagesWithAttachments(cassandraMessages) {
-            message, attachment -> cassandraEntitiesConvertor.convertToMessagesJsonFormatDto(message = message, attachments = attachment)
-        }
+
+        return kotlin.runCatching {
+            runBlocking {
+                mapMessagesWithAttachments(cassandraMessages) {
+                        message, attachment -> cassandraEntitiesConvertor.convertToMessagesJsonFormatDto(message = message, attachments = attachment)
+                }
+            }
+        }.getOrElse { e -> throw CoroutinesException("Unexpected error in fetching newest messages via coroutines", e) }
+
+
     }
 
     fun saveMessagesBatch(messages: List<MessagesJsonFormatDTO>): Mono<Void> {
@@ -89,24 +100,30 @@ open class MessageService(
 
 
     fun getNewestMessagesByChat(chatList: List<Long>): List<NewestMessageDTO> {
-        val lastMessages = chatList.mapNotNull { chatId ->
-            messageByChatRepository.findFirstByChatId(chatId).block()
-        }
-        val messagesWithAttachments = mapMessagesWithAttachments(lastMessages) { message, attachments ->
-            cassandraEntitiesConvertor.convertToMessagesJsonFormatDto(message, attachments)
-        }
+        return kotlin.runCatching {
+            val lastMessages = chatList.mapNotNull { chatId ->
+                messageByChatRepository.findFirstByChatId(chatId).block()
+            }
+            val messagesWithAttachments:  List<MessagesJsonFormatDTO>
+            runBlocking {
+                messagesWithAttachments = mapMessagesWithAttachments(lastMessages) { message, attachments ->
+                    cassandraEntitiesConvertor.convertToMessagesJsonFormatDto(message, attachments)
+                }
+            }
+            // Собираем результат
+            chatList.map { chatId ->
+                NewestMessageDTO(
+                    chatId = chatId,
+                    lastMessage = messagesWithAttachments.find { it.payload.chatId  == chatId }
+                )
+            }
+        }.getOrElse { e -> throw CoroutinesException("Unexpected error in fetching newest messages via coroutines", e) }
 
-        // Собираем результат
-        return chatList.map { chatId ->
-            NewestMessageDTO(
-                chatId = chatId,
-                lastMessage = messagesWithAttachments.find { it.payload.chatId  == chatId }
-            )
-        }
+
     }
 
 
-    private fun mapMessagesWithAttachments(
+    private suspend fun mapMessagesWithAttachments(
         messages: List<BaseMessage>,
         converter: (BaseMessage, List<Attachment>) -> MessagesJsonFormatDTO
     ): List<MessagesJsonFormatDTO> {
@@ -115,7 +132,8 @@ open class MessageService(
         val messageIds = messages.map { it.id }
         val attachmentsMap = attachmentRepository.findByMessageIdIn(messageIds)
             .collectMultimap { it.messageId }
-            .block(Duration.ofSeconds(BLOCK_DURATION))
+            //.block(Duration.ofSeconds(BLOCK_DURATION))
+            .awaitFirstOrNull()
             ?.mapValues { it.value.toList() }
             ?: emptyMap()
 
