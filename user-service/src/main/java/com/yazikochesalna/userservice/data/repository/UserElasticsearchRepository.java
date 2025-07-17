@@ -13,13 +13,22 @@ public interface UserElasticsearchRepository extends ElasticsearchRepository<Use
 
         @Query("""
             {
-              "multi_match": {
-                "query": "?0",
-                "fields": ["username", "lastName", "firstName", "middleName"],
-                "type": "best_fields",
-                "fuzziness": "AUTO",
-                "operator": "OR",
-                "lenient": true
+              "bool": {
+                "should": [
+                  {
+                    "query_string": {
+                      "query": "*?0*",
+                      "fields": ["username", "lastName", "firstName", "middleName"]
+                    }
+                  },
+                  {
+                    "multi_match": {
+                      "query": "?0",
+                      "fields": ["username", "lastName", "firstName", "middleName"],
+                      "fuzziness": "AUTO"
+                    }
+                  }
+                ]
               }
             }
             """)

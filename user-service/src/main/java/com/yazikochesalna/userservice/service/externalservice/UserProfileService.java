@@ -19,12 +19,13 @@ public class UserProfileService {
     private final UsersRepository usersRepository;
     private final AuthorizationClientService authorizationClientService;
     private final PersonalProfileMapper personalProfileMapper;
+    private final UserProfileDTOMapper userProfileDTOMapper;
 
     public UserProfileDTO findUserProfile(Long id) {
         Users user = usersRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundCustomException("User not found with id: " + id));
 
-        return UserProfileDTOMapper.convertUserToUserProfileDTO(user);
+        return userProfileDTOMapper.toUserProfileDTO(user);
     }
 
     public PersonalProfileDTO findPersonalProfileDTO(Long id)
@@ -32,7 +33,7 @@ public class UserProfileService {
 
         Users user = findUser(id);
         String login = authorizationClientService.getUserLogin(id);
-//        PersonalProfileDTO profileDTO = new PersonalProfileDTO(user.getUsername(), user.getId(), login);
+
         PersonalProfileDTO profileDTO = personalProfileMapper.toPersonalProfileDTO(user);
         profileDTO.setLogin(login);
         return profileDTO;

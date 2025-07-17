@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.mapstruct.Mapping;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -18,8 +19,10 @@ import java.util.UUID;
 @NoArgsConstructor
 public class PersonalProfileDTO {
 
-    private String userName;
     private long userId;
+
+    private String username;
+
     private String login;
 
     private UUID fileUuid;

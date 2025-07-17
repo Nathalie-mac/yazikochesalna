@@ -17,10 +17,10 @@ public class UpdateProfileDataController {
 
    private final UpdateProfileDataService updateProfileDataService;
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/update/{id}")
     public ResponseEntity<?> updateUser(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateUserRequestDTO updateDTO
+             @RequestBody UpdateUserRequestDTO updateDTO
     ) {
         UpdateUserResponseDTO response = updateProfileDataService.updateUserProfile(id, updateDTO);
         return ResponseEntity.ok(response);

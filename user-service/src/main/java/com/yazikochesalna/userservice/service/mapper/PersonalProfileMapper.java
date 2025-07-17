@@ -8,6 +8,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface PersonalProfileMapper {
 
+    @Mapping(target = "login", ignore = true)
     @Mapping(target = "userId", source = "id")
     PersonalProfileDTO toPersonalProfileDTO(Users user);
 }
