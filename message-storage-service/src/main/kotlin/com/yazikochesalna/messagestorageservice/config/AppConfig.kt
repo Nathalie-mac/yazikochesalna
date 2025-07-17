@@ -26,15 +26,14 @@ import java.net.InetSocketAddress
 open class AppConfig {
 
     @Bean
-    open fun session(cassandraProperties: CassandraProperties, dateTimeCodec: DateTimeCodec): CqlSession {
-        return CqlSession.builder()
+    open fun session(cassandraProperties: CassandraProperties, dateTimeCodec: DateTimeCodec): CqlSession =
+        CqlSession.builder()
             .withKeyspace(cassandraProperties.keyspaceName)
             .addContactPoint(InetSocketAddress(cassandraProperties.contactPoints, cassandraProperties.port))
             .withAuthCredentials(cassandraProperties.username, cassandraProperties.password)
             .withLocalDatacenter(cassandraProperties.localDatacenter)
             .addTypeCodecs(dateTimeCodec)
             .build()
-    }
 
     @Bean
     open fun cassandraMapping(): CassandraMappingContext = CassandraMappingContext().apply {

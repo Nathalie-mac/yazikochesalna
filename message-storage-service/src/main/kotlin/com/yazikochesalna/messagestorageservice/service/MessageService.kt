@@ -31,7 +31,7 @@ open class MessageService(
 ) {
 
     private fun isChatMember(userId: Long, chatId: Long): Boolean =
-        chatServiceClient.checkUserInChat(userId, chatId)
+        chatServiceClient.checkUserInChat(userId = userId,chatId = chatId)
 
     fun getMessagesAroundCursor(
         userId: Long,
@@ -40,10 +40,10 @@ open class MessageService(
         limitUp: Int,
         limitDown: Int
     ): List<MessagesJsonFormatDTO> {
-        if (!isChatMember(userId, chatId)) {
+        if (!isChatMember(userId =userId, chatId = chatId)) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND)
         }
-        return getCassandraMessages(chatId, cursor, limitUp, limitDown)
+        return getCassandraMessages(chatId =chatId, cursor = cursor, limitUp = limitUp, limitDown = limitDown)
     }
 
     private fun getCassandraMessages(
@@ -53,12 +53,12 @@ open class MessageService(
         limitDown: Int
     ): List<MessagesJsonFormatDTO> {
         val cassandraMessages = when (cursor) {
-            null -> messageRepository.findMessagesWithoutCursor(chatId, limitUp)
-            else -> messageRepository.findMessagesByCursor(chatId, cursor, limitUp, limitDown)
+            null -> messageRepository.findMessagesWithoutCursor(chatId= chatId, limitUp =limitUp)
+            else -> messageRepository.findMessagesByCursor(chatId =chatId, cursor = cursor, limitUp = limitUp, limitDown = limitDown)
         }.collectList()
             .block(Duration.ofSeconds(BLOCK_DURATION)) ?: emptyList()
         return mapMessagesWithAttachments(cassandraMessages) {
-            message, attachment -> cassandraEntitiesConvertor.convertToMessagesJsonFormatDto(message, attachment)
+            message, attachment -> cassandraEntitiesConvertor.convertToMessagesJsonFormatDto(message = message, attachments = attachment)
         }
     }
 
@@ -72,7 +72,7 @@ open class MessageService(
         val messagesByChat = messagePairs.map { cassandraEntitiesConvertor.convertToMessageByChat(it.first) }
         val attachments = messagePairs.flatMap { it.second }
 
-        return saveMesagesToAllTables(simpleMessages, messagesByChat, attachments).then()
+        return saveMesagesToAllTables(messages = simpleMessages, messagesByChat =messagesByChat, attachments = attachments).then()
     }
 
     private fun saveMesagesToAllTables(messages: List<Message>, messagesByChat: List<MessageByChat>, attachments: List<Attachment>): Mono<Void> {
@@ -103,13 +103,6 @@ open class MessageService(
                 lastMessage = messagesWithAttachments.find { it.payload.chatId  == chatId }
             )
         }
-    //        return chatList.map { chatId ->
-//            val lastMessage = messageByChatRepository.findFirstByChatId(chatId).block()
-//            NewestMessageDTO(
-//                chatId = chatId,
-//                lastMessage = lastMessage?.let { cassandraEntitiesConvertor.convertToMessagesJsonFormatDto(it) }
-//            )
-//        }
     }
 
 

@@ -4,7 +4,7 @@ import com.yazikochesalna.messagestorageservice.model.enums.MessageType
 import java.time.LocalDateTime
 import java.util.UUID
 
-sealed interface BaseMessage{
+interface BaseMessage{
     val id: UUID
     val type: MessageType
     val sendTime: LocalDateTime

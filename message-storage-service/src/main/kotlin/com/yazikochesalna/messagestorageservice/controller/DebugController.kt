@@ -16,13 +16,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/debug")
 //@RequiredArgsConstructor
 open class DebugController(
-    @Autowired
     private val jwtService: JwtService
 ) {
-    init {
-        println("Ура наконецто мы работаем боже = ${jwtService.hashCode()}")
-    }
-
     //Тащим сервисный токен
     @GetMapping("/service-token")
     @Hidden

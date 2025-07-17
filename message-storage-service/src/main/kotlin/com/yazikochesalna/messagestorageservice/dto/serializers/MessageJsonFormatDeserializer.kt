@@ -5,9 +5,12 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
+import com.fasterxml.jackson.module.kotlin.kotlinModule
+import com.fasterxml.jackson.module.kotlin.treeToValue
 import com.yazikochesalna.messagestorageservice.dto.MessagesJsonFormatDTO
 import com.yazikochesalna.messagestorageservice.dto.payloads.*
 import com.yazikochesalna.messagestorageservice.exception.customexceptions.ErrorInEnumException
+import com.yazikochesalna.messagestorageservice.exception.customexceptions.ErrorInPayLoadException
 import com.yazikochesalna.messagestorageservice.model.enums.MessageType
 import com.yazikochesalna.messagestorageservice.service.ChatServiceClient
 import org.slf4j.Logger
@@ -28,8 +31,8 @@ open class MessageJsonFormatDeserializer : StdDeserializer<MessagesJsonFormatDTO
 
     constructor(vc: Class<MessagesJsonFormatDTO>) : super(vc)
 
-    override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): MessagesJsonFormatDTO {
-        return runCatching {
+    override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): MessagesJsonFormatDTO =
+        runCatching {
             val mapper = jp.codec as ObjectMapper
             val node: JsonNode = mapper.readTree(jp)
 
@@ -43,7 +46,6 @@ open class MessageJsonFormatDeserializer : StdDeserializer<MessagesJsonFormatDTO
             onSuccess = { it },
             onFailure = { e -> throw e }
         )
-    }
 
     private fun convertToLDT(instantStr: BigDecimal): LocalDateTime {
         val seconds = instantStr.toLong()
@@ -66,24 +68,44 @@ open class MessageJsonFormatDeserializer : StdDeserializer<MessagesJsonFormatDTO
 
     private fun getPayLoad(mapper: ObjectMapper, messageType: MessageType, node: JsonNode): PayLoadDTO {
         val payloadNode = node["payload"]
-        return when (messageType) {
-            MessageType.MESSAGE -> {
-                mapper.treeToValue<PayLoadMessageDTO>(payloadNode, PayLoadMessageDTO::class.java)
-            }
-
-            MessageType.NEW_MEMBER,
-            MessageType.DROP_MEMBER -> {
-                mapper.treeToValue<PayLoadNoticeDTO>(payloadNode, PayLoadNoticeDTO::class.java)
-            }
-
-            MessageType.PIN -> {
-                mapper.treeToValue<PayLoadPinDTO>(payloadNode, PayLoadPinDTO::class.java)
-            }
-
-            MessageType.NEW_CHAT_AVATAR -> {
-                mapper.treeToValue<PayLoadNewChatAvatarDTO>(payloadNode, PayLoadNewChatAvatarDTO::class.java)
-            }
+        return kotlin.runCatching {
+            val dtoClass = dtoClassMap[messageType]
+            mapper.treeToValue(payloadNode, dtoClass)
+        }.getOrElse {
+            throw ErrorInEnumException("Unknown message type: $messageType")
         }
+//        val dtoClass = dtoClassMap[messageType] ?: throw ErrorInEnumException(messageType.name)
+//        return kotlin.runCatching {
+//            mapper.treeToValue(payloadNode, dtoClass)
+//        }.getOrElse {
+//            throw ErrorInEnumException(messageType.name)
+//        }
+//        return when (messageType) {
+//            MessageType.MESSAGE -> {
+//                mapper.treeToValue<PayLoadMessageDTO>(payloadNode, PayLoadMessageDTO::class.java)
+//            }
+//
+//            MessageType.NEW_MEMBER,
+//            MessageType.DROP_MEMBER -> {
+//                mapper.treeToValue<PayLoadNoticeDTO>(payloadNode, PayLoadNoticeDTO::class.java)
+//            }
+//
+//            MessageType.PIN -> {
+//                mapper.treeToValue<PayLoadPinDTO>(payloadNode, PayLoadPinDTO::class.java)
+//            }
+//
+//            MessageType.NEW_CHAT_AVATAR -> {
+//                mapper.treeToValue<PayLoadNewChatAvatarDTO>(payloadNode, PayLoadNewChatAvatarDTO::class.java)
+//            }
+//        }
     }
+
+    private val dtoClassMap: Map<MessageType, Class<out PayLoadDTO>> = mapOf(
+        MessageType.MESSAGE to PayLoadMessageDTO::class.java,
+        MessageType.NEW_MEMBER to PayLoadNoticeDTO::class.java,
+        MessageType.DROP_MEMBER to PayLoadNoticeDTO::class.java,
+        MessageType.PIN to PayLoadPinDTO::class.java,
+        MessageType.NEW_CHAT_AVATAR to PayLoadNewChatAvatarDTO::class.java,
+    )
 
 }
