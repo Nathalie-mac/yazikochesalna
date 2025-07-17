@@ -45,7 +45,7 @@ public class UpdateProfileDataService {
 
     private void validateUsernameUniqueness(String username, Long userId) {
         if (usersRepository.existsByUsernameAndIdNot(username, userId)) {
-            throw new UserAlreadyExistsCustomException("Username is already taken");
+            throw new UserAlreadyExistsCustomException("Такой username уже существует");
         }
     }
 }

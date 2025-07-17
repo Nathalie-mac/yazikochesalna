@@ -36,6 +36,7 @@ public class SearchUserController {
         return elasticsearchService.searchUsers(query);
     }
 
+    // не будет использоваться
     @GetMapping("/search")
     @Operation(summary = "Получить пользователей по userName", description = "Возвращает максимум 40 первых пользователей")
     public ResponseEntity<ExternalSearchDTO> searchUsersByUsername(
