@@ -1,11 +1,8 @@
 package com.yazikochesalna.userservice.data.repository;
 
 import com.yazikochesalna.userservice.data.entity.UserElasticsearch;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.annotations.Query;
-import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
 

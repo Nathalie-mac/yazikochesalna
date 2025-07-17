@@ -27,7 +27,12 @@ public class SearchUserController {
     private final ElasticsearchService elasticsearchService;
 
     @GetMapping("/elasticsearch")
-    public List<UserElasticsearch> searchUsers(@RequestParam("username") String query) {
+    @Operation(summary = "Получить пользователей по userName, фио", description = "Возвращает максимум 40 первых пользователей")
+    public List<UserElasticsearch> searchUsers(
+            @RequestParam("query")
+            @NotBlank
+            String query) {
+        List<UserElasticsearch> findUsers = elasticsearchService.searchUsers(query);
         return elasticsearchService.searchUsers(query);
     }
 
