@@ -32,10 +32,6 @@ class KafkaConsumerService(private val messageService: MessageService) {
         records.forEach {
             log.info("type: ${it.type}, UUID: ${it.messageId}")
         }
-//        ack.acknowledge()
-//        log.info("Susseccfully Committed offsets up to ${offsets.last()}")
-//
-//        messageService.saveMessagesBatch(records)
 
         messageService.saveMessagesBatch(records)
             .doOnSuccess {
