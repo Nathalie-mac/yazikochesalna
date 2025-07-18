@@ -1,16 +1,3 @@
-# Headless Service (обязательно для StatefulSet)
-apiVersion: v1
-kind: Service
-metadata:
-  name: postgres-auth
-spec:
-  clusterIP: None
-  ports:
-    - port: 5432
-      targetPort: 5432
-  selector:
-    app: postgres-auth
----
 # StatefulSet
 apiVersion: apps/v1
 kind: StatefulSet
@@ -68,7 +55,24 @@ spec:
         resources:
           requests:
             storage: 1Gi
+
 ---
+
+# Headless Service (обязательно для StatefulSet)
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-auth
+spec:
+  clusterIP: None
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: postgres-auth
+
+---
+
 # Обычный Service для внешнего доступа
 apiVersion: v1
 kind: Service
