@@ -3,10 +3,13 @@ package com.yazikochesalna.messagingservice.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yazikochesalna.messagingservice.dto.events.AwaitingResponseEventDTO;
 import com.yazikochesalna.messagingservice.dto.events.EventDTO;
+import com.yazikochesalna.messagingservice.dto.events.EventType;
 import com.yazikochesalna.messagingservice.dto.events.payload.PayloadDTO;
 import com.yazikochesalna.messagingservice.dto.events.payload.chat.ChatPayloadDTO;
+import com.yazikochesalna.messagingservice.dto.events.payload.chat.impl.ChatMemberUpdatePayloadDTO;
 import com.yazikochesalna.messagingservice.dto.events.payload.chat.impl.ChatMessagePayloadDTO;
 import com.yazikochesalna.messagingservice.dto.events.payload.chat.impl.ChatPinnedMessagePayloadDTO;
+import com.yazikochesalna.messagingservice.dto.events.payload.user.UserPayloadDTO;
 import com.yazikochesalna.messagingservice.dto.response.ResponseDTO;
 import com.yazikochesalna.messagingservice.dto.response.ResponseResultType;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +26,7 @@ import java.util.function.BiConsumer;
 
 @Service
 @RequiredArgsConstructor
-public class WebSocketMessageService {
+public class WebSocketEventService {
 
     private final ObjectMapper objectMapper;
     private final ChatServiceClient chatServiceClient;
@@ -85,6 +88,9 @@ public class WebSocketMessageService {
     public void sendMessage(EventDTO eventDTO) {
         kafkaProducerService.sendMessage(eventDTO);
     }
+    public void sendEvent(EventDTO eventDTO) {
+        kafkaProducerService.sendEvent(eventDTO);
+    }
 
     public void sendErrorResponse(WebSocketSession session, ResponseResultType responseResultType, Long requestId) {
         ConcurrentWebSocketSessionDecorator concurrentSession = webSocketSessionService.getConcurrentSession(session);
@@ -124,28 +130,44 @@ public class WebSocketMessageService {
         }
     }
 
-    public void broadcastMessageToParticipants(EventDTO eventDTO) {
-        Long chatId = getChatId(eventDTO);
-
-        sendMessageToActiveSessions(eventDTO, chatId);
+    public void broadcastEventToParticipants(EventDTO eventDTO) {
+        Long userId = getUserId(eventDTO);
+        List<Long> recipientUsers = chatServiceClient.getUserCompanionsByUserId(userId);
+        sendEventToActiveSessions(eventDTO, recipientUsers);
 
     }
 
-    private void sendMessageToActiveSessions(EventDTO eventDTO, Long chatId) {
-        List<Long> recipientUsers = chatServiceClient.getUsersByChatId(chatId);
+    private Long getUserId(EventDTO eventDTO) {
+        return switch (eventDTO.getType()) {
+            case NEW_USER_AVATAR, NEW_USERNAME -> eventDTO.<UserPayloadDTO>getPayload().getUserId();
+            default -> null;
+        };
+    }
 
+    public void broadcastMessageToParticipants(EventDTO eventDTO) {
+        Long chatId = getChatId(eventDTO);
+        List<Long> recipientUsers = chatServiceClient.getUsersByChatId(chatId);
+        if (eventDTO.getType() == EventType.DROP_MEMBER) {
+            recipientUsers.add(eventDTO.<ChatMemberUpdatePayloadDTO>getPayload().getMemberId());
+        }
+
+        sendEventToActiveSessions(eventDTO, recipientUsers);
+
+    }
+
+    private void sendEventToActiveSessions(EventDTO eventDTO, List<Long> recipientUsers) {
         for (Long recipientId : recipientUsers) {
             Set<ConcurrentWebSocketSessionDecorator> recipientSessions =
                     webSocketSessionService.getUserSessions(recipientId);
             if (recipientSessions != null && !recipientSessions.isEmpty()) {
                 for (ConcurrentWebSocketSessionDecorator recipientSession : recipientSessions) {
-                    setMessageToWebSocketSession(recipientSession, eventDTO);
+                    sendEventToWebSocketSession(recipientSession, eventDTO);
                 }
             }
         }
     }
 
-    private void setMessageToWebSocketSession(ConcurrentWebSocketSessionDecorator session, EventDTO eventDTO) {
+    private void sendEventToWebSocketSession(ConcurrentWebSocketSessionDecorator session, EventDTO eventDTO) {
         try {
             if (isOpenSession(session)) {
                 var jsonResponse = objectMapper.writeValueAsString(eventDTO);

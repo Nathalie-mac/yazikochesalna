@@ -5,25 +5,25 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.yazikochesalna.messagingservice.dto.events.EventDTO;
+import com.yazikochesalna.messagingservice.dto.events.AwaitingResponseEventDTO;
 import com.yazikochesalna.messagingservice.dto.events.EventType;
 import com.yazikochesalna.messagingservice.dto.events.payload.PayloadDTO;
 
 import java.io.IOException;
 
-public class MessageDTODeserializer extends StdDeserializer<EventDTO> {
+public class AwaitingResponseEventDTODeserializer extends StdDeserializer<AwaitingResponseEventDTO> {
 
-    public MessageDTODeserializer() {
-        this(EventDTO.class);
+    public AwaitingResponseEventDTODeserializer() {
+        this(AwaitingResponseEventDTO.class);
     }
 
-    public MessageDTODeserializer(Class<?> vc) {
+    public AwaitingResponseEventDTODeserializer(Class<?> vc) {
         super(vc);
     }
 
 
     @Override
-    public EventDTO deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    public AwaitingResponseEventDTO deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         ObjectMapper mapper = (ObjectMapper) jp.getCodec();
         JsonNode node = mapper.readTree(jp);
 
@@ -31,18 +31,16 @@ public class MessageDTODeserializer extends StdDeserializer<EventDTO> {
 
         PayloadDTO payload = DTODeserializer.getPayload(mapper, type, node);
 
+        AwaitingResponseEventDTO messageDTO = new AwaitingResponseEventDTO();
+        messageDTO.setType(type)
+                .setPayload(payload);
 
-        var messageDTO = EventDTO.builder()
-                .type(type)
-                .payload(payload)
-                .build();
 
-        if (node.get("messageId") != null) {
-            messageDTO.setMessageId(DTODeserializer.getMessageId(node));
+        if (node.get("requestId") != null) {
+            Long requestId = Long.valueOf(node.get("requestId").asText());
+            messageDTO.setRequestId(requestId);
         }
-        if (node.get("timestamp") != null) {
-            messageDTO.setTimestamp(DTODeserializer.getTime(node));
-        }
+
 
         return messageDTO;
     }

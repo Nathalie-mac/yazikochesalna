@@ -2,7 +2,7 @@ package com.yazikochesalna.messagingservice.service;
 
 import com.yazikochesalna.common.service.JwtService;
 import com.yazikochesalna.messagingservice.config.properties.ChatServiceProperties;
-import com.yazikochesalna.messagingservice.dto.chat.ChatUsersResponseDTO;
+import com.yazikochesalna.messagingservice.dto.chat.UsersResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -14,7 +14,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatServiceClient {
     public static final String CHECK_USER_IN_CHAT_URL_FORMAT = "%s/api/v1/chats/check/%d/%d";
-    public static final String GET_USERS_URL_FORMAT = "%s/api/v1/chats/%d/members";
+    public static final String GET_USERS_BY_CHAT_ID_URL_FORMAT = "%s/api/v1/chats/%d/members";
+    public static final String GET_USER_COMPANIONS_URL_FORMAT = "%s/api/v1/chats/companions/%d";
     private final WebClient chatServiceWebClient;
     private final JwtService jwtService;
 
@@ -38,14 +39,27 @@ public class ChatServiceClient {
 
 
     public List<Long> getUsersByChatId(Long chatId) {
-        var url = String.format(GET_USERS_URL_FORMAT, chatServiceProperties.getUrl(), chatId);
+        var url = String.format(GET_USERS_BY_CHAT_ID_URL_FORMAT, chatServiceProperties.getUrl(), chatId);
 
         return chatServiceWebClient.get()
                 .uri(url)
                 .headers(headers -> headers.setBearerAuth(jwtService.generateServiceToken()))
                 .retrieve()
-                .bodyToMono(ChatUsersResponseDTO.class)
-                .map(ChatUsersResponseDTO::getUserIds)
+                .bodyToMono(UsersResponseDTO.class)
+                .map(UsersResponseDTO::getUserIds)
+                .onErrorReturn(Collections.emptyList())
+                .block();
+    }
+
+    public List<Long> getUserCompanionsByUserId(Long userId) {
+        var url = String.format(GET_USER_COMPANIONS_URL_FORMAT, chatServiceProperties.getUrl(), userId);
+
+        return chatServiceWebClient.get()
+                .uri(url)
+                .headers(headers -> headers.setBearerAuth(jwtService.generateServiceToken()))
+                .retrieve()
+                .bodyToMono(UsersResponseDTO.class)
+                .map(UsersResponseDTO::getUserIds)
                 .onErrorReturn(Collections.emptyList())
                 .block();
     }
