@@ -23,6 +23,9 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Users {
+
+    private final String phoneRegular = "^\\+?[0-9\\s\\-()]{7,20}$";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -48,7 +51,7 @@ public class Users {
     private String middleName;
 
     @Column(name = "phone", length = 20)
-    @Pattern(regexp = "^\\+?[0-9\\s\\-()]{7,20}$", message = "Phone number is invalid")
+    @Pattern(regexp = phoneRegular, message = "Phone number is invalid")
     private String phone;
 
     @Column(name = "description")
