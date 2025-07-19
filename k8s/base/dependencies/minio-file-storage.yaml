@@ -16,7 +16,9 @@ spec:
       containers:
         - name: minio-file-storage
           image: minio/minio:latest
-          command: ["server", "--console-address", ":9001", "/data/"]
+          command: ["/bin/sh", "-c"]
+          args:
+            - "minio server --console-address :9001 /data"
           ports:
             - containerPort: 9000
               name: api
