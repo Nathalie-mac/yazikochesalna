@@ -1,0 +1,11 @@
+package com.yazikochesalna.chatservice.service;
+
+import com.yazikochesalna.chatservice.dto.messagestorageservice.MessageDto;
+
+import java.util.List;
+import java.util.Map;
+
+public interface MessageStorageServiceClient {
+
+    Map<Long, MessageDto> getLastMessages(List<Long> chatIds);
+}
