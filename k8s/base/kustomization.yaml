@@ -14,5 +14,6 @@ resources:
   - microservices/chat-service.yaml
   - microservices/message-storage-service.yaml
   - microservices/messaging-service.yaml
+  - microservices/file-service.yaml
   - frontend-service.yaml
   - ingress.yaml

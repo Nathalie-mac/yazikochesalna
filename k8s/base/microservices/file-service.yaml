@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: file-service
+  template:
+    metadata:
+      labels:
+        app: file-service
+    spec:
+      imagePullSecrets:
+        - name: gitlab-regcred
+      initContainers:
+        - name: wait-for-minio
+          image: curlimages/curl:7.82.0
+          command: [ 'sh', '-c', 'until curl -s $MINIO_URL/minio/health/live; do echo waiting for minio; sleep 5; done;' ]
+          env:
+            - name: MINIO_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: file-service-config
+                  key: MINIO_URL
+      containers:
+        - name: file-service
+          image: registry.gitlab.com/liza.antipa/yazikochesalna/file-service:main
+          imagePullPolicy: Always
+#          resources:
+#            limits:
+#              cpu: "10m"
+#              memory: "256Mi"
+          ports:
+            - containerPort: 8086
+          envFrom:
+            - configMapRef:
+                name: file-service-config
+            - secretRef:
+                name: file-service-secrets
+            - configMapRef:
+                name: general-service-config
+            - secretRef:
+                name: general-service-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: file-service
+spec:
+  ports:
+    - port: 8086
+      targetPort: 8086
+  selector:
+    app: file-service
