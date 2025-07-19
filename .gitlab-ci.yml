@@ -29,7 +29,7 @@ stages:
     - cd "$SERVICE_DIR"
     - echo "Авторизация в Container Registry"
     - buildah login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-    - buildah login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD"
+    - buildah login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD" "docker.io"
     - TAG_NAME=$(echo $CI_COMMIT_BRANCH | sed 's/\//./g')
     - IMAGE_PATH="$DOCKER_REGISTRY/$PROJECT_NAME/$DOCKER_IMAGE_NAME:$TAG_NAME"
     - echo "Образ $IMAGE_PATH"
