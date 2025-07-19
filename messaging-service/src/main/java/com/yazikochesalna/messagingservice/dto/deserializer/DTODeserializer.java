@@ -2,7 +2,14 @@ package com.yazikochesalna.messagingservice.dto.deserializer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yazikochesalna.messagingservice.dto.kafka.*;
+import com.yazikochesalna.messagingservice.dto.events.EventType;
+import com.yazikochesalna.messagingservice.dto.events.payload.PayloadDTO;
+import com.yazikochesalna.messagingservice.dto.events.payload.chat.impl.ChatAvatarPayloadDTO;
+import com.yazikochesalna.messagingservice.dto.events.payload.chat.impl.ChatMemberUpdatePayloadDTO;
+import com.yazikochesalna.messagingservice.dto.events.payload.chat.impl.ChatMessagePayloadDTO;
+import com.yazikochesalna.messagingservice.dto.events.payload.chat.impl.ChatPinnedMessagePayloadDTO;
+import com.yazikochesalna.messagingservice.dto.events.payload.user.impl.UserAvatarUpdatePayloadDTO;
+import com.yazikochesalna.messagingservice.dto.events.payload.user.impl.UserUsernameUpdatePayloadDTO;
 import com.yazikochesalna.messagingservice.exception.InvalidMessageFormatCustomException;
 
 import java.io.IOException;
@@ -13,12 +20,14 @@ import java.util.UUID;
 public class DTODeserializer {
     private static final Long NANOSECONDS_IN_SECOND = 1_000_000_000L;
 
-    private static final Map<MessageType, Class<? extends PayloadDTO>> MESSAGE_TYPE_TO_DTO = Map.of(
-            MessageType.MESSAGE, PayloadMessageDTO.class,
-            MessageType.NEW_MEMBER, PayloadNotificationChangeMembersDTO.class,
-            MessageType.DROP_MEMBER, PayloadNotificationChangeMembersDTO.class,
-            MessageType.PIN, PayloadNotificationPinDTO.class,
-            MessageType.NEW_CHAT_AVATAR, PayloadNotificationNewChatAvatarDTO.class
+    private static final Map<EventType, Class<? extends PayloadDTO>> MESSAGE_TYPE_TO_DTO = Map.of(
+            EventType.MESSAGE, ChatMessagePayloadDTO.class,
+            EventType.NEW_MEMBER, ChatMemberUpdatePayloadDTO.class,
+            EventType.DROP_MEMBER, ChatMemberUpdatePayloadDTO.class,
+            EventType.PIN, ChatPinnedMessagePayloadDTO.class,
+            EventType.NEW_CHAT_AVATAR, ChatAvatarPayloadDTO.class,
+            EventType.NEW_USER_AVATAR, UserAvatarUpdatePayloadDTO.class,
+            EventType.NEW_USERNAME, UserUsernameUpdatePayloadDTO.class
     );
 
     public static Instant getTime(JsonNode node) {
@@ -34,7 +43,7 @@ public class DTODeserializer {
 
     }
 
-    public static PayloadDTO getPayload(ObjectMapper mapper, MessageType type, JsonNode node) throws IOException {
+    public static PayloadDTO getPayload(ObjectMapper mapper, EventType type, JsonNode node) throws IOException {
         JsonNode payloadNode = node.get("payload");
 
         Class<? extends PayloadDTO> dtoClass = MESSAGE_TYPE_TO_DTO.get(type);
@@ -47,15 +56,15 @@ public class DTODeserializer {
     }
 
 
-    public static MessageType getMessageType(JsonNode node) throws IOException {
+    public static EventType getMessageType(JsonNode node) throws IOException {
         JsonNode typeNode = node.get("type");
         if (typeNode == null) {
             throw new IOException("Field 'type' is missing in JSON");
         }
         String typeStr = typeNode.asText();
-        MessageType type;
+        EventType type;
         try {
-            type = MessageType.valueOf(typeStr);
+            type = EventType.valueOf(typeStr);
         } catch (IllegalArgumentException e) {
             throw new InvalidMessageFormatCustomException();
         }

@@ -1,6 +1,6 @@
 package com.yazikochesalna.messagingservice.config;
 
-import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
+import com.yazikochesalna.messagingservice.dto.events.EventDTO;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
@@ -19,18 +19,18 @@ public class KafkaConfig {
     private final KafkaProperties kafkaProperties;
 
     @Bean
-    public ProducerFactory<String, MessageDTO> producerFactory() {
+    public ProducerFactory<String, EventDTO> producerFactory() {
         var config = new HashMap<>(kafkaProperties.buildProducerProperties());
         return new DefaultKafkaProducerFactory<>(config);
     }
 
     @Bean
-    public KafkaTemplate<String, MessageDTO> kafkaTemplate() {
+    public KafkaTemplate<String, EventDTO> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 
     @Bean
-    public ConsumerFactory<String, MessageDTO> consumerFactory() {
+    public ConsumerFactory<String, EventDTO> consumerFactory() {
         Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "messaging-service-instance-" + UUID.randomUUID());
 
@@ -38,8 +38,8 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, MessageDTO> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, MessageDTO> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, EventDTO> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, EventDTO> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.getContainerProperties().setAckMode(kafkaProperties.getListener().getAckMode());

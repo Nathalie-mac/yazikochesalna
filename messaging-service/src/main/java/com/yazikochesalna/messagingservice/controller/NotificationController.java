@@ -1,7 +1,7 @@
 package com.yazikochesalna.messagingservice.controller;
 
-import com.yazikochesalna.messagingservice.dto.kafka.MessageDTO;
-import com.yazikochesalna.messagingservice.service.WebSocketMessageService;
+import com.yazikochesalna.messagingservice.dto.events.EventDTO;
+import com.yazikochesalna.messagingservice.service.WebSocketEventService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
 public class NotificationController {
-    private final WebSocketMessageService webSocketMessageService;
+    private final WebSocketEventService webSocketEventService;
 
     @PostMapping("/update-members")
     @RolesAllowed("SERVICE")
@@ -32,8 +32,8 @@ public class NotificationController {
             @ApiResponse(responseCode = "400", description = "Некорректный формат запроса")
     })
     @Hidden
-    public ResponseEntity<?> sendUpdateChatMembersNotification(@Valid @RequestBody MessageDTO messageDTO) {
-        webSocketMessageService.sendMessage(messageDTO);
+    public ResponseEntity<?> sendUpdateChatMember(@Valid @RequestBody EventDTO eventDTO) {
+        webSocketEventService.sendMessage(eventDTO);
         return ResponseEntity.ok().build();
     }
 
@@ -46,8 +46,36 @@ public class NotificationController {
             @ApiResponse(responseCode = "400", description = "Некорректный формат запроса")
     })
     @Hidden
-    public ResponseEntity<?> sendNewChatAvatarNotification(@Valid @RequestBody MessageDTO messageDTO) {
-        webSocketMessageService.sendMessage(messageDTO);
+    public ResponseEntity<?> sendNewChatAvatar(@Valid @RequestBody EventDTO eventDTO) {
+        webSocketEventService.sendMessage(eventDTO);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/new-user-avatar")
+    @RolesAllowed("SERVICE")
+    @Operation(summary = "Отправка уведомления о новой аватарки пользователя",
+            description = "Внтуренний метод для отправки уведомлений об установки новой аватарки пользователя. Доступен только для сервисов.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Уведомление принято в рассылку"),
+            @ApiResponse(responseCode = "400", description = "Некорректный формат запроса")
+    })
+    @Hidden
+    public ResponseEntity<?> sendNewUserAvatar(@Valid @RequestBody EventDTO eventDTO) {
+        webSocketEventService.sendEvent(eventDTO);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/new-username")
+    @RolesAllowed("SERVICE")
+    @Operation(summary = "Отправка уведомления о новом имени пользователя",
+            description = "Внтуренний метод для отправки уведомлений о новом имени пользователя. Доступен только для сервисов.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Уведомление принято в рассылку"),
+            @ApiResponse(responseCode = "400", description = "Некорректный формат запроса")
+    })
+    @Hidden
+    public ResponseEntity<?> sendNewUsername(@Valid @RequestBody EventDTO eventDTO) {
+        webSocketEventService.sendEvent(eventDTO);
         return ResponseEntity.ok().build();
     }
 

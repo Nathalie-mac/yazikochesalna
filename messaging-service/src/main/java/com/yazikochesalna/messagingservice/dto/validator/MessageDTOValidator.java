@@ -1,6 +1,6 @@
 package com.yazikochesalna.messagingservice.dto.validator;
 
-import com.yazikochesalna.messagingservice.dto.request.AwaitingResponseMessageDTO;
+import com.yazikochesalna.messagingservice.dto.events.AwaitingResponseEventDTO;
 import com.yazikochesalna.messagingservice.exception.InvalidMessageFormatCustomException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -15,8 +15,8 @@ public class MessageDTOValidator {
     private final Validator validator;
 
 
-    public void validate(AwaitingResponseMessageDTO messageDTO) {
-        Set<ConstraintViolation<AwaitingResponseMessageDTO>> violations = validator.validate(messageDTO);
+    public void validate(AwaitingResponseEventDTO messageDTO) {
+        Set<ConstraintViolation<AwaitingResponseEventDTO>> violations = validator.validate(messageDTO);
         if (!violations.isEmpty()) {
             violations.forEach(violation ->
                     System.err.println(violation.getPropertyPath() + ": " + violation.getMessage()));

@@ -5,36 +5,35 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.yazikochesalna.messagingservice.dto.kafka.MessageType;
-import com.yazikochesalna.messagingservice.dto.kafka.PayloadDTO;
-import com.yazikochesalna.messagingservice.dto.request.AwaitingResponseMessageDTO;
+import com.yazikochesalna.messagingservice.dto.events.AwaitingResponseEventDTO;
+import com.yazikochesalna.messagingservice.dto.events.EventType;
+import com.yazikochesalna.messagingservice.dto.events.payload.PayloadDTO;
 
 import java.io.IOException;
 
-public class AwaitingResponseMessageDTODeserializer extends StdDeserializer<AwaitingResponseMessageDTO> {
+public class AwaitingResponseEventDTODeserializer extends StdDeserializer<AwaitingResponseEventDTO> {
 
-    public AwaitingResponseMessageDTODeserializer() {
-        this(AwaitingResponseMessageDTO.class);
+    public AwaitingResponseEventDTODeserializer() {
+        this(AwaitingResponseEventDTO.class);
     }
 
-    public AwaitingResponseMessageDTODeserializer(Class<?> vc) {
+    public AwaitingResponseEventDTODeserializer(Class<?> vc) {
         super(vc);
     }
 
 
     @Override
-    public AwaitingResponseMessageDTO deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    public AwaitingResponseEventDTO deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         ObjectMapper mapper = (ObjectMapper) jp.getCodec();
         JsonNode node = mapper.readTree(jp);
 
-        MessageType type = DTODeserializer.getMessageType(node);
+        EventType type = DTODeserializer.getMessageType(node);
 
         PayloadDTO payload = DTODeserializer.getPayload(mapper, type, node);
 
-        var messageDTO = AwaitingResponseMessageDTO.builder()
-                .type(type)
-                .payload(payload)
-                .build();
+        AwaitingResponseEventDTO messageDTO = new AwaitingResponseEventDTO();
+        messageDTO.setType(type)
+                .setPayload(payload);
 
 
         if (node.get("requestId") != null) {

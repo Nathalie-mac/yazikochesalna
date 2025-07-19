@@ -1,7 +1,7 @@
 package com.yazikochesalna.messagingservice.dto.validator;
 
-import com.yazikochesalna.messagingservice.dto.kafka.AttachmentDTO;
-import com.yazikochesalna.messagingservice.dto.kafka.AttachmentType;
+import com.yazikochesalna.messagingservice.dto.events.AttachmentDTO;
+import com.yazikochesalna.messagingservice.dto.events.AttachmentType;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
