@@ -14,6 +14,7 @@ resources:
   - secrets/dependencies/postgres-auth-secrets.yaml
   - secrets/dependencies/postgres-chat-secrets.yaml
   - secrets/dependencies/postgres-users-secrets.yaml
+  - secrets/dependencies/minio-file-storage-secrets.yaml
   - secrets/tls/tls-secret-generator.yaml
 
   - configmaps/microservices/general-service-config.yaml
