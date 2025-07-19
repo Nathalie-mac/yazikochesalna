@@ -31,4 +31,6 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
     @Query("UPDATE Users u SET u.fileUuid = :fileUuid WHERE u.id = :userId")
     void updateFileUuid(@Param("userId") Long userId, @Param("fileUuid") UUID fileUuid);
 
+    boolean existsByUsernameAndIdNot(String username, Long id);
+
 }
