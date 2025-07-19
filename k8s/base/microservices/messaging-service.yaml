@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: messaging-service
 spec:
-  replicas: 1
+  replicas: 4
   selector:
     matchLabels:
       app: messaging-service
@@ -25,6 +25,10 @@ spec:
         - name: messaging-service
           image: registry.gitlab.com/liza.antipa/yazikochesalna/messaging-service:main
           imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: "10m"
+              memory: "256Mi"
           ports:
             - containerPort: 8082
           envFrom:
