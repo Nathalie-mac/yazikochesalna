@@ -47,11 +47,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
 
-    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
-
-    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-elasticsearch
-    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch:3.5.3'
 
     implementation(project(":jwt-module"))
 }

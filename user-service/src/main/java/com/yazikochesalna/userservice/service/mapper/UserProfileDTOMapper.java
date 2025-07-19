@@ -2,11 +2,13 @@ package com.yazikochesalna.userservice.service.mapper;
 
 import com.yazikochesalna.userservice.data.entity.Users;
 import com.yazikochesalna.userservice.dto.UserProfileDTO;
-import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring")
-public interface UserProfileDTOMapper {
+public class UserProfileDTOMapper {
 
-   UserProfileDTO toUserProfileDTO (Users user);
+    public static UserProfileDTO convertUserToUserProfileDTO(Users users){
+        UserProfileDTO userProfileDTO = new UserProfileDTO();
+        userProfileDTO.setUserName(users.getUsername());
 
+        return userProfileDTO;
+    }
 }
