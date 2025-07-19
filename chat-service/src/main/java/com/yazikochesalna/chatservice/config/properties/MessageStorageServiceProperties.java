@@ -7,6 +7,6 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "messagestorage.service")
 @Data
-public class MessageStorageService {
+public class MessageStorageServiceProperties {
     private String url;
 }

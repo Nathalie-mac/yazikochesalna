@@ -7,5 +7,5 @@ import java.util.Map;
 
 public interface MessageStorageServiceClient {
 
-    Map<Long, MessageDto> getLastMessages(List<Long> chatIds);
+    Map<Long, Object> getLastMessages(List<Long> chatIds);
 }

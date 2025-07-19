@@ -89,7 +89,8 @@ open class FrontController(
 
 
     }
-    @GetMapping("/newest", "/newest/")
+
+    @PostMapping("/newest", "/newest/")
     @RolesAllowed("SERVICE")
     @Operation(
         summary = "Получение самого нового сообщения для каждого чата из списка",
