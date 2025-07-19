@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: user-service
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: user-service
@@ -43,10 +43,6 @@ spec:
         - name: user-service
           image: registry.gitlab.com/liza.antipa/yazikochesalna/user-service:main
           imagePullPolicy: Always
-#          resources:
-#            limits:
-#              cpu: "10m"
-#              memory: "256Mi"
           ports:
             - containerPort: 8083
           envFrom:

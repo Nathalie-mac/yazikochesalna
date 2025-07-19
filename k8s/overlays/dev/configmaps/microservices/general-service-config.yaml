@@ -5,7 +5,6 @@ metadata:
 data:
   JWT_ACCESS_TOKEN_EXPIRATION: "36000000"
   JWT_REFRESH_TOKEN_EXPIRATION: "252000000"
-#  JAVA_OPTS : "-Xmx128m -Xms128m"
   WEBCLIENT_TIMEOUT: "50000"
   CHAT_SERVICE_URL: "http://chat-service.messenger.svc.cluster.local:8080"
   MESSAGE_STORAGE_SERVICE_URL: "http://message-storage-service.messenger.svc.cluster.local:8081"

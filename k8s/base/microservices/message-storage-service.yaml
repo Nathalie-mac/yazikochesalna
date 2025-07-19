@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: message-storage-service
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: message-storage-service
@@ -36,10 +36,6 @@ spec:
         - name: message-storage-service
           image: registry.gitlab.com/liza.antipa/yazikochesalna/message-storage-service:main
           imagePullPolicy: Always
-#          resources:
-#            limits:
-#              cpu: "10m"
-#              memory: "256Mi"
           ports:
             - containerPort: 8081
           envFrom:
