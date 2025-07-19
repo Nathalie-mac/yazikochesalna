@@ -31,17 +31,15 @@ public class EventDTODeserializer extends StdDeserializer<EventDTO> {
 
         PayloadDTO payload = DTODeserializer.getPayload(mapper, type, node);
 
-        EventDTO eventDTO = switch (type) {
-            case NEW_USER_AVATAR, NEW_USERNAME -> EventDTO.builder()
-                    .type(type)
-                    .messageId(null)
-                    .payload(payload)
-                    .build();
-            default -> EventDTO.builder()
-                    .type(type)
-                    .payload(payload)
-                    .build();
-        };
+        EventDTO.EventDTOBuilder builder = EventDTO.builder()
+                .type(type)
+                .payload(payload);
+
+        if (type == EventType.NEW_USER_AVATAR || type == EventType.NEW_USERNAME) {
+            builder.messageId(null);
+        }
+
+        EventDTO eventDTO = builder.build();
 
 
         if (node.get("messageId") != null) {
