@@ -14,6 +14,8 @@ spec:
       labels:
         app: kafka-message-storage
     spec:
+      imagePullSecrets:
+        - name: dockerhub-regcred-secret
       containers:
       - name: kafka-message-storage
         image: confluentinc/cp-kafka:latest

@@ -13,6 +13,8 @@ spec:
       labels:
         app: minio-file-storage
     spec:
+      imagePullSecrets:
+        - name: dockerhub-regcred-secret
       containers:
         - name: minio-file-storage
           image: minio/minio:latest

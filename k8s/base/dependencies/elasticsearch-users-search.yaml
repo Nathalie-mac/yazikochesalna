@@ -14,6 +14,8 @@ spec:
       labels:
         app: elasticsearch-users-search
     spec:
+      imagePullSecrets:
+        - name: dockerhub-regcred-secret
       containers:
         - name: elasticsearch-users-search
           image: elasticsearch:8.12.0

@@ -4,6 +4,7 @@ namespace: messenger
 resources:
   - ../../base
 
+  - secrets/dockerhub-regcred-secret.yaml
   - secrets/gitlab-regcred-secret.yaml
   - secrets/microservices/auth-service-secrets.yaml
   - secrets/microservices/general-service-secrets.yaml
