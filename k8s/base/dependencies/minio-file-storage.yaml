@@ -1,10 +1,9 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: minio-file-storage
-  labels:
-    app: minio-file-storage
 spec:
+  serviceName: minio-file-storage-headless
   replicas: 1
   selector:
     matchLabels:
@@ -45,30 +44,21 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
-      volumes:
-        - name: storage
-          persistentVolumeClaim:
-            claimName: minio-storage
+  volumeClaimTemplates:
+    - metadata:
+        name: storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
 ---
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: minio-storage
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
-
----
+# ClusterIP Service — для внешнего доступа
 apiVersion: v1
 kind: Service
 metadata:
   name: minio-file-storage
 spec:
-  selector:
-    app: minio-file-storage
   ports:
     - name: api
       protocol: TCP
@@ -78,4 +68,24 @@ spec:
       protocol: TCP
       port: 9001
       targetPort: 9001
+  selector:
+    app: minio-file-storage
   type: ClusterIP
+
+---
+# Headless Service — обязателен для StatefulSet
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-file-storage-headless
+spec:
+  clusterIP: None
+  ports:
+    - name: api
+      port: 9000
+      targetPort: 9000
+    - name: console
+      port: 9001
+      targetPort: 9001
+  selector:
+    app: minio-file-storage
