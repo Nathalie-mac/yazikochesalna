@@ -37,10 +37,14 @@ public class ChatService {
     private final MapperToChatInList mapperToChatInList;
     private final MapperToGetGroupChatInfoDto mapperToGetGroupChatInfoDto;
     private final MessagingServiceClient messagingServiceClient;
+    private final MessageStorageServiceClient messageStorageServiceClient;
 
     public ChatListDto getUserChats(final long userId) {
-        return new ChatListDto(
-                chatRepository.findChatsByUser(userId).stream().map(chat -> mapperToChatInList.ChatToChatInListDto(chat, userId)).toList()
+        List<Chat> chats = chatRepository.findChatsByUser(userId);
+        List<Long> chatIds = chats.stream().map(Chat::getId).toList();
+        Map<Long, Object> messagesMap = messageStorageServiceClient.getLastMessages(chatIds);
+        return new ChatListDto(chats
+                .stream().map(chat -> mapperToChatInList.ChatToChatInListDto(chat, userId, messagesMap.get(chat.getId()))).toList()
         );
     }
 

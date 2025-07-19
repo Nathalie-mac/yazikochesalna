@@ -19,8 +19,9 @@ public interface MapperToChatInList {
     @Mapping( target = "type", source = "chat.type")
     @Mapping( target = "title", expression = "java(generateTitle(chat))")
     @Mapping( target = "partnerId", expression = "java(getPartnerId(chat, thisUser))")
+    @Mapping( target = "lastMessage", source = "lastMessage")
     @Mapping( target = "unreadCount", expression = "java(0)")
-    ChatInListDto ChatToChatInListDto(Chat chat, long thisUser);
+    ChatInListDto ChatToChatInListDto(Chat chat, long thisUser, Object lastMessage);
 
     default String generateTitle(Chat chat) {
         if (chat.getGroupChatDetails() == null) {
