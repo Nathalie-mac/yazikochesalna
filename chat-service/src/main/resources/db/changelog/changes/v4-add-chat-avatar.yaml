@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 4
+      author: Natashka
+      changes:
+        - addColumn:
+            tableName: group_chats
+            columns:
+              - column:
+                  name: avatar_uuid
+                  type: uuid
+                  constraints:
+                    nullable: true

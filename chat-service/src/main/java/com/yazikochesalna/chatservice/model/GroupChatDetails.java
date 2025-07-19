@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Entity
 @Table(name="group_chats")
 @Getter
@@ -27,4 +29,7 @@ public class GroupChatDetails {
     @OneToOne(optional = false)
     @JoinColumn(name = "id", referencedColumnName = "id")
     private Chat chat;
+
+    @Column(name = "avatar_uuid")
+    private UUID avatarUuid;
 }

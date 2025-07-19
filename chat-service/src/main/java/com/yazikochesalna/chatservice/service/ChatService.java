@@ -17,6 +17,7 @@ import com.yazikochesalna.chatservice.model.ChatUser;
 import com.yazikochesalna.chatservice.model.GroupChatDetails;
 import com.yazikochesalna.chatservice.repository.ChatRepository;
 import com.yazikochesalna.chatservice.repository.ChatUsersRepository;
+import com.yazikochesalna.chatservice.repository.GroupChatsRepository;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -38,6 +39,7 @@ public class ChatService {
     private final MapperToGetGroupChatInfoDto mapperToGetGroupChatInfoDto;
     private final MessagingServiceClient messagingServiceClient;
     private final MessageStorageServiceClient messageStorageServiceClient;
+    private final GroupChatsRepository groupChatsRepository;
 
     public ChatListDto getUserChats(final long userId) {
         List<Chat> chats = chatRepository.findChatsByUser(userId);
@@ -52,6 +54,7 @@ public class ChatService {
         final GroupChatDetails details = new GroupChatDetails();
         details.setDescription(request.description());
         details.setName(request.title());
+        details.setAvatarUuid(request.avatarUuid());
         details.setOwnerId(ownerId);
         final Chat chat = new Chat();
 
@@ -202,5 +205,28 @@ public class ChatService {
 
     public boolean updateLastReadMessage(long chatId, long userId, @NotNull @NotEmpty UUID messageId) {
         return chatUsersRepository.updateLastReadMessageId(chatId, userId, messageId) > 0;
+    }
+
+    //TODO: check!
+    public Boolean updateChatAvatar(long userId, long chatId, @NotNull UUID avatarUuid) {
+        Chat chat = chatRepository.getChatById(chatId);
+        if (!isOwner(chat, userId)) {
+            return false;
+        }
+        try{
+            setNewChatAvatar(chat, avatarUuid);
+            messagingServiceClient.sendAvatarUpdatedNotification(chatId, userId, avatarUuid);
+
+        }catch(DataIntegrityViolationException e){
+            return false;
+        }
+        return true;
+    }
+
+    //TODO: check!
+    private Boolean setNewChatAvatar(Chat chat, @NotNull UUID uuid) {
+        chat.getGroupChatDetails().setAvatarUuid(uuid);
+        chatRepository.save(chat);
+        return true;
     }
 }

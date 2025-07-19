@@ -23,6 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/chats")
@@ -145,6 +147,18 @@ public class ChatsController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
+
+    @PostMapping({"/{chatId}/newavatar", "/{chatId}/newavatar"})
+    public ResponseEntity<?> updateChatAvatar(@PathVariable long chatId, @NotNull @RequestParam UUID avatarUuid){
+        final long userId = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getUserId();
+        final Boolean update = chatService.updateChatAvatar(userId, chatId, avatarUuid);
+        if (update) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+
     @GetMapping({"/check/{chatId}/{userId}", "/check/{chatId}/{userId}/"})
     @RolesAllowed("SERVICE")
     @Operation(summary = "Проверка на пользователя в чате",
@@ -177,4 +191,7 @@ public class ChatsController {
         }
         return ResponseEntity.ok(members);
     }
+
+
+
 }
