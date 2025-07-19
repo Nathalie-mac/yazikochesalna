@@ -6,7 +6,6 @@ resources:
 
   - secrets/dockerhub-regcred-secret.yaml
   - secrets/gitlab-regcred-secret.yaml
-  -
   - secrets/microservices/auth-service-secrets.yaml
   - secrets/microservices/general-service-secrets.yaml
   - secrets/microservices/chat-service-secrets.yaml
