@@ -36,10 +36,10 @@ spec:
         - name: message-storage-service
           image: registry.gitlab.com/liza.antipa/yazikochesalna/message-storage-service:main
           imagePullPolicy: Always
-          resources:
-            limits:
-              cpu: "10m"
-              memory: "256Mi"
+#          resources:
+#            limits:
+#              cpu: "10m"
+#              memory: "256Mi"
           ports:
             - containerPort: 8081
           envFrom:
