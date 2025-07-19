@@ -96,6 +96,12 @@ build-user-service:
   variables:
     SERVICE_DIR: "user-service"
 
+
+build-file-service:
+  <<: *build-template
+  variables:
+    SERVICE_DIR: "file-service"
+
 build-frontend:
   stage: build
   image: node:20
@@ -181,6 +187,12 @@ docker-cassandra:
   variables:
     SERVICE_DIR: "message-storage-service/cassandra"
     DOCKER_IMAGE_NAME: "cassandra"
+
+docker-file-service:
+  <<: *build-docker-template
+  variables:
+    SERVICE_DIR: "message-storage-service/file-service"
+    DOCKER_IMAGE_NAME: "file-service"
 
 docker-frontend:
   <<: *build-docker-template
