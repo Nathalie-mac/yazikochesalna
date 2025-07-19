@@ -13,12 +13,16 @@ import javax.naming.ServiceUnavailableException;
 import java.time.Duration;
 
 @Service
-@RequiredArgsConstructor
 public class AuthorizationClientService {
 
     private final JwtService jwtService;
-    @Qualifier("authServiceWebClient")
     private final WebClient authServiceWebClient;
+
+    public AuthorizationClientService(
+            JwtService jwtService, @Qualifier("authServiceWebClient") WebClient authServiceWebClient) {
+        this.jwtService = jwtService;
+        this.authServiceWebClient = authServiceWebClient;
+    }
 
     private final static String AUTH_URL = "/api/v1/auth/getlogin?userID={userId}";
 
