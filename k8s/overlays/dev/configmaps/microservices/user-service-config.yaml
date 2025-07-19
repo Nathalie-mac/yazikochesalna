@@ -8,4 +8,4 @@ data:
   SPRING_DATASOURCE_HOST: "postgres-users-lb.messenger.svc.cluster.local"
   SPRING_DATASOURCE_PORT: "5432"
   SPRING_DATASOURCE_DATABASE: "userdatabase"
-
+  SPRING_ELASTICSEARCH_URIS: "http://elasticsearch-users-search.messenger.svc.cluster.local:9200"

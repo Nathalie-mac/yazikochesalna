@@ -14,6 +14,7 @@ spec:
     spec:
       imagePullSecrets:
         - name: gitlab-regcred
+        - name: dockerhub-regcred-secret
       initContainers:
         - name: wait-for-postgres
           image: postgres:latest
@@ -39,6 +40,15 @@ spec:
                   name: user-service-secrets
                   key: SPRING_DATASOURCE_USERNAME
           command: ["sh", "-c", "until pg_isready -h $PG_HOST -p $PG_PORT -U $PG_USERNAME -d postgres; do echo 'waiting for postgres-chat'; sleep 5; done; echo 'postgres-chat is up';"]
+        - name: wait-for-elasticsearch
+          image: curlimages/curl:latest
+          env:
+            - name: ES_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: user-service-config
+                  key: SPRING_ELASTICSEARCH_URIS
+          command: [ "sh", "-c", "until curl -s $ES_URI >/dev/null; do echo 'waiting for elasticsearch'; sleep 5; done; echo 'elasticsearch is up';" ]
       containers:
         - name: user-service
           image: registry.gitlab.com/liza.antipa/yazikochesalna/user-service:main
