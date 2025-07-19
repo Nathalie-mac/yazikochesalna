@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: chat-service
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: chat-service
@@ -43,6 +43,10 @@ spec:
         - name: chat-service
           image: registry.gitlab.com/liza.antipa/yazikochesalna/chat-service:main
           imagePullPolicy: Always
+#          resources:
+#            limits:
+#              cpu: "10m"
+#              memory: "256Mi"
           ports:
             - containerPort: 8080
           envFrom:
