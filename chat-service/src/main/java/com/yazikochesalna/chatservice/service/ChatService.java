@@ -25,6 +25,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
@@ -207,7 +208,6 @@ public class ChatService {
         return chatUsersRepository.updateLastReadMessageId(chatId, userId, messageId) > 0;
     }
 
-    //TODO: check!
     public Boolean updateChatAvatar(long userId, long chatId, @NotNull UUID avatarUuid) {
         Chat chat = chatRepository.getChatById(chatId);
         if (!isOwner(chat, userId)) {
@@ -223,10 +223,16 @@ public class ChatService {
         return true;
     }
 
-    //TODO: check!
-    private Boolean setNewChatAvatar(Chat chat, @NotNull UUID uuid) {
+    private void setNewChatAvatar(Chat chat, @NotNull UUID uuid) {
         chat.getGroupChatDetails().setAvatarUuid(uuid);
         chatRepository.save(chat);
-        return true;
+    }
+
+    public Set<Long> getCompanionsForUser(long userId) {
+        userService.validateUserId(userId);
+        return chatRepository.findChatsByUser(userId).stream().map(Chat::getMembers).flatMap(List::stream).map(ChatUser::getUserId).collect(Collectors.toSet());
+                //.flatMap(chat -> chat.getMembers().stream().forEach(ChatUser::getUserId)).toList();
+
+
     }
 }

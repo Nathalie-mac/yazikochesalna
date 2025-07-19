@@ -23,6 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -192,6 +194,21 @@ public class ChatsController {
         return ResponseEntity.ok(members);
     }
 
+    @GetMapping({"/companions/{userId}", "/compamions/{userId}/"})
+    @RolesAllowed("SERVICE")
+    @Operation(summary = "Возвращает список пользователей, с которым у данного пользователя есть чат")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Список участников чата получен"),
+            @ApiResponse(responseCode = "404", description = "Пользователь не найден")
+    })
+    @Hidden
+    public ResponseEntity<Set<Long>> getCompanions(@PathVariable long userId) {
+        Set<Long> companions = chatService.getCompanionsForUser(userId);
+        if (companions!=null){
+            return ResponseEntity.ok(companions);
+        }
+        return ResponseEntity.notFound().build();
+    }
 
 
 }
