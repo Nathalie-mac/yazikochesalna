@@ -5,6 +5,7 @@ import com.yazikochesalna.chatservice.dto.chatList.ChatListDto;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatRequest;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatResponse;
 import com.yazikochesalna.chatservice.dto.members.AddMembersRequest;
+import com.yazikochesalna.chatservice.dto.messaginservice.ListUsersDto;
 import com.yazikochesalna.chatservice.service.ChatService;
 import com.yazikochesalna.common.authentication.JwtAuthenticationToken;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -202,8 +203,8 @@ public class ChatsController {
             @ApiResponse(responseCode = "404", description = "Пользователь не найден")
     })
     @Hidden
-    public ResponseEntity<Set<Long>> getCompanions(@PathVariable long userId) {
-        Set<Long> companions = chatService.getCompanionsForUser(userId);
+    public ResponseEntity<ListUsersDto> getCompanions(@PathVariable long userId) {
+        ListUsersDto companions = chatService.getCompanionsForUser(userId);
         if (companions!=null){
             return ResponseEntity.ok(companions);
         }

@@ -7,6 +7,7 @@ import com.yazikochesalna.chatservice.dto.ShortChatInfoResponse;
 import com.yazikochesalna.chatservice.dto.chatList.ChatListDto;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatRequest;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatResponse;
+import com.yazikochesalna.chatservice.dto.messaginservice.ListUsersDto;
 import com.yazikochesalna.chatservice.enums.ChatType;
 import com.yazikochesalna.chatservice.exception.ChatCreationException;
 import com.yazikochesalna.chatservice.exception.DialogNotFoundException;
@@ -228,11 +229,10 @@ public class ChatService {
         chatRepository.save(chat);
     }
 
-    public Set<Long> getCompanionsForUser(long userId) {
+    public ListUsersDto getCompanionsForUser(long userId) {
         userService.validateUserId(userId);
-        return chatRepository.findChatsByUser(userId).stream().map(Chat::getMembers).flatMap(List::stream).map(ChatUser::getUserId).collect(Collectors.toSet());
-                //.flatMap(chat -> chat.getMembers().stream().forEach(ChatUser::getUserId)).toList();
-
-
+        Set<Long> userIds = chatRepository.findChatsByUser(userId).stream().map(Chat::getMembers).flatMap(List::stream)
+                .map(ChatUser::getUserId).collect(Collectors.toSet());
+        return new ListUsersDto(userIds);
     }
 }
