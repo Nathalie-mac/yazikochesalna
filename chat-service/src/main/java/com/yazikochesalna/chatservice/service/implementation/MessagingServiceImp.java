@@ -1,7 +1,10 @@
 package com.yazikochesalna.chatservice.service.implementation;
 
 import com.yazikochesalna.chatservice.config.properties.MessagingServiceProperties;
-import com.yazikochesalna.chatservice.dto.messaginservice.MessagingServiceNotificationDto;
+import com.yazikochesalna.chatservice.dto.messaginservice.MessagingServiceDefaultDto;
+import com.yazikochesalna.chatservice.dto.messaginservice.NotificationType;
+import com.yazikochesalna.chatservice.dto.messaginservice.payload.AvatarPayload;
+import com.yazikochesalna.chatservice.dto.messaginservice.payload.MemberPayload;
 import com.yazikochesalna.chatservice.service.MessagingServiceClient;
 import com.yazikochesalna.common.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +26,7 @@ public class MessagingServiceImp implements MessagingServiceClient {
     private final WebClient messagingServiceWebClient;
     private final MessagingServiceProperties messagingServiceProperties;
 
-    private void sendNotification(MessagingServiceNotificationDto notification) {
+    private void sendNotification(MessagingServiceDefaultDto notification) {
         String url = String.format(NOTIFICATION_URL_FORMAT, messagingServiceProperties.getUrl());
         try {
             messagingServiceWebClient.post()
@@ -48,9 +53,9 @@ public class MessagingServiceImp implements MessagingServiceClient {
     @Override
     public void sendMemberAddedNotification(long userId, long chatId) {
         sendNotification(
-                new MessagingServiceNotificationDto(
-                        MessagingServiceNotificationDto.Type.NEW_MEMBER,
-                        new MessagingServiceNotificationDto.Payload(
+                new MessagingServiceDefaultDto(
+                        NotificationType.NEW_MEMBER,
+                        new MemberPayload(
                                 chatId,
                                 userId
                         )
@@ -60,12 +65,27 @@ public class MessagingServiceImp implements MessagingServiceClient {
     @Override
     public void sendMemberRemovedNotification(long userId, long chatId) {
         sendNotification(
-                new MessagingServiceNotificationDto(
-                        MessagingServiceNotificationDto.Type.DROP_MEMBER,
-                        new MessagingServiceNotificationDto.Payload(
-                                chatId,
-                                userId
+                new MessagingServiceDefaultDto(
+                        NotificationType.DROP_MEMBER,
+                        new MemberPayload(
+                                userId,
+                                chatId
                         )
                 ));
+    }
+
+    @Override
+    public void sendAvatarUpdatedNotification(long chatId, long userId, UUID avatarUuid) {
+        sendNotification(
+                new MessagingServiceDefaultDto(
+                        NotificationType.NEW_CHAT_AVATAR,
+                        new AvatarPayload(
+                                avatarUuid,
+                                userId,
+                                chatId
+                        )
+                )
+        );
+
     }
 }

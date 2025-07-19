@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
+import java.util.UUID;
+
 @Builder
 public record ChatInListDto (
     @NotNull
@@ -22,7 +24,9 @@ public record ChatInListDto (
     @NotNull
     Object lastMessage,
     @Size(min = 0)
-    int unreadCount
+    int unreadCount,
+    @Nullable
+    UUID avatarUuid
 ) {
 
 }

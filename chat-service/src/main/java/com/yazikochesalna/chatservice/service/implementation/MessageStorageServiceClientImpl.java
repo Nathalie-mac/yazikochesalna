@@ -1,10 +1,6 @@
 package com.yazikochesalna.chatservice.service.implementation;
 
 import com.yazikochesalna.chatservice.config.properties.MessageStorageServiceProperties;
-import com.yazikochesalna.chatservice.config.properties.UserServiceProperties;
-import com.yazikochesalna.chatservice.dto.messagestorageservice.LastMessageInChatDto;
-import com.yazikochesalna.chatservice.dto.messagestorageservice.LastMessagesListDto;
-import com.yazikochesalna.chatservice.dto.messagestorageservice.MessageDto;
 import com.yazikochesalna.chatservice.service.MessageStorageServiceClient;
 import com.yazikochesalna.common.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -15,11 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
