@@ -24,7 +24,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Users {
 
-    private final String phoneRegular = "^\\+?[0-9\\s\\-()]{7,20}$";
+    private static final String phoneRegular = "^\\+?[0-9\\s\\-()]{7,20}$";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
