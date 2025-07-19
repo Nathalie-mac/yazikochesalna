@@ -3,6 +3,7 @@ package com.yazikochesalna.userservice.service.externalservice;
 import com.yazikochesalna.common.service.JwtService;
 import com.yazikochesalna.userservice.dto.LoginResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.time.Duration;
 public class AuthorizationClientService {
 
     private final JwtService jwtService;
+    @Qualifier("authServiceWebClient")
     private final WebClient authServiceWebClient;
 
     private final static String AUTH_URL = "/api/v1/auth/getlogin?userID={userId}";
