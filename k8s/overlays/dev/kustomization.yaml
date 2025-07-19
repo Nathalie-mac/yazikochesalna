@@ -17,13 +17,13 @@ resources:
   - secrets/dependencies/minio-file-storage-secrets.yaml
   - secrets/tls/tls-secret-generator.yaml
 
-  - configmaps/microservices/elasticsearch-users-search-config.yaml
   - configmaps/microservices/general-service-config.yaml
   - configmaps/microservices/auth-service-config.yaml
   - configmaps/microservices/chat-service-config.yaml
   - configmaps/microservices/message-storage-service-config.yaml
   - configmaps/microservices/messaging-service-config.yaml
   - configmaps/microservices/user-service-config.yaml
+  - configmaps/dependencies/elasticsearch-users-search-config.yaml
   - configmaps/dependencies/cassandra-messages-config.yaml
   - configmaps/dependencies/kafka-message-storage-config.yaml
   - configmaps/dependencies/postgres-auth-config.yaml
