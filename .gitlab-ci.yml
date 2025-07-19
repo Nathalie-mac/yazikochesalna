@@ -182,17 +182,20 @@ docker-user-service:
   dependencies:
     - build-user-service
 
-docker-cassandra:
-  <<: *build-docker-template
-  variables:
-    SERVICE_DIR: "message-storage-service/cassandra"
-    DOCKER_IMAGE_NAME: "cassandra"
-
 docker-file-service:
   <<: *build-docker-template
   variables:
     SERVICE_DIR: "message-storage-service/file-service"
     DOCKER_IMAGE_NAME: "file-service"
+  dependencies:
+    - build-file-service
+
+
+docker-cassandra:
+  <<: *build-docker-template
+  variables:
+    SERVICE_DIR: "message-storage-service/cassandra"
+    DOCKER_IMAGE_NAME: "cassandra"
 
 docker-frontend:
   <<: *build-docker-template
