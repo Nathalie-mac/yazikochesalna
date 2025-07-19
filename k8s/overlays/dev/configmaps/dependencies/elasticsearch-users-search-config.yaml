@@ -3,5 +3,5 @@ kind: ConfigMap
 metadata:
   name: elasticsearch-users-search-config
 data:
-  discovery.type: single-node
+  discovery.type: "single-node"
   xpack.security.enabled: "false"
