@@ -68,8 +68,8 @@ public class MessagingServiceImp implements MessagingServiceClient {
                 new MessagingServiceDefaultDto(
                         NotificationType.DROP_MEMBER,
                         new MemberPayload(
-                                userId,
-                                chatId
+                                chatId,
+                                userId
                         )
                 ));
     }

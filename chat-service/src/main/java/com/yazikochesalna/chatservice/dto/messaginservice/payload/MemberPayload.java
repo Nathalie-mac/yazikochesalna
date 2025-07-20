@@ -10,7 +10,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class MemberPayload extends Payload {
     @NotNull
-    public Long memberId;
-    @NotNull
     public Long chatId;
+    @NotNull
+    public Long memberId;
 }
