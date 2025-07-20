@@ -48,7 +48,7 @@ public class ChatService {
         List<Long> chatIds = chats.stream().map(Chat::getId).toList();
         Map<Long, Object> messagesMap = messageStorageServiceClient.getLastMessages(chatIds);
         return new ChatListDto(chats
-                .stream().map(chat -> mapperToChatInList.ChatToChatInListDto(chat, userId, messagesMap.get(chat.getId()))).toList()
+                .stream().map(chat -> mapperToChatInList.ChatToChatInListDto(chat, userId, messagesMap.getOrDefault(chat.getId(), null))).toList()
         );
     }
 

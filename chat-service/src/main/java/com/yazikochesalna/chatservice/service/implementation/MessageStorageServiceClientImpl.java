@@ -43,25 +43,23 @@ public class MessageStorageServiceClientImpl implements MessageStorageServiceCli
             assert messages != null;
             List<Map<String, Object>> messagesList = (List<Map<String, Object>>) messages.get("messages") ;
             Map<Long, Object>  messagesMap = messagesList.stream()
-                    .collect(Collectors.toMap(
+                    .filter((stringObjectMap ->
+                            stringObjectMap != null &&
+                                    stringObjectMap.containsKey("chatId")&&
+                                    stringObjectMap.containsKey("lastMessage")&&
+                                    stringObjectMap.get("chatId") != null &&
+                                    stringObjectMap.get("lastMessage") != null
+                    ))
+                   .collect(Collectors.toMap(
                             entry -> ((Number) entry.get("chatId")).longValue(),
                             entry -> entry.get("lastMessage"),
                             (existing, replacement) -> existing
                     ));
-            return chatIds.stream()
-                    .collect(Collectors.toMap(
-                            chatId -> chatId,
-                            chatId -> messagesMap.getOrDefault(chatId, null)
-                    ));
+            return messagesMap;
 
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-            return chatIds.stream().collect(Collectors.toMap(
-                            chatId -> chatId,
-                            chatId -> new HashMap<>(),
-                            (existing, replacement) -> existing
-                    )
-            );
+            return new HashMap<>();
         }
     }
 
