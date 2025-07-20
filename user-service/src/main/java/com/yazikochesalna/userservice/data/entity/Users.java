@@ -35,6 +35,11 @@ public class Users {
     @Size(max = 50, message = "Username must be less than 50 characters")
     private String username;
 
+    @Column(name = "low_username", length = 50, unique = true, nullable = false)
+    @NotBlank(message = "low_username cannot be blank")
+    @Size(max = 50, message = "Username must be less than 50 characters")
+    private String low_username;
+
     @Column(name = "file_uuid")
     private UUID fileUuid;
 

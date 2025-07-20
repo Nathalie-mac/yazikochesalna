@@ -36,6 +36,7 @@ public class AuthUserController {
             @RequestBody CreateUserRequestDTO request) {
 
         Users newUser = authUserService.createUser(request.getUsername());
+
         CreateUserResponseDTO createUserResponseDTO = new CreateUserResponseDTO(newUser.getId());
         return ResponseEntity.ok(createUserResponseDTO);
     }

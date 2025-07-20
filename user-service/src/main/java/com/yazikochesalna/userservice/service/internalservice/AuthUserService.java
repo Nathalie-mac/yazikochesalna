@@ -34,6 +34,8 @@ public class AuthUserService {
 
         Users user = new Users();
         user.setUsername(username);
+        user.setLow_username(username.toLowerCase());
+
         return usersRepository.save(user);
     }
 
