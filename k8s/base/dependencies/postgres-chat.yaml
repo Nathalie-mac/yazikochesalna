@@ -27,6 +27,8 @@ spec:
       labels:
         app: postgres-chat
     spec:
+      imagePullSecrets:
+        - name: dockerhub-regcred-secret
       terminationGracePeriodSeconds: 70
       containers:
         - name: postgres-chat

@@ -4,6 +4,7 @@ namespace: messenger
 resources:
   - ../../base
 
+  - secrets/dockerhub-regcred-secret.yaml
   - secrets/gitlab-regcred-secret.yaml
   - secrets/microservices/auth-service-secrets.yaml
   - secrets/microservices/general-service-secrets.yaml
@@ -14,6 +15,7 @@ resources:
   - secrets/dependencies/postgres-auth-secrets.yaml
   - secrets/dependencies/postgres-chat-secrets.yaml
   - secrets/dependencies/postgres-users-secrets.yaml
+  - secrets/dependencies/minio-file-storage-secrets.yaml
   - secrets/tls/tls-secret-generator.yaml
 
   - configmaps/microservices/general-service-config.yaml
@@ -22,6 +24,7 @@ resources:
   - configmaps/microservices/message-storage-service-config.yaml
   - configmaps/microservices/messaging-service-config.yaml
   - configmaps/microservices/user-service-config.yaml
+  - configmaps/dependencies/elasticsearch-users-search-config.yaml
   - configmaps/dependencies/cassandra-messages-config.yaml
   - configmaps/dependencies/kafka-message-storage-config.yaml
   - configmaps/dependencies/postgres-auth-config.yaml

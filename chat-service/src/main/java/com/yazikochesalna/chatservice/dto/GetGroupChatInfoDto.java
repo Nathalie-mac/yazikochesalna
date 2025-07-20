@@ -1,11 +1,11 @@
 package com.yazikochesalna.chatservice.dto;
 
-import jakarta.validation.constraints.NotNull;
 import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-import org.aspectj.weaver.ast.Not;
 
 import java.util.List;
+import java.util.UUID;
 
 @Builder
 public record GetGroupChatInfoDto(
@@ -18,6 +18,8 @@ public record GetGroupChatInfoDto(
         @NotNull
         Long ownerId,
         @NotNull
-        List<Long> membersIds
+        List<Long> membersIds,
+        @Nullable
+        UUID avatarUuid
 ) {
 }
