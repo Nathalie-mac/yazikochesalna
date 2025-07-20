@@ -70,6 +70,8 @@ stages:
     # Применяем манифесты с помощью kustomize
     - kubectl -n messenger get secret gitlab-regcred && kubectl -n messenger delete secret gitlab-regcred || true
     - kubectl -n messenger apply -k .
+    # Перезапускаем сервисы для обновления образов
+    - kubectl rollout restart deployments -n messenger
 
 # --- Определяем job для каждого сервиса --- #
 build-authorization-service:
