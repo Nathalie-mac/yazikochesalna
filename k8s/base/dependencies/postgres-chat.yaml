@@ -1,3 +1,16 @@
+# Headless Service — обязателен для StatefulSet
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-chat
+spec:
+  clusterIP: None
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: postgres-chat
+---
 # StatefulSet
 apiVersion: apps/v1
 kind: StatefulSet
@@ -14,6 +27,8 @@ spec:
       labels:
         app: postgres-chat
     spec:
+      imagePullSecrets:
+        - name: dockerhub-regcred-secret
       terminationGracePeriodSeconds: 70
       containers:
         - name: postgres-chat
@@ -54,21 +69,6 @@ spec:
         resources:
           requests:
             storage: 1Gi
-
----
-# Headless Service — обязателен для StatefulSet
-apiVersion: v1
-kind: Service
-metadata:
-  name: postgres-chat
-spec:
-  clusterIP: None
-  ports:
-    - port: 5432
-      targetPort: 5432
-  selector:
-    app: postgres-chat
-
 ---
 # LoadBalancer/ClusterIP Service — для внешнего доступа
 apiVersion: v1
