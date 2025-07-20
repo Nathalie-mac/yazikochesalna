@@ -13,5 +13,5 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ExternalSearchDTO {
-    private List<Long> userIds;
+    private List<Users> users;
 }

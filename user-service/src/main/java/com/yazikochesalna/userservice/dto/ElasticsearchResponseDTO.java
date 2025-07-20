@@ -1,5 +1,6 @@
 package com.yazikochesalna.userservice.dto;
 
+import com.yazikochesalna.userservice.data.entity.UserElasticsearch;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,5 +14,5 @@ import java.util.List;
 @NoArgsConstructor
 public class ElasticsearchResponseDTO {
 
-    private List<Long> userIDs;
+    private List<UserElasticsearch> users;
 }
