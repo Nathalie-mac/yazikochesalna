@@ -31,27 +31,26 @@ public class SearchUserController {
 
     @GetMapping("/elasticsearch")
     @Operation(summary = "Получить пользователей по userName, фио", description = "Возвращает максимум 40 первых пользователей")
-    public ElasticsearchResponseDTO searchUsers(
+    public List<UserElasticsearch> searchUsers(
             @RequestParam("query")
             @NotBlank
             String query) {
         List<UserElasticsearch> findUsers = elasticsearchService.searchUsers(query);
 
-        return UserElasticsearchMapper.INSTANCE.toDto(findUsers);
+        return findUsers;
     }
 
     // не будет использоваться
     @GetMapping("/search")
     @Operation(summary = "Получить пользователей по userName", description = "Возвращает максимум 40 первых пользователей")
-    public ResponseEntity<ExternalSearchDTO> searchUsersByUsername(
+    public ResponseEntity<List<Users>> searchUsersByUsername(
             @RequestParam("username")
             @NotBlank
             String usernamePrefix) {
 
         List<Users> users = userSearchService.findUserIdsByUsernameStartsWith(usernamePrefix);
-        ExternalSearchDTO searchDTO = UsersToExternalSearchMapper.INSTANCE.toExternalSearchDTO(users);
 
-        return ResponseEntity.ok(searchDTO);
+        return ResponseEntity.ok(users);
     }
 
 }
