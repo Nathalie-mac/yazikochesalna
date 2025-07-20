@@ -12,23 +12,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UserEntityListener {
 
-//    @PostPersist
-//    @PostUpdate
-//    public void postPersistOrUpdate(Users user) {
-//        getElasticsearchService().indexUser(user);
-//    }
-//
-//    @PostRemove
-//    public void postRemove(Users user) {
-//        getElasticsearchService().deleteUserFromIndex(user.getId());
-//    }
-//
-//    private ElasticsearchService getElasticsearchService() {
-//        return ApplicationContextProvider.getApplicationContext()
-//                .getBean(ElasticsearchService.class);
-//    }
-
-    private static ElasticsearchService elasticsearchService;
+    private final ElasticsearchService elasticsearchService;
 
     @PostPersist
     @PostUpdate
