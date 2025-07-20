@@ -27,7 +27,8 @@ public class ElasticsearchService {
                         user.getUsername(),
                         user.getLastName(),
                         user.getFirstName(),
-                        user.getMiddleName()))
+                        user.getMiddleName(),
+                        user.getFileUuid()))
                 .collect(Collectors.toList());
 
         userElasticsearchRepository.saveAll(userSearches);
@@ -40,7 +41,8 @@ public class ElasticsearchService {
                 user.getUsername(),
                 user.getLastName(),
                 user.getFirstName(),
-                user.getMiddleName());
+                user.getMiddleName(),
+                user.getFileUuid());
 
         userElasticsearchRepository.save(userSearch);
     }
