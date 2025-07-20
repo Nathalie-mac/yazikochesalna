@@ -7,6 +7,7 @@ import com.yazikochesalna.userservice.dto.ExternalSearchDTO;
 import com.yazikochesalna.userservice.service.externalservice.ElasticsearchService;
 import com.yazikochesalna.userservice.service.externalservice.UserSearchService;
 import com.yazikochesalna.userservice.service.mapper.UserElasticsearchMapper;
+import com.yazikochesalna.userservice.service.mapper.UsersToExternalSearchMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
@@ -48,7 +49,7 @@ public class SearchUserController {
             String usernamePrefix) {
 
         List<Users> users = userSearchService.findUserIdsByUsernameStartsWith(usernamePrefix);
-        ExternalSearchDTO searchDTO = new ExternalSearchDTO(users);
+        ExternalSearchDTO searchDTO = UsersToExternalSearchMapper.INSTANCE.toExternalSearchDTO(users);
 
         return ResponseEntity.ok(searchDTO);
     }

@@ -41,6 +41,7 @@ public class UpdateProfileDataService {
         if (updateDTO.getUsername() != null) {
             validateUsernameUniqueness(updateDTO.getUsername(), user.getId());
             user.setUsername(updateDTO.getUsername());
+            user.setLow_username(updateDTO.getUsername().toLowerCase());
         }
         Optional.ofNullable(updateDTO.getLastName()).ifPresent(user::setLastName);
         Optional.ofNullable(updateDTO.getFirstName()).ifPresent(user::setFirstName);
@@ -49,50 +50,6 @@ public class UpdateProfileDataService {
         Optional.ofNullable(updateDTO.getDescription()).ifPresent(user::setDescription);
         Optional.ofNullable(updateDTO.getBirthDate()).ifPresent(user::setBirthDate);
     }
-
-//    private boolean updateUserFields(Users user, UpdateUserRequestDTO updateDTO) {
-//        boolean changed = false;
-//
-//        // Для username отдельная проверка
-//        if (updateDTO.getUsername() != null && !updateDTO.getUsername().equals(user.getUsername())) {
-//            validateUsernameUniqueness(updateDTO.getUsername(), user.getId());
-//            user.setUsername(updateDTO.getUsername());
-//            changed = true;
-//        }
-//
-//        // Для остальных полей - проверка на изменение
-//        if (updateDTO.getLastName() != null && !updateDTO.getLastName().equals(user.getLastName())) {
-//            user.setLastName(updateDTO.getLastName());
-//            changed = true;
-//        }
-//
-//        if (updateDTO.getFirstName() != null && !updateDTO.getFirstName().equals(user.getFirstName())) {
-//            user.setFirstName(updateDTO.getFirstName());
-//            changed = true;
-//        }
-//
-//        if (updateDTO.getMiddleName() != null && !updateDTO.getMiddleName().equals(user.getMiddleName())) {
-//            user.setMiddleName(updateDTO.getMiddleName());
-//            changed = true;
-//        }
-//
-//        if (updateDTO.getPhone() != null && !updateDTO.getPhone().equals(user.getPhone())) {
-//            user.setPhone(updateDTO.getPhone());
-//            changed = true;
-//        }
-//
-//        if (updateDTO.getDescription() != null && !updateDTO.getDescription().equals(user.getDescription())) {
-//            user.setDescription(updateDTO.getDescription());
-//            changed = true;
-//        }
-//
-//        if (updateDTO.getBirthDate() != null && !updateDTO.getBirthDate().equals(user.getBirthDate())) {
-//            user.setBirthDate(updateDTO.getBirthDate());
-//            changed = true;
-//        }
-//
-//        return changed;
-//    }
 
     private void validateUsernameUniqueness(String username, Long userId) {
         if (usersRepository.existsByUsernameAndIdNot(username, userId)) {
