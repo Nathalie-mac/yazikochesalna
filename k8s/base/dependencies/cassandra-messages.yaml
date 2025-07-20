@@ -1,3 +1,17 @@
+# Headless Service — обязателен для StatefulSet
+apiVersion: v1
+kind: Service
+metadata:
+  name: cassandra-messages
+  namespace: messenger
+spec:
+  clusterIP: None
+  ports:
+    - port: 9042
+      targetPort: 9042
+  selector:
+    app: cassandra-messages
+---
 # StatefulSet
 apiVersion: apps/v1
 kind: StatefulSet
@@ -76,22 +90,6 @@ spec:
         resources:
           requests:
             storage: 100Mi
-
----
-# Headless Service — обязателен для StatefulSet
-apiVersion: v1
-kind: Service
-metadata:
-  name: cassandra-messages
-  namespace: messenger
-spec:
-  clusterIP: None
-  ports:
-    - port: 9042
-      targetPort: 9042
-  selector:
-    app: cassandra-messages
-
 ---
 # Обычный Service для внешнего доступа
 apiVersion: v1

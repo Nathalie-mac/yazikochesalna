@@ -14,6 +14,7 @@ spec:
     spec:
       imagePullSecrets:
         - name: gitlab-regcred
+        - name: dockerhub-regcred-secret
       initContainers:
         - name: wait-for-kafka
           image: busybox
@@ -25,10 +26,6 @@ spec:
         - name: messaging-service
           image: registry.gitlab.com/liza.antipa/yazikochesalna/messaging-service:main
           imagePullPolicy: Always
-#          resources:
-#            limits:
-#              cpu: "10m"
-#              memory: "256Mi"
           ports:
             - containerPort: 8082
           envFrom:

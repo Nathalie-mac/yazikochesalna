@@ -14,6 +14,7 @@ spec:
     spec:
       imagePullSecrets:
         - name: gitlab-regcred
+        - name: dockerhub-regcred-secret
       initContainers:
         - name: wait-for-postgres
           image: postgres:latest
@@ -43,10 +44,6 @@ spec:
         - name: auth-service
           image: registry.gitlab.com/liza.antipa/yazikochesalna/authorization-service:main
           imagePullPolicy: Always
-#          resources:
-#            limits:
-#              cpu: "10m"
-#              memory: "256Mi"
           ports:
             - containerPort: 8085
           envFrom:

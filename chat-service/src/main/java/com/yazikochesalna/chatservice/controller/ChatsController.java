@@ -5,6 +5,7 @@ import com.yazikochesalna.chatservice.dto.chatList.ChatListDto;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatRequest;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatResponse;
 import com.yazikochesalna.chatservice.dto.members.AddMembersRequest;
+import com.yazikochesalna.chatservice.dto.messaginservice.ListUsersDto;
 import com.yazikochesalna.chatservice.service.ChatService;
 import com.yazikochesalna.common.authentication.JwtAuthenticationToken;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -22,6 +23,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
@@ -145,6 +150,18 @@ public class ChatsController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
+
+    @PostMapping({"/{chatId}/newavatar", "/{chatId}/newavatar"})
+    public ResponseEntity<?> updateChatAvatar(@PathVariable long chatId, @NotNull @RequestParam UUID avatarUuid){
+        final long userId = ((JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication()).getUserId();
+        final Boolean update = chatService.updateChatAvatar(userId, chatId, avatarUuid);
+        if (update) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+
     @GetMapping({"/check/{chatId}/{userId}", "/check/{chatId}/{userId}/"})
     @RolesAllowed("SERVICE")
     @Operation(summary = "Проверка на пользователя в чате",
@@ -177,4 +194,22 @@ public class ChatsController {
         }
         return ResponseEntity.ok(members);
     }
+
+    @GetMapping({"/companions/{userId}", "/compamions/{userId}/"})
+    @RolesAllowed("SERVICE")
+    @Operation(summary = "Возвращает список пользователей, с которым у данного пользователя есть чат")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Список участников чата получен"),
+            @ApiResponse(responseCode = "404", description = "Пользователь не найден")
+    })
+    @Hidden
+    public ResponseEntity<ListUsersDto> getCompanions(@PathVariable long userId) {
+        ListUsersDto companions = chatService.getCompanionsForUser(userId);
+        if (companions!=null){
+            return ResponseEntity.ok(companions);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+
 }

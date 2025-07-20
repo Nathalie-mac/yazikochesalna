@@ -9,6 +9,7 @@ resources:
   - dependencies/redis-websocket-tokens.yaml
   - dependencies/kafka-message-storage.yaml
   - dependencies/minio-file-storage.yaml
+  - dependencies/elasticsearch-users-search.yaml
   - microservices/auth-service.yaml
   - microservices/user-service.yaml
   - microservices/chat-service.yaml
