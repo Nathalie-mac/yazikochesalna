@@ -54,9 +54,9 @@ spec:
               value: "1G"
           volumeMounts:
             - name: cassandra-messages-data
-              mountPath: /var/lib/cassandra
+              mountPath: /bitnami/cassandra/data
             - name: cassandra-init-flag
-              mountPath: /bitnami/cassandra/initialized
+              mountPath: /bitnami/cassandra/.initialized
           livenessProbe:
             exec:
               command: ["sh", "-c", "cqlsh -u \"$CASSANDRA_USER\" -p \"$CASSANDRA_PASSWORD\" localhost 9042 -e \"DESCRIBE KEYSPACES\""]
