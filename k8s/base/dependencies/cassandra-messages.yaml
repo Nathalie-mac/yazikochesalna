@@ -60,17 +60,17 @@ spec:
           livenessProbe:
             exec:
               command: ["sh", "-c", "cqlsh -u \"$CASSANDRA_USER\" -p \"$CASSANDRA_PASSWORD\" localhost 9042 -e \"DESCRIBE KEYSPACES\""]
-            initialDelaySeconds: 320
+            initialDelaySeconds: 420
             periodSeconds: 20
             failureThreshold: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 10
           readinessProbe:
             exec:
               command: ["sh", "-c", "cqlsh -u \"$CASSANDRA_USER\" -p \"$CASSANDRA_PASSWORD\" localhost 9042 -e \"SELECT keyspace_name FROM system_schema.keyspaces WHERE keyspace_name = 'storage_service_keyspace'\""]
-            initialDelaySeconds: 310
+            initialDelaySeconds: 410
             periodSeconds: 10
             timeoutSeconds: 5
-            failureThreshold: 5
+            failureThreshold: 10
           resources:
             limits:
               cpu: "1000m"
