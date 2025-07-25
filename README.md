@@ -33,27 +33,27 @@
 # Стек технологий
 
 ## Backend
-<img alt="java.jpg" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fjava.png" width="80"/>
+<img alt="java.jpg" height="100" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fjava.png" width="100"/>
 <img alt="kotlin.jpg" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fkotlin.png" width="160"/>
-<img alt="spring.png" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fspring.png" width="80"/><br>
-<img alt="docker.png" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fdocker.png" width="80"/>
-<img alt="k8s.png" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fk8s.png" width="120"/><br>
-<img alt="kafka.jpg" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fkafka.png" width="80"/>
-<img alt="elastic.png" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Felastic.png" width="80"/><br>
+<img alt="spring.png" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fspring.png" width="120"/><br>
+<img alt="docker.png" height="100" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fdocker.png" width="120"/>
+<img alt="k8s.png" height="100" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fk8s.png" width="100"/><br>
+<img alt="kafka.jpg" height="100" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fkafka.png" width="100"/>
+<img alt="elastic.png" height="100" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Felastic.png" width="100"/><br>
 
 ## Frontend
-<img alt="css.jpg" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fcss.png" width="70"/>
+<img alt="css.jpg" height="100" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fcss.png" width="100"/>
 <img alt="hyml.jpg" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fhyml.png" width="70"/><br>
 <img alt="react.png" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Freact.png" width="120"/>
 <img alt="websockets.png" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fwebsockets.png" width="180"/><br>
 
 ## DB
-<img alt="postgres.jpg" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fpostgres.png" width="80"/>
-<img alt="redis.jpg" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fredis.png" width="80"/>
-<img alt="minio.png" height="240" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fminio.png" width="80"/><br>
+<img alt="postgres.jpg" height="100" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fpostgres.png" width="100"/>
+<img alt="redis.jpg" height="100" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fredis.png" width="100"/><br>
 <img alt="cassandra.png" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fcassandra.png" width="240"/>
 <img alt="hisernate.png" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fhisernate.png" width="200"/>
-<img alt="liquibase.jpg" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fliquibase.jpg" width="200"/><br>
+<img alt="liquibase.jpg" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fliquibase.png" width="200"/><br>
+<img alt="minio.png" height="240" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fminio.png" width="80"/><br>
 
 
 <a name = "docs"/>
