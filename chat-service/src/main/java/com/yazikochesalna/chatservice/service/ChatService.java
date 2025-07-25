@@ -7,6 +7,7 @@ import com.yazikochesalna.chatservice.dto.ShortChatInfoResponse;
 import com.yazikochesalna.chatservice.dto.chatList.ChatListDto;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatRequest;
 import com.yazikochesalna.chatservice.dto.createChat.CreateChatResponse;
+import com.yazikochesalna.chatservice.dto.messaginservice.ListUsersDto;
 import com.yazikochesalna.chatservice.enums.ChatType;
 import com.yazikochesalna.chatservice.exception.ChatCreationException;
 import com.yazikochesalna.chatservice.exception.DialogNotFoundException;
@@ -17,6 +18,7 @@ import com.yazikochesalna.chatservice.model.ChatUser;
 import com.yazikochesalna.chatservice.model.GroupChatDetails;
 import com.yazikochesalna.chatservice.repository.ChatRepository;
 import com.yazikochesalna.chatservice.repository.ChatUsersRepository;
+import com.yazikochesalna.chatservice.repository.GroupChatsRepository;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -24,6 +26,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
@@ -37,10 +40,15 @@ public class ChatService {
     private final MapperToChatInList mapperToChatInList;
     private final MapperToGetGroupChatInfoDto mapperToGetGroupChatInfoDto;
     private final MessagingServiceClient messagingServiceClient;
+    private final MessageStorageServiceClient messageStorageServiceClient;
+    private final GroupChatsRepository groupChatsRepository;
 
     public ChatListDto getUserChats(final long userId) {
-        return new ChatListDto(
-                chatRepository.findChatsByUser(userId).stream().map(chat -> mapperToChatInList.ChatToChatInListDto(chat, userId)).toList()
+        List<Chat> chats = chatRepository.findChatsByUser(userId);
+        List<Long> chatIds = chats.stream().map(Chat::getId).toList();
+        Map<Long, Object> messagesMap = messageStorageServiceClient.getLastMessages(chatIds);
+        return new ChatListDto(chats
+                .stream().map(chat -> mapperToChatInList.ChatToChatInListDto(chat, userId, messagesMap.getOrDefault(chat.getId(), null))).toList()
         );
     }
 
@@ -48,6 +56,7 @@ public class ChatService {
         final GroupChatDetails details = new GroupChatDetails();
         details.setDescription(request.description());
         details.setName(request.title());
+        details.setAvatarUuid(request.avatarUuid());
         details.setOwnerId(ownerId);
         final Chat chat = new Chat();
 
@@ -198,5 +207,32 @@ public class ChatService {
 
     public boolean updateLastReadMessage(long chatId, long userId, @NotNull @NotEmpty UUID messageId) {
         return chatUsersRepository.updateLastReadMessageId(chatId, userId, messageId) > 0;
+    }
+
+    public Boolean updateChatAvatar(long userId, long chatId, @NotNull UUID avatarUuid) {
+        Chat chat = chatRepository.getChatById(chatId);
+        if (!isOwner(chat, userId)) {
+            return false;
+        }
+        try{
+            setNewChatAvatar(chat, avatarUuid);
+            messagingServiceClient.sendAvatarUpdatedNotification(chatId, userId, avatarUuid);
+
+        }catch(DataIntegrityViolationException e){
+            return false;
+        }
+        return true;
+    }
+
+    private void setNewChatAvatar(Chat chat, @NotNull UUID uuid) {
+        chat.getGroupChatDetails().setAvatarUuid(uuid);
+        chatRepository.save(chat);
+    }
+
+    public ListUsersDto getCompanionsForUser(long userId) {
+        userService.validateUserId(userId);
+        Set<Long> userIds = chatRepository.findChatsByUser(userId).stream().map(Chat::getMembers).flatMap(List::stream)
+                .map(ChatUser::getUserId).collect(Collectors.toSet());
+        return new ListUsersDto(userIds);
     }
 }

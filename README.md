@@ -1,4 +1,4 @@
-<img alt="logo.png" height="200" src="" width="200" float="middle"/>
+<img alt="logo.png" height="200" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fmain.jpg" width="200" float="middle"/>
 
 Корпоративный мессенджер с национальным колоритом
 
@@ -32,18 +32,29 @@
 
 # Стек технологий
 
-<img alt="java.jpg" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Fjava.jpg" width="160"/>
-<img alt="spring.jpg" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Fspring.jpg" width="160"/>
-<img alt="git.png" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Fgit.png" width="160"/><br>
-<img alt="postgresql.png" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Fpostgresql.png" width="240"/>
-<img alt="s3.png" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Fs3.png" width="120"/>
-<img alt="hibernate.jpg" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Fhibernate.jpg" width="240"/>
-<img alt="liquibase.png" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Fliquibase.png" width="280"/><br>
-<img alt="typescript.png" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Ftypescript.png" width="240"/>
-<img alt="react.png" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Freact.png" width="160"/>
-<img alt="tailwind.png" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Ftailwind.png" width="240"/><br>
-<img alt="JUnit_5.png" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2FJUnit_5.png" width="240"/>
-<img alt="postman.png" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Fpostman.png" width="240"/><br>
+## Backend
+<img alt="java.jpg" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fjava.jpg" width="160"/>
+<img alt="kotlin.jpg" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fkotlin.jpg" width="160"/>
+<img alt="spring.png" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fspring.png" width="160"/><br>
+<img alt="docker.png" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fdocker.png" width="240"/>
+<img alt="k8s.png" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fk8s.png" width="120"/>
+<img alt="kafka.jpg" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fkafka.jpg" width="240"/>
+<img alt="elastic.png" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Felastic.png" width="280"/><br>
+
+## Frontend
+<img alt="css.jpg" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fcss.jpg" width="160"/>
+<img alt="hyml.jpg" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fhyml.jpg" width="160"/>
+<img alt="react.png" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Freact.png" width="160"/><br>
+<img alt="websockets.png" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fwebsockets.png" width="240"/><br>
+
+## DB
+<img alt="postgres.jpg" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fpostgres.jpg" width="160"/>
+<img alt="redis.jpg" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fredis.jpg" width="160"/>
+<img alt="minio.png" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fminio.png" width="160"/><br>
+<img alt="cassandra.png" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fcassandra.png" width="240"/>
+<img alt="hisernate.png" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fhisernate.png" width="120"/>
+<img alt="liquibase.jpg" height="80" src="https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/pics%2Fliquibase.jpg" width="240"/><br>
+
 
 <a name = "docs"/>
 

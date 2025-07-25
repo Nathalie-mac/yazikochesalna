@@ -2,6 +2,7 @@ package com.yazikochesalna.messagestorageservice.service
 
 import com.yazikochesalna.messagestorageservice.dto.MessagesJsonFormatDTO
 import com.yazikochesalna.messagestorageservice.dto.NewestMessageDTO
+import com.yazikochesalna.messagestorageservice.dto.NewestMessagesListDTO
 import com.yazikochesalna.messagestorageservice.exception.customexceptions.CoroutinesException
 import com.yazikochesalna.messagestorageservice.model.db.Attachment
 import com.yazikochesalna.messagestorageservice.model.db.BaseMessage
@@ -99,8 +100,8 @@ open class MessageService(
     }
 
 
-    fun getNewestMessagesByChat(chatList: List<Long>): List<NewestMessageDTO> {
-        return kotlin.runCatching {
+    fun getNewestMessagesByChat(chatList: List<Long>): NewestMessagesListDTO {
+        return NewestMessagesListDTO(kotlin.runCatching {
             val lastMessages = chatList.mapNotNull { chatId ->
                 messageByChatRepository.findFirstByChatId(chatId).block()
             }
@@ -118,7 +119,7 @@ open class MessageService(
                 )
             }
         }.getOrElse { e -> throw CoroutinesException("Unexpected error in fetching newest messages via coroutines", e) }
-
+        )
 
     }
 
