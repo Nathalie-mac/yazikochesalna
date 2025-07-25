@@ -1,93 +1,117 @@
-# Yazikochesalna
+<img alt="logo.png" height="200" src="" width="200" float="middle"/>
+
+Корпоративный мессенджер с национальным колоритом
+
+# Навигация
+
+[1. О проекте](#description)
+
+[2. Стек технологий](#stack)
+
+[3. Документация](#docs)
+
+[4. Развертывание](#deploy)
+
+[5. Умельцы](#team)
+
+<a name="description"/>
+
+# О проекте
+
+## Пользователям
+
+Языкочесальня - это корпоративный мессенджер и удобное пространство для общения. Все как в телеграме
+
+**У нас есть:**\
+
+## Разработчикам
 
 
 
-## Getting started
+<a name="stack"/>
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+# Стек технологий
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+<img alt="java.jpg" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Fjava.jpg" width="160"/>
+<img alt="spring.jpg" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Fspring.jpg" width="160"/>
+<img alt="git.png" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Fgit.png" width="160"/><br>
+<img alt="postgresql.png" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Fpostgresql.png" width="240"/>
+<img alt="s3.png" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Fs3.png" width="120"/>
+<img alt="hibernate.jpg" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Fhibernate.jpg" width="240"/>
+<img alt="liquibase.png" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Fliquibase.png" width="280"/><br>
+<img alt="typescript.png" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Ftypescript.png" width="240"/>
+<img alt="react.png" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Freact.png" width="160"/>
+<img alt="tailwind.png" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Ftailwind.png" width="240"/><br>
+<img alt="JUnit_5.png" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2FJUnit_5.png" width="240"/>
+<img alt="postman.png" height="80" src="https://github.com/ivakovv/Taski.pro-Back-End/blob/main/docs/pics%2Fpostman.png" width="240"/><br>
 
-## Add your files
+<a name = "docs"/>
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+# Документация
 
-```
-cd existing_repo
-git remote add origin https://gitlab.com/liza.antipa/yazikochesalna.git
-git branch -M main
-git push -uf origin main
-```
 
-## Integrate with your tools
+## Архитектура
+[Архитектура системы]()
 
-- [ ] [Set up project integrations](https://gitlab.com/liza.antipa/yazikochesalna/-/settings/integrations)
+## Документация API
 
-## Collaborate with your team
+[АPI]()
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+## UML-диаграммы 
 
-## Test and Deploy
+[UseCase-диаграмма системы]()
 
-Use the built-in continuous integration in GitLab.
+## Базы данных
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+[Модель]() баз данных
 
-***
+<a name = "deploy"/>
 
-# Editing this README
+# Развертывание
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+**Важное**\
+Данный репозиторий содержит backend-часть приложения.\
+frontend хранится по [ссылке]()
 
-## Suggestions for a good README
+## Локальное развертывание
+### Основная система
+1. Скачайте данный репозиторий командой `git clone `
+2. Скачайте репозиторий веб-приложения командой `git clone `
+3. Из папки проекта yazikochesalna запустите контейнеры Docker командой `docker compose up -d`
+4. Запустите приложение командой ``
+5. Из папки проекта taski-pro-frontend запустите приложение командами `npm i`, `npm run dev`
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
 
-## Name
-Choose a self-explaining name for your project.
+### Настройка бота
+Бот - это внешний пользователь системы. Он подключатеся по вебсокету, используя свой балансир
+1. Зарегистрируйте бота как пользователя (через интерфейс или другим удобным способом)
+\- не забудьте указать учетные данные в `.env - файле` или `application.properties`
+2. Скачайте репозиторий командой 
+2. Из папки проекта YazikochesalnaBot запустите приложение командой ``
+3. Ищите бота по указанному никнейму и пользуйтесь с юмором!
+<a name = "team"/>
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+## CI/CD
+Данный проект работал при поддержке раннеров GitLab-CI
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+Для деплоя средствами GitHub и других ньюансов, пожалуйста, свяжитесь с DevOps-инженером 
+Никитой Шапошниковым ([GitHub](https://github.com/Nikita22007), [Телеграм](https://t.me/Nikita22007))
+ 
+# Умельцы
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+[Лиза Антипатрова](https://github.com/LizaAntipatrova) - Backend, DevOps, SA
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+[Никита Шапошников](https://github.com/Nikita22007) - Backend, DevOps
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+[Наташа Макушкина](https://github.com/Nathalie-mac) - SA, Backend
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+[Ирина Хрусталева](https://github.com/rubberPlant256) - Backend
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+[Вова Жильцов](https://github.com/Vladimirzhil) - Frontend, UI
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+[Никита Сахаров](https://github.com/NikitaSah18) - Frontend, UI
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+[Дима Брякин](https://github.com/razondark) - воевода, начальник, держатель сервера
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+💛☀️🌴Т-Банк, проектная мастерская, лето 2025🧋💛
