@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: your_name
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: low_username
+                  type: VARCHAR(255)
+                  remarks: "Username in lowercase for case-insensitive search"
+        - sql:
+            sql: "UPDATE users SET low_username = LOWER(username)"
+        - addUniqueConstraint:
+            tableName: users
+            columnNames: low_username
+            constraintName: pupupu
+        - addNotNullConstraint:
+            tableName: users
+            columnName: low_username
+            constraintName: pupupup

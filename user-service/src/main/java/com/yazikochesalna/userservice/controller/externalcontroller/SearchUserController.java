@@ -1,7 +1,10 @@
 package com.yazikochesalna.userservice.controller.externalcontroller;
 
+import com.yazikochesalna.userservice.data.entity.UserElasticsearch;
 import com.yazikochesalna.userservice.data.entity.Users;
+import com.yazikochesalna.userservice.dto.ElasticsearchResponseDTO;
 import com.yazikochesalna.userservice.dto.ExternalSearchDTO;
+import com.yazikochesalna.userservice.service.externalservice.ElasticsearchService;
 import com.yazikochesalna.userservice.service.externalservice.UserSearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,7 +25,20 @@ import java.util.List;
 public class SearchUserController {
 
     private final UserSearchService userSearchService;
+    private final ElasticsearchService elasticsearchService;
 
+    @GetMapping("/elasticsearch")
+    @Operation(summary = "Получить пользователей по userName, фио", description = "Возвращает максимум 40 первых пользователей")
+    public ElasticsearchResponseDTO searchUsers(
+            @RequestParam("query")
+            @NotBlank
+            String query) {
+        List<UserElasticsearch> findUsers = elasticsearchService.searchUsers(query);
+
+        return new ElasticsearchResponseDTO(findUsers);
+    }
+
+    // не будет использоваться
     @GetMapping("/search")
     @Operation(summary = "Получить пользователей по userName", description = "Возвращает максимум 40 первых пользователей")
     public ResponseEntity<ExternalSearchDTO> searchUsersByUsername(
@@ -31,9 +47,8 @@ public class SearchUserController {
             String usernamePrefix) {
 
         List<Users> users = userSearchService.findUserIdsByUsernameStartsWith(usernamePrefix);
-        ExternalSearchDTO searchDTO = new ExternalSearchDTO(users);
 
-        return ResponseEntity.ok(searchDTO);
+        return ResponseEntity.ok(new ExternalSearchDTO(users));
     }
 
 }

@@ -70,6 +70,8 @@ stages:
     # Применяем манифесты с помощью kustomize
     - kubectl -n messenger get secret gitlab-regcred && kubectl -n messenger delete secret gitlab-regcred || true
     - kubectl -n messenger apply -k .
+    # Перезапускаем сервисы для обновления образов
+    - kubectl rollout restart deployments -n messenger
 
 # --- Определяем job для каждого сервиса --- #
 build-authorization-service:
@@ -131,8 +133,8 @@ build-frontend:
     # Убираем временные файлы
     - rm -rf messenger-front
     # Замена всех localhost:порт на ваш домен
-    - sed -i 's|http://localhost:808[01235]|https://xn--80ajfmhmdz6cwbs0al.xn--p1ai|g' $(find . -type f -name "*.ts" -o -name "*.js" -o -name "*.tsx" -o -name "*.jsx" -o -name "*.json")
-    - sed -i 's|ws://localhost:808[01235]|wss://xn--80ajfmhmdz6cwbs0al.xn--p1ai|g' $(find . -type f -name "*.ts" -o -name "*.js" -o -name "*.tsx" -o -name "*.jsx" -o -name "*.json")
+    - sed -i 's|http://localhost:808[0123456789]|https://xn--80ajfmhmdz6cwbs0al.xn--p1ai|g' $(find . -type f -name "*.ts" -o -name "*.js" -o -name "*.tsx" -o -name "*.jsx" -o -name "*.json")
+    - sed -i 's|ws://localhost:808[0123456789]|wss://xn--80ajfmhmdz6cwbs0al.xn--p1ai|g' $(find . -type f -name "*.ts" -o -name "*.js" -o -name "*.tsx" -o -name "*.jsx" -o -name "*.json")
     # Устанавливаем зависимости и собираем проект
     - npm ci
     - npm run build

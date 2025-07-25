@@ -27,6 +27,8 @@ spec:
       labels:
         app: postgres-users
     spec:
+      imagePullSecrets:
+        - name: dockerhub-regcred-secret
       terminationGracePeriodSeconds: 70
       containers:
         - name: postgres-users

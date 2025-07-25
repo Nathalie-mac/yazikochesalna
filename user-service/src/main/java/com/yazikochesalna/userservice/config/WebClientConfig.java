@@ -3,6 +3,7 @@ package com.yazikochesalna.userservice.config;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +19,9 @@ public class WebClientConfig {
 
     @Value("${authorization.service.url}")
     private String authServiceUrl;
+
+    @Value("${messaging.service.url}")
+    private String messagingServiceUrl;
 
     @Bean
     public WebClient.Builder webClientBuilder() {
@@ -36,6 +40,13 @@ public class WebClientConfig {
     public WebClient authServiceWebClient(WebClient.Builder webClientBuilder) {
         return webClientBuilder
                 .baseUrl(authServiceUrl)
+                .build();
+    }
+
+    @Bean
+    public WebClient messagingServiceWebClient(WebClient.Builder webClientBuilder) {
+        return webClientBuilder
+                .baseUrl(messagingServiceUrl)
                 .build();
     }
 }

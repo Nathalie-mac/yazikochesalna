@@ -33,7 +33,7 @@ public class UserProfileController {
     }
 
     @GetMapping("/me")
-    @Operation(summary = "Получить личный профиль по id из jwt", description = "Возвращает userName и login пользователя")
+    @Operation(summary = "Получить личный профиль по id из jwt", description = "Возвращает данные пользователя")
     public ResponseEntity<PersonalProfileDTO> getPersonalProfile (HttpServletRequest request)
             throws ServiceUnavailableException{
 

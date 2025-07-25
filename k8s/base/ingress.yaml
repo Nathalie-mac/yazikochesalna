@@ -19,6 +19,15 @@ spec:
   - host: xn--80ajfmhmdz6cwbs0al.xn--p1ai
     http:
       paths:
+      # File Service
+      - path: /api/v1/files
+        pathType: Prefix
+        backend:
+          service:
+            name: file-service
+            port:
+              number: 8086
+
       # Auth Service
       - path: /api/v1/auth
         pathType: Prefix

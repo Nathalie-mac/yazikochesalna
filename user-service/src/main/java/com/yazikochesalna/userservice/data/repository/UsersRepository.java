@@ -18,7 +18,7 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
 
     Optional<Users> findById (long id);
 
-    @Query("SELECT u FROM Users u WHERE u.username LIKE :prefix%")
+    @Query("SELECT u FROM Users u WHERE u.low_username LIKE :prefix%")
     List<Users> findUserIdsByUsernameStartingWith(@Param("prefix") String prefix,
                                                  Pageable pageable);
 
@@ -30,5 +30,7 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
     @Modifying
     @Query("UPDATE Users u SET u.fileUuid = :fileUuid WHERE u.id = :userId")
     void updateFileUuid(@Param("userId") Long userId, @Param("fileUuid") UUID fileUuid);
+
+    boolean existsByUsernameAndIdNot(String username, Long id);
 
 }

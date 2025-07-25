@@ -21,6 +21,6 @@ public class UserSearchService {
     public List<Users> findUserIdsByUsernameStartsWith(String usernamePrefix) {
         // Используем Pageable для ограничения количества результатов (максимум 40)
         Pageable limit = Pageable.ofSize(numberFoundUsers);
-        return usersRepository.findUserIdsByUsernameStartingWith(usernamePrefix, limit);
+        return usersRepository.findUserIdsByUsernameStartingWith(usernamePrefix.toLowerCase(), limit);
     }
 }

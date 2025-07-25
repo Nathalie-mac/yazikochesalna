@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elasticsearch-users-search
+  labels:
+    app: elasticsearch-users-search
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticsearch-users-search
+  template:
+    metadata:
+      labels:
+        app: elasticsearch-users-search
+    spec:
+      imagePullSecrets:
+        - name: dockerhub-regcred-secret
+      containers:
+        - name: elasticsearch-users-search
+          image: elasticsearch:8.12.0
+          envFrom:
+            - configMapRef:
+                name: elasticsearch-users-search-config
+          ports:
+            - containerPort: 9200
+              protocol: TCP
+          volumeMounts:
+            - name: es-data
+              mountPath: /usr/share/elasticsearch/data
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 9200
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 9200
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 10
+            failureThreshold: 5
+      volumes:
+        - name: es-data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-users-search
+spec:
+  selector:
+    app: elasticsearch-users-search
+  ports:
+    - protocol: TCP
+      port: 9200
+      targetPort: 9200
