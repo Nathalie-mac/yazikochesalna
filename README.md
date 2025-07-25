@@ -62,7 +62,7 @@
 
 
 ## Архитектура
-[Архитектура системы]()
+[Архитектура системы](https://github.com/Nathalie-mac/yazikochesalna/blob/main/docs/schemas/arch.md)
 
 ## Документация API
 
